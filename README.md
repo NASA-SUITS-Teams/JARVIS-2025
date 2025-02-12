@@ -12,7 +12,7 @@ We are developing the Pressurized Rover display and control system and the inter
 Our directory structure will contain folders for each major feature we develop, which are as follows. 
 
 |Feature|Description|
-| :--- | --- |
+| :---: | --- |
 |Pathfinding|*Using A**, *Turnaround Point implementation*|
 |LLM|*Serving as an assistant of sorts 'Jarvis' for JARVIS*|
 |LiDAR|*Using Echolocation with Lazers to provide 3D visualization from point cloud*|
