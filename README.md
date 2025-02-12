@@ -13,4 +13,4 @@ Our directory structure will contain folders for each major feature we develop, 
 
 |Feature|Description|
 | :--- | --- |
-|'Pathfinding'|Using A*|
+|Pathfinding|*Using A**|
