@@ -2,7 +2,8 @@
 
 <h2>Introduction!</h2>
 Hello everyone! We are Team JARVIS from Purdue University and Indiana State University. 
-We highly encourage you to watch our [introduction video](https://www.youtube.com/watch?v=eUtbqF5x5as) to learn more about us!
+We highly encourage you to watch our <a href="https://www.youtube.com/watch?v=eUtbqF5x5as">introduction video</a> to learn more about us! 
+
 
 We are developing the Pressurized Rover display and control system and the interoperability system to communicate data with our partner team, Aether-Net, at UT Austin. 
 
