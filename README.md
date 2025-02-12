@@ -18,6 +18,6 @@ Our directory structure will contain folders for each major feature we develop, 
 |LiDAR|*Using Echolocation with Lazers to provide 3D visualization from point cloud*|
 |Controller|*Xbox Controller piping commands to TSS and to DUST*|
 |Task Priority Queue|*Taking resource consumption and task priorities (L, M, H) and suggesting a task queue*|
-|Resource consumption|*Predicting future resource use*|
+|Resource consumption and Turnaround Points|*Predicting future resource use, and how that affects the paths the rover is able to take*|
 |UI/PR Display|*Maps, Tracking EV Locations (take data thru LunarLink), Pin System, Path Features, Topographical Data, Toggle multiple maps/different features*|
 
