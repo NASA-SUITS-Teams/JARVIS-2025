@@ -17,7 +17,7 @@ Our directory structure will contain folders for each major feature we develop, 
 |LLM||
 |LiDAR|*Using Echolocation with Lazers*|
 |Controller|*Xbox Controller piping commands to TSS and to DUST*|
-|Task Priority Queue||
-|Resource consumption|Predicting future resource use|
-|UI|Maps, Tracking EV Locations (take data thru LunarLink), Pin System, Path Features, Topographical Data, Toggle multiple maps|
+|Task Priority Queue|*Taking resource consumption and task priorities (L, M, H) and suggesting a task queue*|
+|Resource consumption|*Predicting future resource use*|
+|UI/PR Display|*Maps, Tracking EV Locations (take data thru LunarLink), Pin System, Path Features, Topographical Data, Toggle multiple maps/different features*|
 
