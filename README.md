@@ -13,9 +13,11 @@ Our directory structure will contain folders for each major feature we develop, 
 
 |Feature|Description|
 | :--- | --- |
-|Pathfinding|*Using A**, *Turnaround Point inmplementation*|
+|Pathfinding|*Using A**, *Turnaround Point implementation*|
 |LLM||
 |LiDAR|*Using Echolocation with Lazers*|
-|Controller|*XBox Controller piping commands to TSS and to DUST*|
+|Controller|*Xbox Controller piping commands to TSS and to DUST*|
 |Task Priority Queue||
+|Resource consumption|Predicting future resource use|
+|UI|Maps, Tracking EV Locations (take data thru LunarLink), Pin System, Path Features, Topographical Data, Toggle multiple maps|
 
