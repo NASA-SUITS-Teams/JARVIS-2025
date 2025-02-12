@@ -13,4 +13,9 @@ Our directory structure will contain folders for each major feature we develop, 
 
 |Feature|Description|
 | :--- | --- |
-|Pathfinding|*Using A**|
+|Pathfinding|*Using A**, *Turnaround Point inmplementation*|
+|LLM||
+|LiDAR|*Using Echolocation with Lazers*|
+|Controller|*XBox Controller piping commands to TSS and to DUST*|
+|Task Priority Queue||
+
