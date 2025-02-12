@@ -14,7 +14,7 @@ Our directory structure will contain folders for each major feature we develop, 
 |Feature|Description|
 | :---: | --- |
 |Pathfinding|*Using A**, *Turnaround Point implementation*|
-|LLM|*Serving as an assistant of sorts 'Jarvis' for JARVIS*|
+|LLM|*Serving as an assistant of sorts; 'Jarvis' for JARVIS, a bit like "Hey Siri", but responds to "Hey Jarvis"*|
 |LiDAR|*Using Echolocation with Lazers to provide 3D visualization from point cloud*|
 |Controller|*Xbox Controller piping commands to TSS and to DUST*|
 |Task Priority Queue|*Taking resource consumption and task priorities (L, M, H) and suggesting a task queue*|
