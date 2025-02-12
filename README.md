@@ -10,6 +10,7 @@ We are developing the Pressurized Rover display and control system and the inter
 
 <h2>Directory Structure:</h2>
 Our directory structure will contain folders for each major feature we develop, which are as follows. 
+
 |Feature|Description|
 | :--- | --- |
 
