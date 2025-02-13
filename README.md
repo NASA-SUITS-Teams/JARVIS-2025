@@ -10,6 +10,10 @@ We are developing the Pressurized Rover display and control system and the inter
 
 ![image](https://github.com/user-attachments/assets/da772551-8945-4ebb-ba80-eae0d389823f)
 
+Our Glorious Captain:
+
+![image](https://github.com/user-attachments/assets/450ef85b-8cca-4c2a-8111-e3ee0e1512c0)
+
 
 <h2>Directory Structure:</h2>
 Our directory structure will contain folders for each major feature we develop, which are as follows. 
