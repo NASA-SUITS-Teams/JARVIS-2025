@@ -8,7 +8,7 @@ We highly encourage you to watch our <a href="https://www.youtube.com/watch?v=eU
 
 We are developing the Pressurized Rover display and control system and the interoperability system to communicate data with our partner team, Aether-Net, at UT Austin. 
 
-![image](https://github.com/user-attachments/assets/da772551-8945-4ebb-ba80-eae0d389823f)  +  <img width="155" alt="image" src="https://github.com/user-attachments/assets/acaf5316-f051-483e-acfd-776733f7ca52" />
+![image](https://github.com/user-attachments/assets/da772551-8945-4ebb-ba80-eae0d389823f)  +  <img width="200" alt="image" src="https://github.com/user-attachments/assets/acaf5316-f051-483e-acfd-776733f7ca52" />
 
 
 Our Glorious Captain:
