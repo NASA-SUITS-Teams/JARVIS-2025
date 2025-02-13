@@ -8,6 +8,9 @@ We highly encourage you to watch our <a href="https://www.youtube.com/watch?v=eU
 
 We are developing the Pressurized Rover display and control system and the interoperability system to communicate data with our partner team, Aether-Net, at UT Austin. 
 
+![image](https://github.com/user-attachments/assets/da772551-8945-4ebb-ba80-eae0d389823f)
+
+
 <h2>Directory Structure:</h2>
 Our directory structure will contain folders for each major feature we develop, which are as follows. 
 
