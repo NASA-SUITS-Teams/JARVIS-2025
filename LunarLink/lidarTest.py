@@ -31,7 +31,7 @@ def get_tss_data(clientSocket,
 	if tstamp == 'now':
 		tstamp = int(time.time())
 
-	clientSocket.sendto(tstamp.to_bytes(4) + cmd_num.to_bytes(4) + struct.pack('>f', input_data), addr)
+	clientSocket.sendto(tstamp.to_bytes(4) + cmd_num.to_bytes(4), addr)
 	data, server = clientSocket.recvfrom(1024)
 	print("Received", len(data), "bytes")  # This line prints the number of bytes
 	return parse_tss_response(data, cmd_num=cmd_num)
