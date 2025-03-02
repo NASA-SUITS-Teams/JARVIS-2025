@@ -9,7 +9,7 @@ PORT = 14141
 def parse_tss_response(data, cmd_num):
     id1 = int.from_bytes(data[:4])
     id2 = int.from_bytes(data[4:8])
-    floats = 0;
+    floats = 0
     # Unpack 13 floats from the remaining data (13 * 4 bytes)
     if (cmd_num == 167): # this is to check for lidar command 
         print("HERE")
