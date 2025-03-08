@@ -22,7 +22,7 @@ class TaskPriorityQueue:
         self.power = 7
         
 
-    # task_data = (priority, oxygen_req, power_req)
+    # task_data = (priority, oxygen_req, power_req, distance_to_task)
     def calculate_weight(self, task_data):
         """Return the corresponding weight for the task."""
 
@@ -43,6 +43,12 @@ class TaskPriorityQueue:
             raise ValueError(f"Unknown task priority: {task_data[0]}")
         
         # TODO: Add in weight calculation for distance to task
+        if task_data[3] <= 5:
+            weight += 4
+            weight += 1 - task_data[3]/5
+        elif task_data[3] <= 10:
+            weight += 2
+            weight += 1 - task_data[3]/10
         
         return weight
     
@@ -104,9 +110,9 @@ class TaskPriorityQueue:
 
 # Example data_map structure - each task corresponds to a tuple containing (priority, required oxygen, required power):
 data_map = {
-    "Task A": ("high", 10, 10),
-    "Task B": ("medium", 1, 4),
-    "Task C": ("low", 2, 5),
+    "Task A": ("high", 10, 10, 7),
+    "Task B": ("medium", 1, 4, 4),
+    "Task C": ("low", 2, 5, 1),
 }
 
 # Create an instance of TaskPriorityQueue
