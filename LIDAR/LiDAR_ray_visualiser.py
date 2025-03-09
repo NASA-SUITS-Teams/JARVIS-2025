@@ -18,7 +18,6 @@ sensors = {
     12: (-135, 160, 15, 40, 0),
 }
 
-
 def deg_to_rad(degrees):
     return np.radians(degrees)
 
