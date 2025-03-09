@@ -7,8 +7,8 @@ URL = "data.cs.purdue.edu"
 PORT = 14141
 
 def parse_tss_response(data, cmd_num):
-	time = int.from_bytes(data[:4])
-	commandNum = int.from_bytes(data[4:8])
+	time = int.from_bytes(data[:4],byteorder="big")
+	commandNum = int.from_bytes(data[4:8],byteorder="big")
 	floats = 0
 	# Unpack 13 floats from the remaining data (13 * 4 bytes)
 	if (cmd_num == 167): # this is to check for lidar command 
@@ -31,7 +31,7 @@ def get_tss_data(clientSocket,
 	if tstamp == 'now':
 		tstamp = int(time.time())
 
-	clientSocket.sendto(tstamp.to_bytes(4) + cmd_num.to_bytes(4), addr)
+	clientSocket.sendto(tstamp.to_bytes(4, byteorder="big") + cmd_num.to_bytes(4,byteorder="big"), addr)
 	data, server = clientSocket.recvfrom(1024)
 	print("Received", len(data), "bytes")  # This line prints the number of bytes
 	return parse_tss_response(data, cmd_num=cmd_num)
