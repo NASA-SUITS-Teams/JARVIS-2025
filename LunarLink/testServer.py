@@ -8,17 +8,22 @@ sock = socket.socket(socket.AF_INET,
 sock.bind((UDP_IP, UDP_PORT))
 
 # make a global array of ip addresses connected
+ipAddresses = set() 
+
 while True:
     data, addr = sock.recvfrom(1024) # buffer size is 1024 bytes
     print(f"received message: {data}")
 
-    # code to recieve
+    ipAddresses.add(addr) # 0(1) by the way for duplication checking
 
+
+    # code to recieve
     timeStamp = int.from_bytes(data[:4], byteorder='big') 
     cmdNum = int.from_bytes(data[4:8], byteorder='big') #
     inputNum = struct.unpack('>f', data[8:12])[0] # their output data
 
-
+    if cmdNum == 200:
+        continue # received starter message to put in array
 
 
     print("Server got this ")
@@ -35,6 +40,12 @@ while True:
     )
 
     # make a one - liner to get other ip address
+    sent = None
+    for address in ipAddresses:
+        if address != addr:
+            sent = address
+            break
 
-    sock.sendto(data, (UDP_IP, UDP_PORT))
+
+    sock.sendto(data, sent)
     print(f"Sent data {data}")
