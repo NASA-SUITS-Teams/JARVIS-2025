@@ -18,8 +18,8 @@ class TaskPriorityQueue:
         self.weight_map = {"Return to Rover" : 0}
 
         # Properties to keep track of leftover oxygen and power
-        self.oxygen = 7
-        self.power = 7
+        self.oxygen = 1
+        self.power = 1
         
 
     # task_data = (priority, oxygen_req, power_req, distance_to_task)
@@ -49,7 +49,7 @@ class TaskPriorityQueue:
         elif task_data[3] <= 10:
             weight += 2
             weight += 1 - (task_data[3] - 5)/5
-            
+
         return weight
     
     def add_task(self, task_name, weight):
@@ -110,9 +110,9 @@ class TaskPriorityQueue:
 
 # Example data_map structure - each task corresponds to a tuple containing (priority, required oxygen, required power, distance to task):
 data_map = {
-    "Task A": ("high", 10, 10, 7),
-    "Task B": ("medium", 1, 4, 4),
-    "Task C": ("low", 2, 5, 1),
+    "Task A": ("high", .1, .1, 7),
+    "Task B": ("medium", .01, .04, 4),
+    "Task C": ("low", .02, .05, 1),
 }
 
 # Create an instance of TaskPriorityQueue
