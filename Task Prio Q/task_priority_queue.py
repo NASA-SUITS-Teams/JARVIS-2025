@@ -48,8 +48,8 @@ class TaskPriorityQueue:
             weight += 1 - task_data[3]/5
         elif task_data[3] <= 10:
             weight += 2
-            weight += 1 - task_data[3]/10
-        
+            weight += 1 - (task_data[3] - 5)/5
+            
         return weight
     
     def add_task(self, task_name, weight):
@@ -108,7 +108,7 @@ class TaskPriorityQueue:
     
 # Example usage:
 
-# Example data_map structure - each task corresponds to a tuple containing (priority, required oxygen, required power):
+# Example data_map structure - each task corresponds to a tuple containing (priority, required oxygen, required power, distance to task):
 data_map = {
     "Task A": ("high", 10, 10, 7),
     "Task B": ("medium", 1, 4, 4),
