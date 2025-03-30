@@ -45,7 +45,7 @@ class Controller:
             lt = (self.controller.get_axis(4) + 1) / 2  # LT (0 to 1)
             rt = (self.controller.get_axis(5) + 1) / 2  # RT (0 to 1)
 
-            up = self.controller.get_button(5)
+            up = self.controller.get_button(5) # RB (0 to 1)
 
             # Throttle and Brake
             if rt > 0.1 and rt != 0.5:
@@ -56,7 +56,6 @@ class Controller:
                 send_command(COMMANDS["brake"], 0)
 
             # throttling with deadzone
-            print(up)
             if (up > 0.1):
                 send_command(COMMANDS["throttle"], -100)
 
