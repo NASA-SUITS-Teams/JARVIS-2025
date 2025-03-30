@@ -11,12 +11,14 @@ while True:
         with sr.Microphone() as source:
             r.adjust_for_ambient_noise(source, duration=0.2)
 
+            print('Listening...')
             audio = r.listen(source)
 
             audio_data = audio.get_wav_data()
 
             audio_file = BytesIO(audio_data)
 
+            print('Processing...')
             segments, _ = model.transcribe(audio_file)
 
             text = ""
@@ -24,6 +26,7 @@ while True:
                 text += segment.text
 
             print(text)
+            print()
 
     except sr.RequestError as e:
         print("Error:", e)
