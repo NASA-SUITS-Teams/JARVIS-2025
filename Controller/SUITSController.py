@@ -9,7 +9,7 @@ COMMANDS = {
     "throttle": 1109, # -100 to 100
     "steering": 1110 # -100 to 100
 }
-URL = "data.cs.purdue.edu"
+URL = "128.10.2.13"
 PORT = 14141
 
 # Initialize UDP socket
@@ -39,12 +39,13 @@ class Controller:
         self.deadzone = 0.5  # Deadzone to ignore small joystick movements
 
     def handle_input(self):
-        speed = 50
         if self.controller:
             axis_y = self.controller.get_axis(1)  # throttle (-100 to 100)
             axis_x = self.controller.get_axis(0)  # Steering (-1 to 1)
             lt = (self.controller.get_axis(4) + 1) / 2  # LT (0 to 1)
             rt = (self.controller.get_axis(5) + 1) / 2  # RT (0 to 1)
+
+            up = self.controller.get_button(5)
 
             # Throttle and Brake
             if rt > 0.1 and rt != 0.5:
@@ -55,11 +56,12 @@ class Controller:
                 send_command(COMMANDS["brake"], 0)
 
             # throttling with deadzone
-            if axis_y > self.deadzone:
-                send_command(COMMANDS["throttle"], -speed)
+            print(up)
+            if (up > 0.1):
+                send_command(COMMANDS["throttle"], -100)
 
             elif abs(axis_y) > self.deadzone:
-                send_command(COMMANDS["throttle"], speed)
+                send_command(COMMANDS["throttle"], 100)
 
             # steering with deadzone
             if abs(axis_x) > self.deadzone:
@@ -81,12 +83,10 @@ while running:
             send_command(COMMANDS["steering"], 0)
 
             running = False
-
     controller.handle_input()
     clock.tick(40)
 
 pygame.quit()
 udp_client.close()
-
 
 
