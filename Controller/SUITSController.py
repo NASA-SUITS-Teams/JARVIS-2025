@@ -1,3 +1,15 @@
+"""
+CURRENT ISSUES:
+
+1. Braking does not work -- most likely on NASA's end, commands are being sent.
+2. Lighting -- cannot see in some areas, add lights to rover?
+3. Reversing?
+    - Cannot send (throttle, -100), then (throttle, 100) or vice versa. Rover will come to a complete stop, and no other commands work despite being sent.
+4. If command (throttle, 100) is sent and then (throttle, 0) the rover will go indefinately maintain speed of (throttle, 100); could be issue with code, but I think it is a similar issue as 3.
+5. No commands sent, but when menu button is hit on controller, rover jumps forward.
+6. Is throttle acceleration or speed.
+"""
+
 import pygame
 import socket
 import struct
@@ -45,7 +57,7 @@ class Controller:
             lt = (self.controller.get_axis(4) + 1) / 2  # LT (0 to 1)
             rt = (self.controller.get_axis(5) + 1) / 2  # RT (0 to 1)
 
-            up = self.controller.get_button(5)
+            up = self.controller.get_button(5) # RB (0 to 1)
 
             # Throttle and Brake
             if rt > 0.1 and rt != 0.5:
@@ -56,7 +68,6 @@ class Controller:
                 send_command(COMMANDS["brake"], 0)
 
             # throttling with deadzone
-            print(up)
             if (up > 0.1):
                 send_command(COMMANDS["throttle"], -100)
 
