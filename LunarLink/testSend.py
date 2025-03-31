@@ -1,44 +1,24 @@
 import socket
-import struct
-import time
+import json
 
 UDP_IP = "127.0.0.1"
 UDP_PORT = 5005
-MESSAGE = b"Hi Benji!"
 
-print(f"UDP target IP: {UDP_IP}")
-print(f"UDP target port: {UDP_PORT}")
-print(f"message: {MESSAGE}")
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # INTERNET, sUDP
+# Send update
+message = {  # update format to update tpq or command num
+    "action": "update",
+    "tpq": {"scan rocks": 1},
+    "commandUpdate": {
+        "commandNum": 50,
+        "value": 50
+    }
+}
+sock.sendto(json.dumps(message).encode('utf-8'), (UDP_IP, UDP_PORT))
 
-
-timeStamp = int(time.time()) #starter send to be in global list of IP's -1 is ignored
-cmdNum = 200
-inputData = 200 
-
-data = (
-    timeStamp.to_bytes(4, byteorder='big') +
-    cmdNum.to_bytes(4, byteorder='big') +
-    struct.pack('>f', inputData)
-)
-
-sock.sendto(data, (UDP_IP, UDP_PORT))
-
-# In global list of IP's now 
-
-
-#actual command after this
-timeStamp = int(time.time()) # time stamp for command same as tss
-cmdNum = 165 # command number same as tss as well
-inputData = 1 # input data same as tss
-
-data = (
-    timeStamp.to_bytes(4, byteorder='big') +
-    cmdNum.to_bytes(4, byteorder='big') +
-    struct.pack('>f', inputData)
-)
-
-sock.sendto(data, (UDP_IP, UDP_PORT))
-print(f"Sent data {data}")
-
+# Request full state
+sock.sendto(json.dumps({"action": "get"}).encode('utf-8'), (UDP_IP, UDP_PORT))
+data, addr = sock.recvfrom(4096)
+jsonFile = json.loads(data.decode('utf-8'))
+print("State:", jsonFile.get("tpq"))
