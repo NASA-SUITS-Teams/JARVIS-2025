@@ -3,7 +3,7 @@ import numpy as np
 import sounddevice as sd
 import speech_recognition as sr
 
-DEBUG = False
+DEBUG = True
 
 def calibrate_recognizer(recognizer):
     if DEBUG:
@@ -12,21 +12,19 @@ def calibrate_recognizer(recognizer):
     with sr.Microphone() as source:
         recognizer.adjust_for_ambient_noise(source)
 
-def get_audio_data(recognizer):
+def get_audio_data(recognizer, phrase_time_limit=None):
     if DEBUG:
         print('Listening...')
 
     with sr.Microphone() as source:
-        audio = recognizer.listen(source)
+        audio = recognizer.listen(source, phrase_time_limit=phrase_time_limit)
 
         audio_data = audio.get_wav_data()
 
         return audio_data
 
 
-def get_text_from_audio(recognizer, transcribe_model):
-
-    audio_data = get_audio_data(recognizer)
+def get_text_from_audio(audio_data, transcribe_model):
 
     audio_file = BytesIO(audio_data)
 

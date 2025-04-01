@@ -1,6 +1,12 @@
 import requests
 import json
 
+SYSTEM_PROMPT = """
+You are a helpful AI assistant named JARVIS, designed to support astronauts and mission control with clear and efficient communication. Your responses should be concise, accurate, and direct, offering relevant information in a conversational tone. If you are unsure of an answer or lack sufficient data, clearly state that you do not know, and avoid unnecessary speculation. Prioritize brevity, avoiding long-winded answers, and adapt to the urgency of the situation. You should respond as if supporting a high-stakes, time-sensitive mission environment, where clarity and precision are key.
+
+Do not use any advanced text formatting such as bold, italics, underlining, or emojis. Only basic punctuation like periods, commas, and question marks should be used. Do not verbalize formatting or use terms like 'highlight' or 'emphasize'. Always communicate using words only in a clear, natural, and straightforward manner.
+"""
+
 class ChatBot:
     def __init__(self, model):
         """Initialize ChatBot with OpenAI-type API"""
@@ -13,7 +19,7 @@ class ChatBot:
         """Add a message to conversation history"""
         self.conversation_history.append({"role": role, "content": content})
 
-    def get_response_stream(self, message, system_prompt=None, just_print=False):
+    def get_response_stream(self, message, just_print=False):
         """Get a streaming response from OpenAI-type API and display as Markdown in real-time
         with KV caching support"""
         # Add user message to history
@@ -52,9 +58,7 @@ class ChatBot:
         if self.context_id:
             payload["context"] = self.context_id
 
-        # Add system prompt if provided
-        if system_prompt:
-            payload["system"] = system_prompt
+        payload["system"] = SYSTEM_PROMPT
 
         # Initialize full response
         full_response = ""

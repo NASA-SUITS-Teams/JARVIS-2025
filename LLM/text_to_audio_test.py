@@ -1,10 +1,11 @@
-import numpy as np
-import sounddevice as sd
 from TTS.api import TTS
+
+from utils.audio import say
 
 tts = TTS("tts_models/en/vctk/vits")
 
-audio_data = tts.tts("Good morning @channel! See you all at the meeting today at 12:30!", 'p230')
+while True:
 
-sd.play(np.array(audio_data), samplerate=22050)
-sd.wait()
+    response = input('Type something to say: ')
+
+    say(tts, response)
