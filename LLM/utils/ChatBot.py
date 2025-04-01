@@ -49,7 +49,7 @@ class ChatBot:
             "stream": True,
             "options": {
                 "temperature": 0.6,  # Temperature parameter of softmax
-                "num_ctx": 4096,  # Context window size in tokens
+#                "num_ctx": 4096,  # Context window size in tokens
                 "num_predict": 4096  # Max tokens to predict
             }
         }
