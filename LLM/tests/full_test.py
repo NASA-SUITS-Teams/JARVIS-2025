@@ -1,4 +1,3 @@
-# pip install coqui-tts
 from TTS.api import TTS
 import speech_recognition as sr
 from faster_whisper import WhisperModel
