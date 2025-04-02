@@ -1,40 +1,61 @@
 import socket
-import struct
+import json
+import export
 
 UDP_IP = "127.0.0.1"
 UDP_PORT = 5005
-sock = socket.socket(socket.AF_INET,
-                   socket.SOCK_DGRAM)
+EXPORT_FILE = "lunarLink.json"
+
+
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.bind((UDP_IP, UDP_PORT))
 
-# make a global array of ip addresses connected
+
+# global set of ip addresses
+ipAddresses = set()
+
+jsonFile = export.ExportFormat() # initializes the json file with tpq being an emtpy dicitionary and command array of 166 entries of invalid value of 200 for now
+
+
 while True:
-    data, addr = sock.recvfrom(1024) # buffer size is 1024 bytes
-    print(f"received message: {data}")
+    #look for json files being sent from client here to update main one here    
+    # update and send new data that is requested from clients
+    data, addr = sock.recvfrom(4096)
 
-    # code to recieve
+    ipAddresses.add(addr)
 
-    timeStamp = int.from_bytes(data[:4], byteorder='big') 
-    cmdNum = int.from_bytes(data[4:8], byteorder='big') #
-    inputNum = struct.unpack('>f', data[8:12])[0] # their output data
+    try:
+        message = json.loads(data.decode('utf-8'))
+        action = message.get("action")
+
+        if action == "update": # update new value in jason file
+
+            tpq_update = message.get("tpq", {})
+            jsonFile.tpq.update(tpq_update)  # update tpq
+
+            command_update = message.get("commandUpdate")
+            if command_update: # command update route
+                try:
+                    commandNum = command_update.get("commandNum")
+                    value = command_update.get("value")
+                    jsonFile.update_command(commandNum, value)
+                    print(f"[UPDATE] Updated command at commandNum {commandNum} with value {value}")
+                except Exception as e:
+                    print(f"[ERROR] Command update error: {e}")
+
+            jsonFile.save_to_file(EXPORT_FILE) # saves the file locally to save data in case of crash
+
+        elif action == "get": # get value from json file
+            sock.sendto(jsonFile.to_json().encode('utf-8'), addr)
+            print(f"[SENT] Sent current state to {addr}")
+
+        else:
+            # Invalid action
+            response = {"status": "error", "message": "Invalid action"}
+            sock.sendto(json.dumps(response).encode('utf-8'), addr)
 
 
+    except json.JSONDecodeError:
+        print(f"[ERROR] Invalid JSON received from {addr}")
+        sock.sendto(b'{"status": "error", "message": "Invalid JSON"}', addr)
 
-
-    print("Server got this ")
-    print(f"timestamp - {timeStamp}")
-    print(f"command numer {cmdNum}")
-    print(f"input Num {inputNum}")
-
-    # code to send 
-
-    data = (
-        timeStamp.to_bytes(4, byteorder='big') +
-        cmdNum.to_bytes(4, byteorder='big') +
-        struct.pack('>f', inputNum)
-    )
-
-    # make a one - liner to get other ip address
-
-    sock.sendto(data, (UDP_IP, UDP_PORT))
-    print(f"Sent data {data}")

@@ -1,10 +1,14 @@
 import requests
 import json
 
-MODEL_NAME="gemma3:1b-it-q8_0"
+SYSTEM_PROMPT = """
+You are a helpful AI assistant named JARVIS, designed to support astronauts and mission control with clear and efficient communication. Your responses should be concise, accurate, and direct, offering relevant information in a conversational tone. If you are unsure of an answer or lack sufficient data, clearly state that you do not know, and avoid unnecessary speculation. Prioritize brevity, avoiding long-winded answers, and adapt to the urgency of the situation. You should respond as if supporting a high-stakes, time-sensitive mission environment, where clarity and precision are key.
+
+Do not use any advanced text formatting such as bold, italics, underlining, or emojis. Only basic punctuation like periods, commas, and question marks should be used. Do not verbalize formatting or use terms like 'highlight' or 'emphasize'. Always communicate using words only in a clear, natural, and straightforward manner.
+"""
 
 class ChatBot:
-    def __init__(self, model=MODEL_NAME):
+    def __init__(self, model):
         """Initialize ChatBot with OpenAI-type API"""
         self.base_url = "http://localhost:11434"
         self.model = model
@@ -15,7 +19,7 @@ class ChatBot:
         """Add a message to conversation history"""
         self.conversation_history.append({"role": role, "content": content})
 
-    def get_response_stream(self, message, system_prompt=None, just_print=False):
+    def get_response_stream(self, message, just_print=False):
         """Get a streaming response from OpenAI-type API and display as Markdown in real-time
         with KV caching support"""
         # Add user message to history
@@ -45,7 +49,7 @@ class ChatBot:
             "stream": True,
             "options": {
                 "temperature": 0.6,  # Temperature parameter of softmax
-                "num_ctx": 4096,  # Context window size in tokens
+#                "num_ctx": 4096,  # Context window size in tokens
                 "num_predict": 4096  # Max tokens to predict
             }
         }
@@ -54,9 +58,7 @@ class ChatBot:
         if self.context_id:
             payload["context"] = self.context_id
 
-        # Add system prompt if provided
-        if system_prompt:
-            payload["system"] = system_prompt
+        payload["system"] = SYSTEM_PROMPT
 
         # Initialize full response
         full_response = ""
@@ -65,6 +67,9 @@ class ChatBot:
             with requests.post(url, json=payload, stream=True) as response:
 
                 # Process the streaming response line by line
+                if just_print:
+                    print("JARIVS: ", end="", flush=True)
+
                 for line in response.iter_lines():
                     if line:
                         # Parse the JSON response
@@ -75,7 +80,8 @@ class ChatBot:
                                 content = chunk["response"]
                                 full_response += content
 
-                                print(content, end="", flush=True)
+                                if just_print:
+                                    print(content, end="", flush=True)
 
                             # Store the context for KV cache persistence
                             if "context" in chunk:
@@ -85,6 +91,8 @@ class ChatBot:
                             if "done" in chunk and chunk["done"]:
                                 break
 
+            if just_print:
+                print()
 
             # Add assistant response to history
             self.add_message("assistant", full_response)
@@ -118,10 +126,3 @@ class ChatBot:
                 print(f"{role}: {message['content']}")
             print("---")
         print("\n-------------------------------\n")
-
-chatbot = ChatBot(model="gemma3:1b-it-q8_0")
-
-while True:
-    user = input('User: ')
-    response = chatbot.get_response_stream(user, "You are a helpful AI assistant named JARVIS. Answer as you would in a normal conversation in only short text with no emojis.")
-    print()
