@@ -53,19 +53,24 @@ def get_tss_data(clientSocket,
 
 
 # Now you can use the imported functions.
-def main():
+def process_lidar():
     global_points = []
     clientSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     threading.Thread(target=wait_for_exit, daemon=True).start()
+    print("Getting data...")
     while not stop_flag:
         timestamp, commandNums, floats = get_tss_data(clientSocket, cmd_num=167)
         # Update rover's yaw.
-        timestamp, commandNums, posx = get_tss_data(clientSocket, cmd_num=23)
-        timestamp, commandNums, posy = get_tss_data(clientSocket, cmd_num=24)
-        timestamp, commandNums, heading = get_tss_data(clientSocket, cmd_num=19)
-        rover_position = np.array([posx[0], posy[0], 0])  # in meters
-        rover_angles = [0, 0, heading[0]]
-        print(floats, posx, posy, heading)
+        _, _, posx = get_tss_data(clientSocket, cmd_num=128)
+        _, _, posy = get_tss_data(clientSocket, cmd_num=129)
+        _, _, posz = get_tss_data(clientSocket, cmd_num=130)
+        _, _, yaw = get_tss_data(clientSocket, cmd_num=131)
+        _, _, pitch = get_tss_data(clientSocket, cmd_num=132)
+        _, _, roll = get_tss_data(clientSocket, cmd_num=133)
+        
+        rover_position = np.array([posx[0], posy[0], posz[0]])
+        rover_angles = (roll[0], pitch[0], yaw[0]) # TODO need to check if roll, pitch, yaw is in degrees or radians
+        print(floats, posx, posy, posz, yaw, pitch, roll)
         
         # Simulate constant LIDAR sensor readings (500 cm each).
         new_points = process_lidar_readings(floats, rover_position, tuple(rover_angles))
@@ -83,50 +88,5 @@ def main():
     pcd = o3d.io.read_point_cloud("pcds/lidar_sweep.pcd")
     o3d.visualization.draw_geometries([pcd], window_name="PCD Viewer")
 
-def main2():
-    global_points = []
-    clientSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
-    # Create an Open3D Visualizer window
-    vis = o3d.visualization.Visualizer()
-    vis.create_window(window_name="Real-Time LIDAR Visualization")
-
-    # Create a point cloud geometry and add it to the Visualizer
-    pcd = o3d.geometry.PointCloud()
-    vis.add_geometry(pcd)
-
-    # Main loop to grab data, process, and update visualization
-    while True:
-        # Get LIDAR data
-        timestamp, commandNum, floats = get_tss_data(clientSocket, cmd_num=167)
-        
-        # Get rover's position/heading
-        _, _, posx = get_tss_data(clientSocket, cmd_num=23)
-        _, _, posy = get_tss_data(clientSocket, cmd_num=24)
-        _, _, heading = get_tss_data(clientSocket, cmd_num=19)
-        
-        rover_position = np.array([posx[0], posy[0], 0])  # in meters
-        rover_angles = (0, 0, heading[0])  # roll, pitch, yaw in degrees
-
-        # Convert LIDAR readings into 3D points in global frame
-        new_points = process_lidar_readings(floats, rover_position, rover_angles)
-        global_points.extend(new_points)
-
-        # Update the Open3D point cloud geometry
-        pcd.points = o3d.utility.Vector3dVector(np.array(global_points))
-
-        # Let the visualizer know we have updated the geometry
-        vis.update_geometry(pcd)
-        vis.poll_events()
-        vis.update_renderer()
-
-        time.sleep(0.25)
-
-    print("Finished capturing data, close window to exit.")
-
-    # Keep the window open until the user closes it
-    vis.run()
-    vis.destroy_window()
-
 if __name__ == '__main__':
-    main()
+    process_lidar()

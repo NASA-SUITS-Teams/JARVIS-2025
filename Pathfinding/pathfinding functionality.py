@@ -44,4 +44,9 @@ Description:
     Pathfinding will be accomplished by running an A* pathfinding algorithm on the most recently iterated graph
     with a "diagonal distance" heuristic and a cost function that factors in the distance between two neighboring
     points.
+
+    The A* pathfinding algorithm will assign a score to each path by adding the hueristic (diagonal distance) and
+    cost functions, prioritizing checking paths that minimize the score. Since our map is continually updating as the
+    rover moves, we cannot find all paths ahead of time. As a result, our agorithm will prioritize reaching the end
+    goal from the starting point, and once a path is found it wll return it before checking every possible path.
 """

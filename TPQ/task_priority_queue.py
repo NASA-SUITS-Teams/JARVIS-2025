@@ -42,7 +42,6 @@ class TaskPriorityQueue:
         else:
             raise ValueError(f"Unknown task priority: {task_data[0]}")
         
-        # TODO: Add in weight calculation for distance to task
         if task_data[3] <= 5:
             weight += 4
             weight += 1 - task_data[3]/5
@@ -60,9 +59,12 @@ class TaskPriorityQueue:
 
     def remove_task(self, task_name):
         """Remove and return the matching task from the queue."""
+        if task_name not in self.weight_map:
+            raise ValueError(f"Task '{task_name}' not found in queue")
         # Search for task and remove it
         weight = self.weight_map[task_name]
-        self.tpq_list.remove([weight, task_name])
+        self.tpq_list.remove((weight, task_name))
+        del self.weight_map[task_name]
 
         return task_name
 
@@ -70,7 +72,7 @@ class TaskPriorityQueue:
         """Return the n highest-priority tasks without removing them."""
         if self.is_empty():
             return None
-        return self.tpq_list[self.size() - n:]
+        return self.tpq_list[-n:]
 
     def is_empty(self):
         """Check if the priority queue is empty."""
