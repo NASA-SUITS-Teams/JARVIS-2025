@@ -5,7 +5,7 @@ UDP_PORT = 5005
 EXPORT_FILE = "lunarLink"
 
 class ExportFormat:
-    def __init__(self, tpq = {}, commandList = [-1] * 164):
+    def __init__(self, tpq = {}, commandList = [-1] * 165):
         self.tpq = tpq
         self.commandList = commandList
 
