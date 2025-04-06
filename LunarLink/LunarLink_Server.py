@@ -3,7 +3,7 @@ import json
 import export
 
 class LunarLink:
-    def __init__(self, ip, port): # put everything in init so it can be called opened in another file
+    def __init__(self, ip = "127.0.0.1", port = 5005): # put everything in init so it can be called opened in another file
         UDP_IP = ip
         UDP_PORT = port
         EXPORT_FILE = "lunarLink.json"
@@ -11,8 +11,9 @@ class LunarLink:
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.bind((UDP_IP, UDP_PORT))
 
-        jsonFile = export.ExportFormat() # initializes the json file with tpq being an emtpy dictionary and command array of 166 entries of invalid value of -1 for now
-    
+        jsonFile = export.ExportFormat() # initializes the json file with tpq being an emtpy dicitionary and command array of 166 entries of invalid value of 200 for now
+
+
         while True:
             #look for json files being sent from client here to update main one here    
             # update and send new data that is requested from clients
@@ -22,7 +23,7 @@ class LunarLink:
                 message = json.loads(data.decode('utf-8'))
                 action = message.get("action")
 
-                if action == "update": # update new value in json file
+                if action == "update": # update new value in jason file
 
                     tpq_update = message.get("tpq", {})
                     jsonFile.tpq.update(tpq_update)  # update tpq

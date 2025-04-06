@@ -3,7 +3,7 @@ import json
 import getTSS
 
 
-def updateRover(ip, port, TssIP, TssPort):
+def updateRover(ip = "127.0.0.1", port = 5005, TssIP = "data.cs.purdue.edu", TssPort = 14141):
     lunarSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     tssSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     #loop call tss for every rover command value and append number and value tuple into message then send
@@ -22,7 +22,7 @@ def updateRover(ip, port, TssIP, TssPort):
     
     lunarSock.sendto(json.dumps(roverMessage).encode('utf-8'), (ip, port))
 
-def updateEVA(ip, port, TssIP, TssPort):
+def updateEVA(ip = "127.0.0.1", port = 5005, TssIP = "data.cs.purdue.edu", TssPort = 14141):
 #loop call tss for every rover command value and append number and value tuple into message then send
     lunarSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     tssSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -40,7 +40,7 @@ def updateEVA(ip, port, TssIP, TssPort):
     
     lunarSock.sendto(json.dumps(EVAMessage).encode('utf-8'), (ip, port))
 
-def getData(ip, port): # returns a json file of the entire lunar link
+def getData(ip = "127.0.0.1", port = 5005): # returns a json file of the entire lunar link
     lunarSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     lunarSock.sendto(json.dumps({"action": "get"}).encode('utf-8'), (ip, port))
     data, addr = lunarSock.recvfrom(4096)

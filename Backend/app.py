@@ -1,5 +1,6 @@
 import TPQ.task_priority_queue as TPQ
 import LunarLink.LunarLink_Server as LunarLink
+import LunarLink.LunarClient as client
 import LLM.utils.ChatBot as ChatBot
 
 
@@ -12,6 +13,7 @@ tpq = TPQ.TaskPriorityQueue()
 
 # Initialize Lunar Link
 lunar_link = LunarLink.LunarLink()
+client.updateRover()
 
 @app.route('/pull_tpq/<n>', methods = ['GET'])
 def pull_tpq(n = -1):
