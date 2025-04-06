@@ -9,8 +9,12 @@ It is recommended to use a virtual environment.
 
 Run `pip install` on any imports not working. For TTS, install `coqui-tts`.
 
+With ollama, run `ollama pull gemma3:4b-it-q8_0`. The rest of the models should download on the first time running a program.
+
 
 ## How to run
+
+Make sure `ollama serve` is running in a separate terminal.
 
 To run a test, navigate to `LLM/`, then run
 ```
