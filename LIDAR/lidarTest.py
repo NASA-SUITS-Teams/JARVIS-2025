@@ -38,6 +38,12 @@ def get_tss_data(clientSocket,
 
 
 clientSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
+print("getting data....")
 timeStamp, command, floats = get_tss_data(clientSocket, cmd_num=167) # This is the command to send 
-print(floats)
+_, _, posx = get_tss_data(clientSocket, cmd_num=128)
+_, _, posy = get_tss_data(clientSocket, cmd_num=129)
+_, _, posz = get_tss_data(clientSocket, cmd_num=130)
+_, _, yaw = get_tss_data(clientSocket, cmd_num=131)
+_, _, pitch = get_tss_data(clientSocket, cmd_num=132)
+_, _, roll = get_tss_data(clientSocket, cmd_num=133)
+print(floats, posx, posy, posz, yaw, pitch, roll)

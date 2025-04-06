@@ -6,11 +6,11 @@ from langchain_ollama import OllamaEmbeddings
 
 
 EMBEDDING_MODEL = "mxbai-embed-large"
-PERSIST_DIRECTORY = "vectorstore"
+PERSIST_DIRECTORY = "vectorstore/"
 folder_path = "documents/"
 
+
 def create_vectorstore():
-    PERSIST_DIRECTORY = "vectorstore"
     folder_path = "documents/"
 
     documents = []
@@ -27,8 +27,9 @@ def create_vectorstore():
     Chroma.from_documents(
         chunks,
         OllamaEmbeddings(model=EMBEDDING_MODEL),
-        persist_directory=PERSIST_DIRECTORY
+        persist_directory=PERSIST_DIRECTORY,
     )
+
 
 def load_vectorstore():
     if not os.path.exists(PERSIST_DIRECTORY):
