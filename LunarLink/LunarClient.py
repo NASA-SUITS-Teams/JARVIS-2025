@@ -2,18 +2,19 @@ import socket
 import json
 import getTSS
 
-def updateRover(ip, port):
 
+def updateRover(ip, port, TssIP, TssPort):
     lunarSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     tssSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-#loop call tss for every rover command value and append number and value tuple into message then send
+    #loop call tss for every rover command value and append number and value tuple into message then send
 
     roverMessage = {
         "action": "update",
         "commandUpdate": []
     }
     for commandNum in range(119,167):
-        data = getTSS.get_tss_data(clientSocket=tssSock, cmd_num=commandNum)
+        #not including LIDAR command since EVA won't need that information
+        data = getTSS.get_tss_data(clientSocket=tssSock, cmd_num=commandNum, addr=(TssIP, TssPort))
         print(data)
         print(data[2][0])
         roverMessage['commandUpdate'].append((commandNum, data[2][0]))
@@ -21,7 +22,7 @@ def updateRover(ip, port):
     
     lunarSock.sendto(json.dumps(roverMessage).encode('utf-8'), (ip, port))
 
-def updateEVA(ip, port):
+def updateEVA(ip, port, TssIP, TssPort):
 #loop call tss for every rover command value and append number and value tuple into message then send
     lunarSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     tssSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -31,7 +32,7 @@ def updateEVA(ip, port):
         "commandUpdate": []
     }
     for commandNum in range(2,119):
-        data = getTSS.get_tss_data(clientSocket=tssSock, cmd_num=commandNum)
+        data = getTSS.get_tss_data(clientSocket=tssSock, cmd_num=commandNum, addr=(TssIP, TssPort))
         print(data)
         print(data[2][0])
         EVAMessage['commandUpdate'].append((commandNum, data[2][0]))
