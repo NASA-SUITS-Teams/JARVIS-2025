@@ -11,15 +11,15 @@ import json
 from bisect import insort
 
 class TaskPriorityQueue:
-    def __init__(self):
+    def __init__(self, oxygen = 1, power = 1):
         # Initialize the priority queue list, sorted by task weight (lowest first)
         # Each entry is of the form (weight, task_name)
         self.tpq_list = [(0, "Return to Rover")]
         self.weight_map = {"Return to Rover" : 0}
 
         # Properties to keep track of leftover oxygen and power
-        self.oxygen = 1
-        self.power = 1
+        self.oxygen = oxygen
+        self.power = power
         
 
     # task_data = (priority, oxygen_req, power_req, distance_to_task)
