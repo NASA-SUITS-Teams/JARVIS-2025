@@ -4,8 +4,8 @@ import getTSS
 
 class lunarClient():
     def __init__(self):
-        lunarSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        tssSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.lunarSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.tssSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     def updateRover(self, ip = "127.0.0.1", port = 5005, TssIP = "data.cs.purdue.edu", TssPort = 14141):
         #loop call tss for every rover command value and append number and value tuple into message then send

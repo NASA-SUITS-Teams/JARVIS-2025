@@ -14,11 +14,13 @@ tpq = TPQ.TaskPriorityQueue()
 
 # Initialize LunarLink
 lunar_link = LunarLink.LunarLink()
-thread = threading.Thread(target=lunar_link.run)
-thread.daemon = True
-thread.start()
-    
-client.updateRover() 
+server_thread = threading.Thread(target=lunar_link.server_loop)
+server_thread.daemon = True
+server_thread.start()
+
+update_thread = threading.Thread(target=lunar_link.updateRover_loop)
+update_thread.daemon = True
+update_thread.start()
 
 @app.route('/pull_tpq/<n>', methods = ['GET'])
 def pull_tpq(n = -1):

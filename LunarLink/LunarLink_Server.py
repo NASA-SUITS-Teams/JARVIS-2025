@@ -2,21 +2,23 @@ import socket
 import json
 import export
 import getTSS
+import time
 
 class LunarLink:
     def __init__(self, ip = "127.0.0.1", port = 5005): # put everything in init so it can be called opened in another file
-        UDP_IP = ip
-        UDP_PORT = port
-        EXPORT_FILE = "lunarLink.json"
+        self.UDP_IP = ip
+        self.UDP_PORT = port
+        self.EXPORT_FILE = "lunarLink.json"
 
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        sock.bind((UDP_IP, UDP_PORT))
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.sock.bind((self.UDP_IP, self.UDP_PORT))
 
-        jsonFile = export.ExportFormat() # initializes the json file with tpq being an emtpy dicitionary and command array of 166 entries of invalid value of 200 for now
+        self.jsonFile = export.ExportFormat() # initializes the json file with tpq being an emtpy dicitionary and command array of 166 entries of invalid value of 200 for now
 
 
-    def run(self):
+    def server_loop(self):
         while True:
+            self.updateRover()
             #look for json files being sent from client here to update main one here    
             # update and send new data that is requested from clients
             data, addr = self.sock.recvfrom(4096)
@@ -57,11 +59,14 @@ class LunarLink:
                 self.sock.sendto(b'{"status": "error", "message": "Invalid JSON"}', addr)
                 continue
             
-    def updateRover(self, TssIP = "data.cs.purdue.edu", TssPort = 14141):
+    def updateRover_loop(self, TssIP = "data.cs.purdue.edu", TssPort = 14141, interval = 5):
         #loop call tss for every rover command value and append number and value tuple into message then send
-        for commandNum in range(119,167):
-            #not including LIDAR command since EVA won't need that information
-            data = getTSS.get_tss_data(clientSocket=self.tssSock, cmd_num=commandNum, addr=(TssIP, TssPort))
-            self.jsonFile.update_command(commandNum, data[2][0])
+        while True:
+            for commandNum in range(119,167):
+                #not including LIDAR command since EVA won't need that information
+                data = getTSS.get_tss_data(clientSocket=self.tssSock, cmd_num=commandNum, addr=(TssIP, TssPort))
+                self.jsonFile.update_command(commandNum, data[2][0])
+
+            time.sleep(interval)
 
 
