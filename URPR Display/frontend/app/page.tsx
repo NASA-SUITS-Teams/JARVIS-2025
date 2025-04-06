@@ -1,7 +1,9 @@
+'use client';
+
 import React, { useState } from 'react';
 import { Map, Grid, AlertCircle, BarChart2, List, Layers, Moon, Satellite, Sliders, Terminal } from 'lucide-react';
 
-const LunarControlModule = () => {
+export default function LunarControlModule(){
   const [activeMap, setActiveMap] = useState('grid');
   const [visibleLayers, setVisibleLayers] = useState({
     breadcrumb: false,
@@ -486,5 +488,3 @@ const LunarControlModule = () => {
     </div>
   );
 };
-
-export default LunarControlModule;
