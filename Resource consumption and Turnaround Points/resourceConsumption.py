@@ -4,30 +4,21 @@ import tkinter as tk
 
 class state(Enum):
     "Low Battery" == 1
-    "In Use" == 1
-    "Charging" == 2
+    "In Use" == 2
+    "Charging" == 3
 
 class roverState:
 
-    def __init__(self):
-        self.speed = 0
-        self.state = 1
-        self.batteryLevel = 100
-        self.powerConsumption = 0
-        self.motorPowerConsumption = 0
-        
+    def __init__(self, TSSdata):
+        self.data = TSSdata["rover"]
 
 
-    def updateRoverState():
-        #implement this to update every json file recieved
-        return
+    def updateRoverState(self, newData):
+        self.data = newData["rover"]
 
-def getRoverBatteryLevel(data):
-    batteryLevel = data["rover"]["batteryLevel"]
-    return batteryLevel
 
+#UI, not needed
 def draw_rounded_rectangle(canvas, x1, y1, x2, y2, radius, **kwargs):
-
     canvas.create_arc(x1, y1, x1 + 2*radius, y1 + 2*radius, start=90, extent=90, outline="", fill=kwargs.get('fill', 'lightblue'))
     canvas.create_arc(x2 - 2*radius, y1, x2, y1 + 2*radius, start=0, extent=90, outline="", fill=kwargs.get('fill', 'lightblue'))
     canvas.create_arc(x1, y2 - 2*radius, x1 + 2*radius, y2, start=180, extent=90, outline="", fill=kwargs.get('fill', 'lightblue'))
@@ -36,13 +27,11 @@ def draw_rounded_rectangle(canvas, x1, y1, x2, y2, radius, **kwargs):
     canvas.create_rectangle(x1, y1 + radius, x1 + radius, y2 - radius, outline="", fill=kwargs.get('fill', 'lightblue'))
     canvas.create_rectangle(x2 - radius, y1 + radius, x2, y2 - radius, outline="", fill=kwargs.get('fill', 'lightblue'))
 
+#UI, not needed
 def displayRover(batteryLevel, oxygenTank):
-
     root = tk.Tk(screenName="Rover Resources", className="Rover Resources", useTk=1)
-
     text = tk.Label(root, text="Rover Resources")
     text.pack()
-
     canvas = tk.Canvas(root, width=400, height=400)
     canvas.pack()
     draw_rounded_rectangle(canvas, 50, 50, 350, 350, radius=20, fill="skyblue")
@@ -78,9 +67,9 @@ def MotorConsumptionBySpeed():
     #account for different factors (lights, fan, ect.)
     return
 
-#not updating
+#not updating, not needed
 def updateValues(batteryLabel):
-    newBatteryLevel = getRoverBatteryLevel(getTSSdata())
+    #newBatteryLevel = getRoverBatteryLevel(getTSSdata())
     batteryLabel.config(text=f"Battery Level: {newBatteryLevel}%")
     batteryLabel.after(5000, updateValues, batteryLabel)
     
@@ -117,7 +106,7 @@ def main():
     
 
     data = getTSSdata()
-    batteryLevel = getRoverBatteryLevel(data)
+    #batteryLevel = getRoverBatteryLevel(data)
     displayRover(20, 20)
     return
 
