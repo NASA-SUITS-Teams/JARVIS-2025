@@ -6,6 +6,6 @@ tts = TTS("tts_models/en/vctk/vits")
 
 while True:
 
-    response = input('Type something to say: ')
+    response = input("Type something to say: ")
 
     say(tts, response)

@@ -9,7 +9,7 @@ client = chromadb.Client()
 chatbot = ChatBot(model="gemma3:4b-it-q8_0")
 
 while True:
-    user = input('User: ')
+    user = input("User: ")
     retriever = vectorstore.as_retriever()
     retrieved_docs = retriever.invoke(user, k=3)
     doc_data = " ".join([doc.page_content for doc in retrieved_docs])

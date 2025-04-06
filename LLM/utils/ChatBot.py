@@ -7,6 +7,7 @@ You are a helpful AI assistant named JARVIS, designed to support astronauts and 
 Do not use any advanced text formatting such as bold, italics, underlining, or emojis. Only basic punctuation like periods, commas, and question marks should be used. Do not verbalize formatting or use terms like 'highlight' or 'emphasize'. Always communicate using words only in a clear, natural, and straightforward manner.
 """
 
+
 class ChatBot:
     def __init__(self, model):
         """Initialize ChatBot with OpenAI-type API"""
@@ -49,9 +50,9 @@ class ChatBot:
             "stream": True,
             "options": {
                 "temperature": 0.6,  # Temperature parameter of softmax
-#                "num_ctx": 4096,  # Context window size in tokens
-                "num_predict": 4096  # Max tokens to predict
-            }
+                # "num_ctx": 4096,  # Context window size in tokens
+                "num_predict": 4096,  # Max tokens to predict
+            },
         }
 
         # Add the context ID if we have one from a previous exchange
@@ -73,23 +74,23 @@ class ChatBot:
                 for line in response.iter_lines():
                     if line:
                         # Parse the JSON response
-                            chunk = json.loads(line)
+                        chunk = json.loads(line)
 
-                            # Extract the content from the chunk - different format in generate API
-                            if "response" in chunk:
-                                content = chunk["response"]
-                                full_response += content
+                        # Extract the content from the chunk - different format in generate API
+                        if "response" in chunk:
+                            content = chunk["response"]
+                            full_response += content
 
-                                if just_print:
-                                    print(content, end="", flush=True)
+                            if just_print:
+                                print(content, end="", flush=True)
 
-                            # Store the context for KV cache persistence
-                            if "context" in chunk:
-                                self.context_id = chunk["context"]
+                        # Store the context for KV cache persistence
+                        if "context" in chunk:
+                            self.context_id = chunk["context"]
 
-                            # Check if this is the done message
-                            if "done" in chunk and chunk["done"]:
-                                break
+                        # Check if this is the done message
+                        if "done" in chunk and chunk["done"]:
+                            break
 
             if just_print:
                 print()
