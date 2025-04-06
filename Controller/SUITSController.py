@@ -1,15 +1,3 @@
-"""
-CURRENT ISSUES:
-
-1. Braking does not work -- most likely on NASA's end, commands are being sent.
-2. Lighting -- cannot see in some areas, add lights to rover?
-3. Reversing?
-    - Cannot send (throttle, -100), then (throttle, 100) or vice versa. Rover will come to a complete stop, and no other commands work despite being sent.
-4. If command (throttle, 100) is sent and then (throttle, 0) the rover will go indefinately maintain speed of (throttle, 100); could be issue with code, but I think it is a similar issue as 3.
-5. No commands sent, but when menu button is hit on controller, rover jumps forward.
-6. Is throttle acceleration or speed.
-"""
-
 import pygame
 import socket
 import struct
@@ -17,6 +5,7 @@ import time
 
 # UDP Configuration
 COMMANDS = {
+    "light": 1103, #true or false
     "brake": 1107, # 0 to 1
     "throttle": 1109, # -100 to 100
     "steering": 1110 # -100 to 100
@@ -36,6 +25,7 @@ def send_command(command, value):
 # Initialize Pygame
 pygame.init()
 pygame.joystick.init()
+send_command(COMMANDS["light"], False)
 send_command(COMMANDS["throttle"], 0)
 send_command(COMMANDS["brake"], 0)
 send_command(COMMANDS["steering"], 0)
@@ -50,26 +40,39 @@ class Controller:
             self.controller.init()
         self.deadzone = 0.5  # Deadzone to ignore small joystick movements
 
+        self.lights = False
+        self.light_pressed_last = False
+
     def handle_input(self):
         if self.controller:
             axis_y = self.controller.get_axis(1)  # throttle (-100 to 100)
             axis_x = self.controller.get_axis(0)  # Steering (-1 to 1)
-            lt = (self.controller.get_axis(4) + 1) / 2  # LT (0 to 1)
-            rt = (self.controller.get_axis(5) + 1) / 2  # RT (0 to 1)
+            lt = (self.controller.get_axis(4) + 1) / 2  # LT/Brake (0 to 1)
+            rt = (self.controller.get_axis(5) + 1) / 2  # RT/Gas (0 to 1)
 
+            but1 = (self.controller.get_button(1))
             up = self.controller.get_button(5) # RB (0 to 1)
+
+            # Lights
+            if but1 and not self.light_pressed_last:
+                self.lights = not self.lights
+                send_command(COMMANDS["light"], self.lights)
+            self.light_pressed_last = but1
 
             # Throttle and Brake
             if rt > 0.1 and rt != 0.5:
                 send_command(COMMANDS["throttle"], 100)
             if lt > 0.1 and lt != 0.5:
                 send_command(COMMANDS["brake"], 1)
-            elif lt < 0.1:
-                send_command(COMMANDS["brake"], 0)
+                send_command(COMMANDS['throttle'], 0)
+            #elif lt < 0.1:
+                #send_command(COMMANDS["brake"], 0)
 
             # throttling with deadzone
-            if (up > 0.1):
-                send_command(COMMANDS["throttle"], -100)
+            #if (up > 0.5):
+                #send_command(COMMANDS["throttle"], -100)
+            if (axis_y > 0.5):
+                send_command(COMMANDS['throttle'], -100)
 
             elif abs(axis_y) > self.deadzone:
                 send_command(COMMANDS["throttle"], 100)
