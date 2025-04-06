@@ -33,7 +33,7 @@ def parse_tss_response(data, cmd_num):
         except:
             print("Did not receive enough bytes")        
     else:
-        output = struct.unpack('>f', data[8:])        
+        output = struct.unpack('>f', data[8:])[0]
     return time, commandNum, output
 
 
@@ -58,7 +58,7 @@ def process_lidar():
     clientSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     threading.Thread(target=wait_for_exit, daemon=True).start()
     print("Getting data...")
-    while not stop_flag:
+    for i in range(40):
         timestamp, commandNums, floats = get_tss_data(clientSocket, cmd_num=167)
         # Update rover's yaw.
         _, _, posx = get_tss_data(clientSocket, cmd_num=128)
@@ -67,13 +67,21 @@ def process_lidar():
         _, _, yaw = get_tss_data(clientSocket, cmd_num=131)
         _, _, pitch = get_tss_data(clientSocket, cmd_num=132)
         _, _, roll = get_tss_data(clientSocket, cmd_num=133)
+
+        rover_angle = (
+            math.radians(roll),
+            math.radians(pitch),
+            math.radians(yaw)
+        )
+        # rover_angle = (roll, pitch, yaw)
+        coord_const = 5.0
+        posx_m = posx / coord_const
+        posy_m = posy / coord_const
+        posz_m = posz / coord_const
+        rover_position = np.array([posx_m, posy_m, posz_m])
+        print(floats, rover_angle, rover_position)
         
-        rover_position = np.array([posx[0], posy[0], posz[0]])
-        rover_angles = (roll[0], pitch[0], yaw[0]) # TODO need to check if roll, pitch, yaw is in degrees or radians
-        print(floats, posx, posy, posz, yaw, pitch, roll)
-        
-        # Simulate constant LIDAR sensor readings (500 cm each).
-        new_points = process_lidar_readings(floats, rover_position, tuple(rover_angles))
+        new_points = process_lidar_readings(floats, rover_position, tuple(rover_angle))
         global_points.extend(new_points)
         time.sleep(.25)
         
@@ -85,7 +93,7 @@ def process_lidar():
     # Save the point cloud to a PCD file.
     o3d.io.write_point_cloud("pcds/lidar_sweep.pcd", pcd)
     print("Saved lidar_sweep.pcd with", len(global_points), "points.")
-    pcd = o3d.io.read_point_cloud("pcds/lidar_sweep.pcd")
+    pcd = o3d.io.read_point_cloud("/Users/Total/Documents/GitHub/JARVIS-2025/LIDAR/pcds/lidar_sweep.pcd")
     o3d.visualization.draw_geometries([pcd], window_name="PCD Viewer")
 
 if __name__ == '__main__':
