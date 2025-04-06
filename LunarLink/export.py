@@ -1,11 +1,9 @@
 import json
 
-UDP_IP = "127.0.0.1"
-UDP_PORT = 5005
 EXPORT_FILE = "lunarLink"
 
 class ExportFormat:
-    def __init__(self, tpq = {}, commandList = [-1] * 165):
+    def __init__(self, tpq = [], commandList = [-1] * 165):
         self.tpq = tpq
         self.commandList = commandList
 
@@ -32,9 +30,6 @@ class ExportFormat:
             raise IndexError("Command index out of bounds")
     
     def update_tpq(self, updateTPQ):
-        if type(updateTPQ) is not dict:
-            raise ValueError("TPQ must be dictionary")
-
         self.tpq.update(updateTPQ)
         
     def clear_tpq(self):
