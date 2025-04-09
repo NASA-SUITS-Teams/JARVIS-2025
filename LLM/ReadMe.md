@@ -1,6 +1,6 @@
 # LLM
 
-As part of our team, we created an AI assistant named JARVIS, powered by multiple open source models and integrated through this program. We aim to use audio from a microphone or text to ask JARVIS questions ranging from how to use our UI to how to aid astronauts in certain scenarios. JARVIS utilizes Retrieval-Augmented Generation to select relevant information from documents we provide and then responds both in text and audibly.
+As part of our team, we created an AI assistant named Jarvis, powered by multiple open source models and integrated through this program. We aim to use audio from a microphone or text to ask Jarvis questions ranging from how to use our UI to how to aid astronauts in certain scenarios. Jarvis utilizes Retrieval-Augmented Generation to select relevant information from documents we provide and then responds both in text and audibly.
 
 
 ## Requirements

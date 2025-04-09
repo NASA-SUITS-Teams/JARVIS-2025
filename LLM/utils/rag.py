@@ -21,7 +21,7 @@ def create_vectorstore():
             loader = TextLoader(file_path, encoding="utf-8")
             documents.extend(loader.load())
 
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=100)
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
     chunks = text_splitter.split_documents(documents)
 
     Chroma.from_documents(
