@@ -1,6 +1,6 @@
-from utils.ChatBot import ChatBot
+from utils.ChatBot import CHAT_MODEL, ChatBot
 
-chatbot = ChatBot(model="gemma3:4b-it-q8_0")
+chatbot = ChatBot(model=CHAT_MODEL)
 
 while True:
     user = input("User: ")

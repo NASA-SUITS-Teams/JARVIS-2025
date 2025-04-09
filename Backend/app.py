@@ -30,3 +30,12 @@ def pull_tpq(n = -1):
     else:
         task_list = tpq.peek(n)
     return jsonify(task_list)
+
+@app.route('/push_tpq/', methods = ['PUSH'])
+def push_tpq():
+    ''' Retrieve the top n priority tasks from the TPQ, unspecified n will retrieve complete list '''
+    if (n == -1):
+        task_list = tpq.get_list
+    else:
+        task_list = tpq.peek(n)
+    return jsonify(task_list)
