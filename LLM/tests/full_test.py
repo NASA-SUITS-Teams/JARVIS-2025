@@ -3,7 +3,7 @@ import speech_recognition as sr
 from faster_whisper import WhisperModel
 import chromadb
 
-from utils.ChatBot import ChatBot
+from utils.ChatBot import CHAT_MODEL, ChatBot
 from utils.audio import get_audio_data, get_text_from_audio, calibrate_recognizer, say
 from utils.ChatBot import ChatBot
 from utils.rag import load_vectorstore
@@ -19,7 +19,7 @@ calibrate_recognizer(r)
 
 tts = TTS("tts_models/en/vctk/vits")
 
-chatbot = ChatBot(model="gemma3:4b-it-q8_0")
+chatbot = ChatBot(model=CHAT_MODEL)
 
 
 while True:
