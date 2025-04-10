@@ -42,6 +42,7 @@ class Controller:
 
         self.lights = False
         self.light_pressed_last = False
+        self.speed = 0
 
     def handle_input(self):
         if self.controller:
@@ -50,18 +51,20 @@ class Controller:
             lt = (self.controller.get_axis(4) + 1) / 2  # LT/Brake (0 to 1)
             rt = (self.controller.get_axis(5) + 1) / 2  # RT/Gas (0 to 1)
 
-            but1 = (self.controller.get_button(1))
+            but4 = (self.controller.get_button(4))
             up = self.controller.get_button(5) # RB (0 to 1)
 
             # Lights
-            if but1 and not self.light_pressed_last:
+            if but4 and not self.light_pressed_last:
                 self.lights = not self.lights
                 send_command(COMMANDS["light"], self.lights)
-            self.light_pressed_last = but1
+            self.light_pressed_last = but4
 
             # Throttle and Brake
             if rt > 0.1 and rt != 0.5:
-                send_command(COMMANDS["throttle"], 100)
+                if (self.speed < 100):
+                    self.speed += 1
+                send_command(COMMANDS["throttle"], self.speed)
             if lt > 0.1 and lt != 0.5:
                 send_command(COMMANDS["brake"], 1)
                 send_command(COMMANDS['throttle'], 0)
@@ -69,10 +72,12 @@ class Controller:
                 #send_command(COMMANDS["brake"], 0)
 
             # throttling with deadzone
-            #if (up > 0.5):
-                #send_command(COMMANDS["throttle"], -100)
-            if (axis_y > 0.5):
-                send_command(COMMANDS['throttle'], -100)
+            if (up > 0.5):
+                if (self.speed > -100):
+                    self.speed -= 1
+                send_command(COMMANDS["throttle"], self.speed)
+            #if (axis_y > 0.5):
+                #send_command(COMMANDS['throttle'], -100)
 
             elif abs(axis_y) > self.deadzone:
                 send_command(COMMANDS["throttle"], 100)
@@ -82,6 +87,18 @@ class Controller:
                 send_command(COMMANDS["steering"], axis_x)
             else:
                 send_command(COMMANDS["steering"], 0)
+            
+            if (up < 0.5 and rt <0.1 and self.speed > 0):
+                self.speed -= 0.5
+                if (lt < 0.1):
+                    
+                    send_command(COMMANDS["throttle"], self.speed)
+
+            if (up < 0.5 and rt <0.1 and self.speed < 0):
+                self.speed += 0.5
+                if (lt < 0.1):
+                    send_command(COMMANDS["throttle"], self.speed)
+
 
 # Pygame Main Loop
 controller = Controller()
