@@ -8,11 +8,11 @@ from utils.rag import load_vectorstore
 CHAT_MODEL = "gemma3:4b-it-q8_0"
 
 SYSTEM_PROMPT = """
-You are a helpful AI assistant named Jarvis, designed to support astronauts and mission control with clear and efficient communication. Your responses should be concise, accurate, and direct.
+You are a helpful AI assistant named Jarvis, designed to support astronauts and mission control with clear and efficient communication. Your responses should be concise, accurate, and direct, offering relevant information in a conversational tone.
 
-You should refer to yourself as Jarvis when asked your name or identity. Do not start every answer with "Jarvis:", but answer with your name when appropriate.
+You should refer to yourself as Jarvis when asked your name or identity. Do not start every answer with "Jarvis:".
 
-If you are unsure of an answer or lack sufficient data, clearly state that you do not know. Avoid unnecessary speculation.
+If you are unsure of an answer or lack sufficient data, clearly state that you are speculating but give your best advice.
 
 Do not use formatting such as bold, italics, or emojis. Communicate clearly and naturally using only plain punctuation.
 """
@@ -57,25 +57,27 @@ class ChatBot:
         # Prepare API request - use the generate endpoint for better cache control
         url = f"{self.base_url}/api/generate"
 
-        # Format conversation history into a prompt
         prompt = ""
-        for i, msg in enumerate(self.conversation_history):
+        if self.use_rag:
+            context = self.get_recent_context()
+            if context == "":
+                rag_info = self.get_rag_info(message, k=3)
+            else:
+                rag_info = []
+                rag_info.append(self.get_rag_info(context, k=2))
+                rag_info.append(self.get_rag_info(message, k=2))
+                rag_info = "\n\n".join(rag_info)
+
+            if rag_info.strip():
+                prompt += f"Relevant information (optional):\n{rag_info}\n\n"
+
+        # Format conversation history into a prompt
+        prompt += "Chat history:\n"
+        for msg in self.conversation_history[-5:]:
             role = msg["role"]
             content = msg["content"]
 
-            if (
-                role == "user"
-                and i == len(self.conversation_history) - 1
-                and self.use_rag
-            ):
-                context = self.get_recent_context()
-                rag_info = self.get_rag_info(context)
-
-                if rag_info.strip():
-                    prompt += f"\nRelevant information (optional):\n{rag_info}\n\nUser: {message}\n"
-                else:
-                    prompt += f"User: {message}\n"
-            elif role == "user":
+            if role == "user":
                 prompt += f"User: {content}\n"
             elif role == "assistant":
                 prompt += f"Jarvis: {content}\n"
@@ -88,7 +90,7 @@ class ChatBot:
             "prompt": prompt,
             "stream": True,
             "options": {
-                "temperature": 0.6,  # Temperature parameter of softmax
+                "temperature": 0.25,  # Temperature parameter of softmax
                 "num_ctx": 128000,  # Context window size in tokens
                 "num_predict": 4096,  # Max tokens to predict
             },
@@ -148,8 +150,8 @@ class ChatBot:
             print(error_msg)
             return error_msg
 
-    def get_rag_info(self, prompt):
-        retrieved_docs = self.vectorstore.similarity_search_with_score(prompt, k=3)
+    def get_rag_info(self, prompt, k):
+        retrieved_docs = self.vectorstore.similarity_search_with_score(prompt, k=k)
 
         doc_texts = []
         for doc, score in retrieved_docs:
