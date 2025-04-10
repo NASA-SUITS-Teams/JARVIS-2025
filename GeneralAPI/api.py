@@ -18,3 +18,6 @@ def get_tss_data(clientSocket,
 	clientSocket.sendto(tstamp.to_bytes(4) + cmd_num.to_bytes(4), addr)
 	data, server = clientSocket.recvfrom(1024)
 	return parse_tss_response(data)
+
+def calc_distance_to(x,y):
+	# TODO: calculate the distance from the rover's current position to x,y
