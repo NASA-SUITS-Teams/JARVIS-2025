@@ -1,7 +1,6 @@
 import socket
 import json
-import export
-import getTSS
+from . import export, getTSS
 import time
 
 
@@ -11,9 +10,6 @@ class LunarLink:
         self.UDP_PORT = port
         self.EXPORT_FILE = "lunarLink.json"
         self.tssSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
-
-
 
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.sock.bind((self.UDP_IP, self.UDP_PORT))

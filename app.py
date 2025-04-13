@@ -19,7 +19,7 @@ clientSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 tpq = TPQ.TaskPriorityQueue()
 
 # Initialize LunarLink
-lunar_link = LunarLink.LunarLink()
+lunar_link = LunarLink.LunarLink("0.0.0.0", port = 6000)
 server_thread = threading.Thread(target=lunar_link.server_loop)
 server_thread.daemon = True
 server_thread.start()

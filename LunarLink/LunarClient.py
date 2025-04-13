@@ -42,18 +42,22 @@ class lunarClient():
 
         return jsonFile
 lunar = lunarClient()
+
+
+#ALL CODE BELOW THIS IS FOR TESTING
+
 # while True:
 #      test2 = lunar.updateEVA(ip = "172.20.10.2", port = 5005, TssIP = "data.cs.purdue.edu", TssPort = 14141)
 #      test1 = lunar.getData(ip = "172.20.10.2", port = 5005)
 #      print(test1)
 
-variable = 0
-for i in range(100, 110):
-    roverMessage = {
-        "action": "update",
-        "commandUpdate": [(2,i)]
-    }
-    lunar.updateEVA(ip = "172.20.10.2", port = 5005, TssIP = "data.cs.purdue.edu", TssPort = 14141)
-    test1 = lunar.getData(ip = "172.20.10.2", port = 5005)
-    print(test1)
-    time.sleep(1)
+# variable = 0
+# for i in range(100, 110):
+#     roverMessage = {
+#         "action": "update",
+#         "commandUpdate": [(2,i)]
+#     }
+#     lunar.updateEVA(ip = "172.20.10.2", port = 5005, TssIP = "data.cs.purdue.edu", TssPort = 14141)
+#     test1 = lunar.getData(ip = "172.20.10.2", port = 5005)
+#     print(test1)
+#     time.sleep(1)
