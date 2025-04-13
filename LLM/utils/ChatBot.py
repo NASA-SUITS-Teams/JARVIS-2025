@@ -5,12 +5,12 @@ import json
 from utils.rag import load_vectorstore
 
 
+DEBUG = True
+
 CHAT_MODEL = "gemma3:4b-it-q8_0"
 
 SYSTEM_PROMPT = """
 You are a helpful AI assistant named Jarvis, designed to support astronauts and mission control with clear and efficient communication. Your responses should be concise, accurate, and direct, offering relevant information in a conversational tone.
-
-You should refer to yourself as Jarvis when asked your name or identity. Do not start every answer with "Jarvis:".
 
 If you are unsure of an answer or lack sufficient data, clearly state that you are speculating but give your best advice.
 
@@ -35,31 +35,21 @@ class ChatBot:
         """Add a message to conversation history"""
         self.conversation_history.append({"role": role, "content": content})
 
-    def get_recent_context(self, max_turns=1):
-        print(
-            "context:",
-            "\n".join(
-                [message["content"] for message in self.conversation_history[-2:]]
-            ),
-        )
-        return "\n".join(
+    def get_recent_context(self):
+        context = "\n".join(
             [message["content"] for message in self.conversation_history[-2:]]
         )
 
-    #        context = ""
-    #        for message in self.conversation_history[-(max_turns * 2 + 1) :]:
-    #            role = message["role"]
-    #            content = message["content"]
-    #
-    #            if role == "user":
-    #                context += f"User: {content}\n"
-    #            elif role == "assistant":
-    #                context += f"Jarvis: {content}\n"
-    #
-    #        return context
+        if DEBUG:
+            print("-" * 7)
+            print("Context:\n")
+            print(context)
+            print("-" * 7)
+
+        return context
 
     def get_response_stream(self, message, just_print=False):
-        """Get a streaming response from OpenAI-type API and display as Markdown in real-time
+        """Get a streaming response from OpenAI-type API and display in real-time
         with KV caching support"""
         # Add user message to history
         self.add_message("user", message)
@@ -70,17 +60,15 @@ class ChatBot:
         prompt = ""
         if self.use_rag:
             context = self.get_recent_context()
-            if context == "":
-                rag_info = self.get_rag_info(message, k=4)
-            else:
-                rag_info = []
 
-                doc_texts, doc_ids = self.get_rag_info(context, k=2)
-                rag_info.append(doc_texts)
-                doc_texts, doc_ids = self.get_rag_info(message, k=2, ignore_ids=doc_ids)
-                rag_info.append(doc_texts)
+            rag_info = []
 
-                rag_info = "\n\n".join(rag_info)
+            doc_texts, doc_ids = self.get_rag_info(context, k=2)
+            rag_info.append(doc_texts)
+            doc_texts, doc_ids = self.get_rag_info(message, k=2, ignore_ids=doc_ids)
+            rag_info.append(doc_texts)
+
+            rag_info = "\n\n".join(rag_info)
 
             if rag_info.strip():
                 prompt += f"Relevant information (optional):\n{rag_info}\n\n"
@@ -97,7 +85,11 @@ class ChatBot:
                 prompt += f"Jarvis: {content}\n"
         prompt += "Jarvis: "
 
-        print(prompt)
+        if DEBUG:
+            print("-=" * 7)
+            print("Prompt:\n")
+            print(prompt)
+            print("-=" * 7)
 
         # Prepare payload with context for KV cache
         payload = {
@@ -177,7 +169,9 @@ class ChatBot:
                 break
 
             if doc.id in ignore_ids:
-                print("SAME ID", doc.id, ignore_ids)
+                if DEBUG:
+                    print("SAME ID", doc.id, ignore_ids)
+
                 continue
 
             source = doc.metadata.get("source", "unknown")
