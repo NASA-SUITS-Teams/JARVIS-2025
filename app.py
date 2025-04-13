@@ -10,24 +10,6 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-# Initialize TSS connection
-URL = "data.cs.purdue.edu"
-PORT = 14141
-clientSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
-# Initialize TPQ
-tpq = TPQ.TaskPriorityQueue()
-
-# Initialize LunarLink
-lunar_link = LunarLink.LunarLink("0.0.0.0", port = 6000)
-server_thread = threading.Thread(target=lunar_link.server_loop)
-server_thread.daemon = True
-server_thread.start()
-
-update_thread = threading.Thread(target=lunar_link.updateRover_loop)
-update_thread.daemon = True
-update_thread.start()
-
 @app.route('/pull_tpq/<n>', methods = ['GET'])
 def pull_tpq(n = -1):
     ''' Retrieve the top n priority tasks from the TPQ, unspecified n will retrieve complete list '''
@@ -51,5 +33,17 @@ def pull_EVA():
     ''' Retrieve the EVAs location '''
     data = get_tss_data(clientSocket, cmd_num=137)
     
-if __name__ == '__main__':
+if __name__ == "__main__":
+    # Initialize TSS connection
+    URL = "data.cs.purdue.edu"
+    PORT = 14141
+    clientSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    
+    # Initialize TPQ
+    tpq = TPQ.TaskPriorityQueue()
+    
+    # Initialize LunarLink (move this inside the if statement too)
+    lunar_link = LunarLink.LunarLink("0.0.0.0")
+    
+    # Start Flask app
     app.run(debug=True)

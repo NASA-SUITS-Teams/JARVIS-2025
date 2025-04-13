@@ -1,6 +1,6 @@
 import socket
 import json
-from . import getTSS
+from LunarLink import getTSS
 
 class lunarClient():
     def __init__(self):
