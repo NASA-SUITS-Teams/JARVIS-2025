@@ -1,10 +1,11 @@
 import TPQ.task_priority_queue as TPQ
 import LunarLink.LunarLink_Server as LunarLink
 import LunarLink.LunarClient as client
-import LLM.utils.ChatBot as ChatBot
+# import LLM.utils.ChatBot as ChatBot
 from GeneralAPI.api import get_tss_data
 import threading
 import socket
+import time
 
 from flask import Flask, request, jsonify
 
@@ -43,6 +44,13 @@ if __name__ == "__main__":
     tpq = TPQ.TaskPriorityQueue()
     
     lunar_link = LunarLink.LunarLink("0.0.0.0")
+    server_thread = threading.Thread(target=lunar_link.server_loop)
+    server_thread.daemon = True
+    server_thread.start()
+
+    update_thread = threading.Thread(target=lunar_link.updateRover_loop)
+    update_thread.daemon = True
+    update_thread.start()
 
     # Start Flask app
-    app.run(debug=True, use_reloader=False)
+    app.run(debug=True, use_reloader=False, host="0.0.0.0")
