@@ -28,7 +28,7 @@ def get_tss_data(clientSocket, cmd_num):
 def process_lidar(clientSocket):
     """
     Given a web socket (to communicate with TSS), return a list of tuples in global
-    coordinates detected by LiDAR
+    coordinates detected by LiDAR, returns None if there is an error with tss readings
     """
     floats = get_tss_data(clientSocket, cmd_num=167)
     posx = get_tss_data(clientSocket, cmd_num=128)
@@ -45,7 +45,7 @@ def process_lidar(clientSocket):
     rover_angle = (
         math.radians(roll),
         math.radians(pitch),
-        math.radians(yaw + 180)
+        math.radians(yaw + 180) # degrees are reversed according to SUITS tech team
     )
     posx_m = posx
     posy_m = posy
