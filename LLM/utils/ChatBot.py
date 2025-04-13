@@ -36,17 +36,27 @@ class ChatBot:
         self.conversation_history.append({"role": role, "content": content})
 
     def get_recent_context(self, max_turns=1):
-        context = ""
-        for message in self.conversation_history[-(max_turns * 2 + 1) :]:
-            role = message["role"]
-            content = message["content"]
+        print(
+            "context:",
+            "\n".join(
+                [message["content"] for message in self.conversation_history[-2:]]
+            ),
+        )
+        return "\n".join(
+            [message["content"] for message in self.conversation_history[-2:]]
+        )
 
-            if role == "user":
-                context += f"User: {content}\n"
-            elif role == "assistant":
-                context += f"Jarvis: {content}\n"
-
-        return context
+    #        context = ""
+    #        for message in self.conversation_history[-(max_turns * 2 + 1) :]:
+    #            role = message["role"]
+    #            content = message["content"]
+    #
+    #            if role == "user":
+    #                context += f"User: {content}\n"
+    #            elif role == "assistant":
+    #                context += f"Jarvis: {content}\n"
+    #
+    #        return context
 
     def get_response_stream(self, message, just_print=False):
         """Get a streaming response from OpenAI-type API and display as Markdown in real-time
@@ -61,11 +71,15 @@ class ChatBot:
         if self.use_rag:
             context = self.get_recent_context()
             if context == "":
-                rag_info = self.get_rag_info(message, k=3)
+                rag_info = self.get_rag_info(message, k=4)
             else:
                 rag_info = []
-                rag_info.append(self.get_rag_info(context, k=2))
-                rag_info.append(self.get_rag_info(message, k=2))
+
+                doc_texts, doc_ids = self.get_rag_info(context, k=2)
+                rag_info.append(doc_texts)
+                doc_texts, doc_ids = self.get_rag_info(message, k=2, ignore_ids=doc_ids)
+                rag_info.append(doc_texts)
+
                 rag_info = "\n\n".join(rag_info)
 
             if rag_info.strip():
@@ -81,6 +95,7 @@ class ChatBot:
                 prompt += f"User: {content}\n"
             elif role == "assistant":
                 prompt += f"Jarvis: {content}\n"
+        prompt += "Jarvis: "
 
         print(prompt)
 
@@ -150,16 +165,27 @@ class ChatBot:
             print(error_msg)
             return error_msg
 
-    def get_rag_info(self, prompt, k):
-        retrieved_docs = self.vectorstore.similarity_search_with_score(prompt, k=k)
+    def get_rag_info(self, prompt, k, ignore_ids=[]):
+        retrieved_docs = self.vectorstore.similarity_search_with_relevance_scores(
+            prompt, k=k + len(ignore_ids)
+        )
 
         doc_texts = []
+        doc_ids = []
         for doc, score in retrieved_docs:
+            if len(doc_texts) == k:
+                break
+
+            if doc.id in ignore_ids:
+                print("SAME ID", doc.id, ignore_ids)
+                continue
+
             source = doc.metadata.get("source", "unknown")
             snippet = doc.page_content.strip()
             doc_texts.append(f"(Source: {source}) {snippet}")
+            doc_ids.append(doc.id)
 
-        return "\n\n".join(doc_texts)
+        return "\n\n".join(doc_texts), doc_ids
 
     def reset_conversation(self):
         """Reset the conversation history and clear the KV cache context"""
