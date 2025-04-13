@@ -129,14 +129,6 @@ The project includes commented-out sections in the code (within `LunarClient.py`
 
 ---
 
-## 🧑‍💻 Author
-
-**Benji Emini**  
-Sophomore, Computer Science @ Purdue University  
-Aspiring Astronaut & AI Developer
-
----
-
 ## 📜 License
 
 MIT License – see the `LICENSE.md` file for details.
