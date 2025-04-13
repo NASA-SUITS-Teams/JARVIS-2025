@@ -42,8 +42,10 @@ if __name__ == "__main__":
     # Initialize TPQ
     tpq = TPQ.TaskPriorityQueue()
     
-    # Initialize LunarLink (move this inside the if statement too)
-    lunar_link = LunarLink.LunarLink("0.0.0.0")
+    # Only initialize LunarLink in the main process, not the reloader
+    import os
+    if not os.environ.get('WERKZEUG_RUN_MAIN'):
+        lunar_link = LunarLink.LunarLink("0.0.0.0")
     
     # Start Flask app
     app.run(debug=True)
