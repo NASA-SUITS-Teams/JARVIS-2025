@@ -11,21 +11,6 @@ import struct
 import time
 import os
 
-import threading
-
-stop_flag = False
-
-def get_next_filename(directory, base_name='lidar', ext='.pcd'):
-    i = 1
-    while os.path.exists(os.path.join(directory, f"{base_name}{i}{ext}")):
-        i += 1
-    return os.path.join(directory, f"{base_name}{i}{ext}")
-
-def wait_for_exit():
-    global stop_flag
-    input("Press Enter or type 'q' to stop...\n")
-    stop_flag = True
-
 URL = "data.cs.purdue.edu"
 PORT = 14141
 
@@ -59,8 +44,11 @@ def get_tss_data(clientSocket,
     return parse_tss_response(data, cmd_num=cmd_num)
 
 
-# Now you can use the imported functions.
 def process_lidar(clientSocket):
+    """
+    Given a web socket (to communicate with TSS), return a list of tuples in global
+    coordinates detected by LiDAR
+    """
     _, _, floats = get_tss_data(clientSocket, cmd_num=167)
     _, _, posx = get_tss_data(clientSocket, cmd_num=128)
     _, _, posy = get_tss_data(clientSocket, cmd_num=129)

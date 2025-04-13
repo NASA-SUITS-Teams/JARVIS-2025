@@ -10,7 +10,7 @@ export default function CameraFeeds() {
           </div>
           <div className="flex space-x-2">
             <button className="px-2 py-1 rounded-md text-xs bg-gray-600 hover:bg-gray-500">
-              LTV
+              Rover
             </button>
             <button className="px-2 py-1 rounded-md text-xs bg-gray-600 hover:bg-gray-500">
               EVA #1
