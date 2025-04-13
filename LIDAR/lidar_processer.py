@@ -15,6 +15,12 @@ import threading
 
 stop_flag = False
 
+def get_next_filename(directory, base_name='lidar', ext='.pcd'):
+    i = 1
+    while os.path.exists(os.path.join(directory, f"{base_name}{i}{ext}")):
+        i += 1
+    return os.path.join(directory, f"{base_name}{i}{ext}")
+
 def wait_for_exit():
     global stop_flag
     input("Press Enter or type 'q' to stop...\n")
@@ -59,7 +65,7 @@ def process_lidar():
     clientSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     threading.Thread(target=wait_for_exit, daemon=True).start()
     print("Getting data...")
-    for i in range(1000):
+    for i in range(100):
         timestamp, commandNums, floats = get_tss_data(clientSocket, cmd_num=167)
         # Update rover's yaw.
         _, _, posx = get_tss_data(clientSocket, cmd_num=128)
@@ -91,32 +97,14 @@ def process_lidar():
     pcd.points = o3d.utility.Vector3dVector(np.array(global_points))
 
     # Save the point cloud to a PCD file.
-    pcd_filename = "/Users/Total/Documents/GitHub/JARVIS-2025/LIDAR/pcds/lidar.pcd"
+    output_directory = "/Users/Total/Documents/GitHub/JARVIS-2025/LIDAR/pcds"
+    pcd_filename = get_next_filename(output_directory, base_name='lidar', ext='.pcd')
     if os.path.exists(pcd_filename):
         os.remove(pcd_filename)
     o3d.io.write_point_cloud(pcd_filename, pcd)
     print("Saved lidar_sweep.pcd with", len(global_points), "points.")
     pcd = o3d.io.read_point_cloud(pcd_filename)
     o3d.visualization.draw_geometries([pcd], window_name="PCD Viewer")
-
-    # pcd = o3d.io.read_point_cloud(pcd_filename)
-    
-    # # Create a coordinate frame for orientation reference.
-    # coordinate_frame = o3d.geometry.TriangleMesh.create_coordinate_frame(size=1.0, origin=[0, 0, 0])
-    
-    # # Create a marker for the rover's location.
-    # rover_marker = o3d.geometry.TriangleMesh.create_sphere(radius=0.1)
-    # rover_marker.translate(rover_position)
-    # rover_marker.paint_uniform_color([1, 0, 0])  # Red for the rover marker
-
-    # # Visualize the point cloud along with the coordinate frame and rover marker.
-    # o3d.visualization.draw_geometries(
-    #     [pcd, coordinate_frame, rover_marker],
-    #     window_name="PCD Viewer",
-    #     width=800, height=600,
-    #     left=50, top=50
-    # )
-
 
 if __name__ == '__main__':
     process_lidar()
