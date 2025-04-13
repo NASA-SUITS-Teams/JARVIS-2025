@@ -108,32 +108,32 @@ class TaskPriorityQueue:
     def get_list(self):
         return self.tpq_list
     
-# Example usage:
+# # Example usage:
 
-# Example data_map structure - each task corresponds to a tuple containing (priority, required oxygen, required power, distance to task):
-data_map = {
-    "Task A": ("high", .1, .1, 7),
-    "Task B": ("medium", .01, .04, 4),
-    "Task C": ("low", .02, .05, 1),
-}
+# # Example data_map structure - each task corresponds to a tuple containing (priority, required oxygen, required power, distance to task):
+# data_map = {
+#     "Task A": ("high", .1, .1, 7),
+#     "Task B": ("medium", .01, .04, 4),
+#     "Task C": ("low", .02, .05, 1),
+# }
 
-# Create an instance of TaskPriorityQueue
-tpq = TaskPriorityQueue()
+# # Create an instance of TaskPriorityQueue
+# tpq = TaskPriorityQueue()
 
-# Feed tasks from the data_map
-tpq.feed_from_data(data_map)
+# # Feed tasks from the data_map
+# tpq.feed_from_data(data_map)
 
-# Peek at the highest-priority task
-print("Top Priority Task:", tpq.peek())
+# # Peek at the highest-priority task
+# print("Top Priority Task:", tpq.peek())
 
-# Export the priority queue to a JSON file
-tpq.export_tpq('tpq.json')
+# # Export the priority queue to a JSON file
+# tpq.export_tpq('tpq.json')
 
-# Import the priority queue from a JSON file
-tpq.import_tpq('tpq.json')
+# # Import the priority queue from a JSON file
+# tpq.import_tpq('tpq.json')
 
-# Remove and print the highest-priority task
-removed_task = tpq.remove_task("Task A")
-print("Removed Task:", removed_task)
+# # Remove and print the highest-priority task
+# removed_task = tpq.remove_task("Task A")
+# print("Removed Task:", removed_task)
 
-tpq.export_tpq('tpq1.json')
+# tpq.export_tpq('tpq1.json')
