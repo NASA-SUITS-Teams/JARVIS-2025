@@ -21,8 +21,21 @@ def create_vectorstore():
             loader = TextLoader(file_path, encoding="utf-8")
             documents.extend(loader.load())
 
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=1000,
+        chunk_overlap=200,
+    )
     chunks = text_splitter.split_documents(documents)
+
+    i = 0
+    while i < len(chunks) - 1:
+        current_chunk_length = len(chunks[i].page_content)
+
+        if current_chunk_length < 500:
+            chunks[i].page_content += chunks[i + 1].page_content
+            del chunks[i + 1]
+        else:
+            i += 1
 
     Chroma.from_documents(
         chunks,
