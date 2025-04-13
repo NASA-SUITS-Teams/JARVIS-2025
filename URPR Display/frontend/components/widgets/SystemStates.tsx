@@ -7,8 +7,7 @@ export default function SystemStates () {
       <div className="flex flex-wrap gap-2 mb-3">
         <button className="px-2 py-1 rounded-md text-xs bg-gray-600 hover:bg-gray-500">EVA #1</button>
         <button className="px-2 py-1 rounded-md text-xs bg-gray-600 hover:bg-gray-500">EVA #2</button>
-        <button className="px-2 py-1 rounded-md text-xs bg-gray-600 hover:bg-gray-500">Suit</button>
-        <button className="px-2 py-1 rounded-md text-xs bg-gray-600 hover:bg-gray-500">LTV</button>
+        <button className="px-2 py-1 rounded-md text-xs bg-gray-600 hover:bg-gray-500">Rover</button>
       </div>
       <div className="space-y-2 text-xs">
         <div className="flex justify-between">

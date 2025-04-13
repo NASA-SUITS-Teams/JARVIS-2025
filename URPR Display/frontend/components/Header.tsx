@@ -6,7 +6,7 @@ export default function Header() {
       <div className="flex items-center space-x-2">
         <Moon className="text-blue-400" size={24} />
         <span className="text-xl font-bold tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-300">
-          PRESSURIZED ROVER UI
+          TEAM JARVIS
         </span>
       </div>
       <div className="flex space-x-4">

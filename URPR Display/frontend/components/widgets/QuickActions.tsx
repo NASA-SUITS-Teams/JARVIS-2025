@@ -17,12 +17,8 @@ export default function QuickActions({ handleAddPoint }) {
           <span>Add Point</span>
         </button>
         <button className="p-2 bg-blue-900/50 hover:bg-blue-800/50 border border-blue-600 rounded-md flex flex-col items-center">
-          <Grid size={16} className="mb-1" />
-          <span>Breadcrumb Editor</span>
-        </button>
-        <button className="p-2 bg-blue-900/50 hover:bg-blue-800/50 border border-blue-600 rounded-md flex flex-col items-center">
           <MapIcon size={16} className="mb-1" />
-          <span>Reset Minimap</span>
+          <span>Reset Map</span>
         </button>
       </div>
     </div>

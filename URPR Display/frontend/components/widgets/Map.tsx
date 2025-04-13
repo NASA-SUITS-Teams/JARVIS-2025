@@ -50,7 +50,7 @@ export default function Map({
       <div className="bg-gray-700 p-2 border-b border-blue-600 flex justify-between items-center">
         <div className="flex items-center space-x-2">
           <MapIcon size={18} className="text-blue-400" />
-          <span className="font-bold">MINIMAP</span>
+          <span className="font-bold">MAP</span>
         </div>
         <div className="flex space-x-2">
           <button 
@@ -58,18 +58,6 @@ export default function Map({
             onClick={() => setActiveMap('grid')}
           >
             GRID
-          </button>
-          <button 
-            className={`px-2 py-1 rounded-md text-xs ${activeMap === 'topo' ? 'bg-blue-600' : 'bg-gray-600 hover:bg-gray-500'}`}
-            onClick={() => setActiveMap('topo')}
-          >
-            TOPO
-          </button>
-          <button 
-            className={`px-2 py-1 rounded-md text-xs ${activeMap === '3d' ? 'bg-blue-600' : 'bg-gray-600 hover:bg-gray-500'}`}
-            onClick={() => setActiveMap('3d')}
-          >
-            3D
           </button>
         </div>
       </div>
