@@ -1,6 +1,6 @@
 import socket
 import json
-from . import export, getTSS
+from LunarLink import export, getTSS
 import time
 
 

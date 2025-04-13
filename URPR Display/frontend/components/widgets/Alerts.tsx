@@ -1,7 +1,7 @@
 export default function Alerts() {
   return (
     <div className="p-3 border-b border-blue-600/50">
-      <div className="text-sm font-bold text-blue-300 mb-2">RECENT ALERTS</div>
+      <div className="text-sm font-bold text-blue-300 mb-2">ALERTS</div>
       <div className="space-y-2 text-xs">
         <div className="p-2 bg-yellow-900/30 border border-yellow-600 rounded-md">
           <div className="font-bold">Low O2 Warning</div>
