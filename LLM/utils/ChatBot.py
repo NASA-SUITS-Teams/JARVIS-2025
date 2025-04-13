@@ -5,12 +5,12 @@ import json
 from utils.rag import load_vectorstore
 
 
+DEBUG = True
+
 CHAT_MODEL = "gemma3:4b-it-q8_0"
 
 SYSTEM_PROMPT = """
 You are a helpful AI assistant named Jarvis, designed to support astronauts and mission control with clear and efficient communication. Your responses should be concise, accurate, and direct, offering relevant information in a conversational tone.
-
-You should refer to yourself as Jarvis when asked your name or identity. Do not start every answer with "Jarvis:".
 
 If you are unsure of an answer or lack sufficient data, clearly state that you are speculating but give your best advice.
 
@@ -35,21 +35,21 @@ class ChatBot:
         """Add a message to conversation history"""
         self.conversation_history.append({"role": role, "content": content})
 
-    def get_recent_context(self, max_turns=1):
-        context = ""
-        for message in self.conversation_history[-(max_turns * 2 + 1) :]:
-            role = message["role"]
-            content = message["content"]
+    def get_recent_context(self):
+        context = "\n".join(
+            [message["content"] for message in self.conversation_history[-2:]]
+        )
 
-            if role == "user":
-                context += f"User: {content}\n"
-            elif role == "assistant":
-                context += f"Jarvis: {content}\n"
+        if DEBUG:
+            print("-" * 7)
+            print("Context:\n")
+            print(context)
+            print("-" * 7)
 
         return context
 
     def get_response_stream(self, message, just_print=False):
-        """Get a streaming response from OpenAI-type API and display as Markdown in real-time
+        """Get a streaming response from OpenAI-type API and display in real-time
         with KV caching support"""
         # Add user message to history
         self.add_message("user", message)
@@ -60,13 +60,15 @@ class ChatBot:
         prompt = ""
         if self.use_rag:
             context = self.get_recent_context()
-            if context == "":
-                rag_info = self.get_rag_info(message, k=3)
-            else:
-                rag_info = []
-                rag_info.append(self.get_rag_info(context, k=2))
-                rag_info.append(self.get_rag_info(message, k=2))
-                rag_info = "\n\n".join(rag_info)
+
+            rag_info = []
+
+            doc_texts, doc_ids = self.get_rag_info(context, k=2)
+            rag_info.append(doc_texts)
+            doc_texts, doc_ids = self.get_rag_info(message, k=2, ignore_ids=doc_ids)
+            rag_info.append(doc_texts)
+
+            rag_info = "\n\n".join(rag_info)
 
             if rag_info.strip():
                 prompt += f"Relevant information (optional):\n{rag_info}\n\n"
@@ -81,8 +83,13 @@ class ChatBot:
                 prompt += f"User: {content}\n"
             elif role == "assistant":
                 prompt += f"Jarvis: {content}\n"
+        prompt += "Jarvis: "
 
-        print(prompt)
+        if DEBUG:
+            print("-=" * 7)
+            print("Prompt:\n")
+            print(prompt)
+            print("-=" * 7)
 
         # Prepare payload with context for KV cache
         payload = {
@@ -150,16 +157,29 @@ class ChatBot:
             print(error_msg)
             return error_msg
 
-    def get_rag_info(self, prompt, k):
-        retrieved_docs = self.vectorstore.similarity_search_with_score(prompt, k=k)
+    def get_rag_info(self, prompt, k, ignore_ids=[]):
+        retrieved_docs = self.vectorstore.similarity_search_with_relevance_scores(
+            prompt, k=k + len(ignore_ids)
+        )
 
         doc_texts = []
+        doc_ids = []
         for doc, score in retrieved_docs:
+            if len(doc_texts) == k:
+                break
+
+            if doc.id in ignore_ids:
+                if DEBUG:
+                    print("SAME ID", doc.id, ignore_ids)
+
+                continue
+
             source = doc.metadata.get("source", "unknown")
             snippet = doc.page_content.strip()
             doc_texts.append(f"(Source: {source}) {snippet}")
+            doc_ids.append(doc.id)
 
-        return "\n\n".join(doc_texts)
+        return "\n\n".join(doc_texts), doc_ids
 
     def reset_conversation(self):
         """Reset the conversation history and clear the KV cache context"""
