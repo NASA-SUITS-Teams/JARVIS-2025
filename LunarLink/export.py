@@ -3,7 +3,7 @@ import json
 EXPORT_FILE = "lunarLink"
 
 class ExportFormat:
-    def __init__(self, tpq = [], commandList = [-1] * 165):
+    def __init__(self, tpq = {}, commandList = [-1] * 165):
         self.tpq = tpq
         self.commandList = commandList
 
