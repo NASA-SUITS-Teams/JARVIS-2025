@@ -2,7 +2,7 @@ import chromadb
 import requests
 import json
 
-from utils.rag import load_vectorstore
+from LLM.utils.rag import load_vectorstore
 
 
 DEBUG = True
