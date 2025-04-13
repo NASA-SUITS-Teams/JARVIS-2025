@@ -1,5 +1,6 @@
 import time
 import struct
+import math
 
 URL = "data.cs.purdue.edu"
 PORT = 14141
@@ -19,5 +20,10 @@ def get_tss_data(clientSocket,
 	data, server = clientSocket.recvfrom(1024)
 	return parse_tss_response(data)
 
-def calc_distance_to(x,y):
+def calc_distance_to(x_0, y_0, x_1,y_1):
 	# TODO: calculate the distance from the rover's current position to x,y
+	distance = (x_1 - x_0) ** 2 + (y_1 - y_0) ** 2
+	return math.sqrt(distance)
+
+def get_rover_coordinates(clientSocket):
+	
