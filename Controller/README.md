@@ -2,7 +2,7 @@
 
 This Python script allows you to control a remote vehicle or simulator using a game controller (e.g., Xbox controller). It sends throttle, brake, steering, and light commands over UDP in real-time.
 
-## 🕹 Features
+## Features
 
 - Real-time control via joystick inputs
 - Throttle, braking, steering, and lights
@@ -12,7 +12,7 @@ This Python script allows you to control a remote vehicle or simulator using a g
 
 ---
 
-## ⚙️ Requirements
+## Requirements
 
 - Python 3.x
 - `pygame` library  
@@ -25,7 +25,7 @@ This Python script allows you to control a remote vehicle or simulator using a g
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### 1. Clone the Repository
 
@@ -51,7 +51,7 @@ python controller_udp.py
 
 ---
 
-## 🎮 Controls
+## Controls
 
 | Input             | Action                         |
 |------------------|--------------------------------|
@@ -63,7 +63,7 @@ python controller_udp.py
 
 ---
 
-## 📦 UDP Packet Structure
+## UDP Packet Structure
 
 UDP messages are sent using the following binary structure:
 
@@ -79,7 +79,7 @@ struct.pack(">IIf", timestamp, command_id, value)
 
 ---
 
-## 🧭 Command Reference
+## Command Reference
 
 | Command   | ID    | Value Range       |
 |-----------|-------|-------------------|
@@ -89,7 +89,3 @@ struct.pack(">IIf", timestamp, command_id, value)
 | `steering`| 1110  | `-100` to `100`   |
 
 ---
-
-## 📄 License
-
-This project is provided **as-is** for educational or internal testing purposes.
