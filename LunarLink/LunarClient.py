@@ -1,7 +1,6 @@
 import socket
 import json
-import getTSS
-import time
+from LunarLink import getTSS
 class lunarClient():
     def __init__(self):
         self.lunarSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
