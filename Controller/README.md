@@ -58,7 +58,7 @@ python controller_udp.py
 | **Left Stick X**  | Steering left/right            |
 | **Right Trigger** | Throttle (increase speed)      |
 | **Left Trigger**  | Brake                          |
-| **RB (Button 5)** | Reverse throttle (decrease speed) |
+| **RB (Button 5)** | Reverse throttle (reverse)     |
 | **LB (Button 4)** | Toggle lights on/off           |
 
 ---
