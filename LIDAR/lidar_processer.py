@@ -6,23 +6,39 @@ import math
 import socket
 import time
 import struct
+import sys
+import select
+import os
+import re
 
-def get_tss_data(clientSocket, cmd_num):
+def get_tss_data(clientSocket, cmd_num, timeout=0.5):
     """
-    Helper function to get TSS data given socket and command number
+    Helper function to get TSS data given socket and command number.
+    Returns None on timeout or unpack failure.
     """
     tstamp = int(time.time())
-    clientSocket.sendto(tstamp.to_bytes(4, byteorder="big") + cmd_num.to_bytes(4,byteorder="big"), ("data.cs.purdue.edu", 14141))
-    data, _ = clientSocket.recvfrom(1024)
-    output = float('nan')
-    if (cmd_num == 167):
+    clientSocket.sendto(
+        tstamp.to_bytes(4, byteorder="big") + cmd_num.to_bytes(4, byteorder="big"),
+        ("data.cs.purdue.edu", 14141)
+    )
+    try:
+        data, _ = clientSocket.recvfrom(1024)
+    except socket.timeout:
+        return None
+
+    if cmd_num == 167:
         try:
-            output = list(struct.unpack('>13f', data[8:8+4*13]))
-        except:
-            print("Did not receive enough bytes")        
+            return list(struct.unpack('>13f', data[8:8+4*13]))
+        except struct.error:
+            return None
     else:
-        output = struct.unpack('>f', data[8:])[0]
-    return output
+        # slice exactly 4 bytes for a single float
+        chunk = data[8:12]
+        try:
+            return struct.unpack('>f', chunk)[0]
+        except struct.error:
+            return None
+
 
 
 def process_lidar(clientSocket):
@@ -38,8 +54,16 @@ def process_lidar(clientSocket):
     pitch = get_tss_data(clientSocket, cmd_num=132)
     roll = get_tss_data(clientSocket, cmd_num=133)
 
-    if any(math.isnan(x) for x in [posx, posy, posz, yaw, pitch, roll]) or floats is None:
-        print("Error: Invalid TSS data received.")
+    if floats is None or any(v is None for v in (posx, posy, posz, yaw, pitch, roll)):
+        print("Error: TSS timeout or bad data.")
+        return None
+    
+    if not isinstance(floats, (list, tuple)):
+        print("Error: invalid LiDAR float array format.")
+        return None
+    
+    if any(math.isnan(x) for x in floats):
+        print("Error: LiDAR data contains NaN.")
         return None
 
     rover_angle = (
@@ -55,6 +79,5 @@ def process_lidar(clientSocket):
     return process_lidar_readings(floats, rover_position, tuple(rover_angle))
 
 if __name__ == '__main__':
-    # sample usage
     clientSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     print(process_lidar(clientSocket))
