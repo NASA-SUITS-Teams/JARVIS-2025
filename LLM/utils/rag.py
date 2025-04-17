@@ -6,17 +6,15 @@ from langchain_ollama import OllamaEmbeddings
 
 
 EMBEDDING_MODEL = "mxbai-embed-large"
-PERSIST_DIRECTORY = "vectorstore/"
-folder_path = "documents/"
+PERSIST_DIRECTORY = "LLM/vectorstore/"
+FOLDER_PATH = "LLM/documents/"
 
 
 def create_vectorstore():
-    folder_path = "documents/"
-
     documents = []
 
-    for file_name in os.listdir(folder_path):
-        file_path = os.path.join(folder_path, file_name)
+    for file_name in os.listdir(FOLDER_PATH):
+        file_path = os.path.join(FOLDER_PATH, file_name)
         if file_name.endswith(".txt"):
             loader = TextLoader(file_path, encoding="utf-8")
             documents.extend(loader.load())
