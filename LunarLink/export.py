@@ -7,7 +7,6 @@ class ExportFormat:
         self.tpq = tpq
         self.commandList = commandList
 
-
     def to_dict(self):
         return {
             "tpq": self.tpq,

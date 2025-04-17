@@ -30,9 +30,6 @@ send_command(COMMANDS["throttle"], 0)
 send_command(COMMANDS["brake"], 0)
 send_command(COMMANDS["steering"], 0)
 
-
-
-
 class Controller:
     def __init__(self):
         self.controller = pygame.joystick.Joystick(0) if pygame.joystick.get_count() > 0 else None
@@ -43,6 +40,9 @@ class Controller:
         self.lights = False
         self.light_pressed_last = False
         self.speed = 0
+        self.music = False
+        self.Interstellar = pygame.mixer.Sound('Interstellar.mp3')
+
 
     def handle_input(self):
         if self.controller:
@@ -50,15 +50,22 @@ class Controller:
             axis_x = self.controller.get_axis(0)  # Steering (-1 to 1)
             lt = (self.controller.get_axis(4) + 1) / 2  # LT/Brake (0 to 1)
             rt = (self.controller.get_axis(5) + 1) / 2  # RT/Gas (0 to 1)
-
+            but0 = (self.controller.get_button(0))
             but4 = (self.controller.get_button(4))
             up = self.controller.get_button(5) # RB (0 to 1)
 
             # Lights
             if but4 and not self.light_pressed_last:
+                print("music!!!!!")
                 self.lights = not self.lights
                 send_command(COMMANDS["light"], self.lights)
             self.light_pressed_last = but4
+
+            # Music
+            if but0 and not self.music:
+                self.music = not self.music
+                self.Interstellar.play()            
+            self.music = but0
 
             # Throttle and Brake
             if rt > 0.1 and rt != 0.5:
@@ -105,7 +112,6 @@ controller = Controller()
 clock = pygame.time.Clock()
 
 running = True
-
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:

@@ -1,4 +1,4 @@
-from utils.ChatBot import CHAT_MODEL, ChatBot
+from LLM.utils.ChatBot import CHAT_MODEL, ChatBot
 
 chatbot = ChatBot(model=CHAT_MODEL, use_rag=True)
 
