@@ -19,6 +19,9 @@ if __name__ == "__main__":
     
     # Initialize TPQ
     tpq = TPQ.TaskPriorityQueue()
+
+    # Store command list data
+    cmd_lst = [-1] * 165;
     
     lunar_link = LunarLink.LunarLink("0.0.0.0")
     server_thread = threading.Thread(target=lunar_link.server_loop)
@@ -53,5 +56,7 @@ def pull_EVA_Coords():
     ''' Retrieve the EVAs location '''
     eva1_x, eva1_y, _, eva2_x, eva2_y = lunar_link.jsonFile.commandList[17:22]
     return jsonify([eva1_x, eva1_y, eva2_x, eva2_y])
+
+
 
     

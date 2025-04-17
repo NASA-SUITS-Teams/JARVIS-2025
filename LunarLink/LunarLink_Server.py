@@ -5,7 +5,7 @@ import time
 
 
 class LunarLink:
-    def __init__(self, ip = "127.0.0.1", port = 5005): # put everything in init so it can be called opened in another file
+    def __init__(self, tpq, cmd_lst, ip = "127.0.0.1", port = 5005): # put everything in init so it can be called opened in another file
         self.UDP_IP = ip
         self.UDP_PORT = port
         self.EXPORT_FILE = "lunarLink.json"
@@ -14,8 +14,7 @@ class LunarLink:
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.sock.bind((self.UDP_IP, self.UDP_PORT))
 
-
-        self.jsonFile = export.ExportFormat() # initializes the json file with tpq being an emtpy dicitionary and command array of 166 entries of invalid value of 200 for now
+        self.jsonFile = export.ExportFormat(tpq, cmd_lst) # initializes the json file with tpq being an emtpy dicitionary and command array of 166 entries of invalid value of 200 for now
 
 
 
