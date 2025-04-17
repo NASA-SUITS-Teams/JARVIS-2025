@@ -1,5 +1,5 @@
 #power consumption
-import resourceConsumption
+from resourceConsumption import roverState
 #power in kW
 totalPower = 100
 
@@ -15,12 +15,20 @@ def calculatePowerForTrip(rover, distanceMeters):
     return powerNeeded
 
 
+
+def kWforTrip(goalCoordinates, estimatedTaskTime):
+    motorPower = roverState.data["motorPowerConsumption"]
+    totalPower = roverState.data["powerConsumptionRate"]
+    otherPower = totalPower - motorPower
+
+
+    timeSec = roverState.getTotalTime(goalCoordinates, estimatedTaskTime)
+    totalOtherPower = timeSec * otherPower / 36000
+
+
 #calculate power needed to get to goal andn back to base, 
 def powerBackToBase(rover, goalCoordinates, baseCoordinates):
-    curr = (rover.data["longitude"], rover.data["latitude"])
-    distToGoal = ((curr[0] - goalCoordinates[0]) ** 2 + (curr[1] - goalCoordinates[1]) ** 2) ** (1/2)
-    distToBase = ((baseCoordinates[0] - goalCoordinates[0]) ** 2 + (baseCoordinates[1] - goalCoordinates[1]) ** 2) ** (1/2)
-    totalDist = distToGoal + distToBase
+    totalDist = roverState.getTotalDist()
     powerNeeded = calculatePowerForTrip(rover, totalDist)
     return powerNeeded
 

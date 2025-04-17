@@ -1,28 +1,24 @@
-import datetime 
-import matplotlib.pyplot as plt
-import numpy as np
-from scipy.optimize import curve_fit
-from resourceConsumption import roverState, getTSSdata
+
+from resourceConsumption import roverState
 
 
 #oxygen mass of tank in grams
 
 
+#predict oxyen time left
 #refill EVA takes approx 2 min
 #refill at approx every 15 min
+#complete cycle 18 mins 7.25%
+#refueling = 125 ticks = 6.25%
+#between refuel = 1% passive intake
 def oxygenTimeLeft():
-    tank / 0.1 = 
+    percentLeft = roverState.data["oxygen_tank"]
+    cycles = percentLeft // 7.25
+    minutes = cycles * 18
+    return minutes - 5
 
 
-
-
-
-def oxygenTimeLeft(maxOxygen, currentMass = A, decayConstant = B):
     
-    target = maxOxygen * 0.05
-    #time in seconds
-    timeLeft = -np.log(target / currentMass)/decayConstant
-    return timeLeft
 
 
 def oxygenPressure():
