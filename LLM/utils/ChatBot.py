@@ -8,9 +8,12 @@ from LLM.utils.rag import load_vectorstore
 DEBUG = True
 
 CHAT_MODEL = "gemma3:4b-it-q8_0"
+CHAT_MODEL = "llama3.2:latest"
 
 SYSTEM_PROMPT = """
 You are a helpful AI assistant named Jarvis, designed to support astronauts and mission control with clear and efficient communication. Your responses should be concise, accurate, and direct, offering relevant information in a conversational tone.
+
+Only use the function tools if the user explicitly asks you to calculate something (e.g., add numbers).
 
 If you are unsure of an answer or lack sufficient data, clearly state that you are speculating but give your best advice.
 
@@ -18,27 +21,40 @@ Do not use formatting such as bold, italics, or emojis. Communicate clearly and 
 """
 
 
+def add_two_numbers(a: int, b: int) -> int:
+    """
+    Add two numbers
+
+    Args:
+      a (int): The first number
+      b (int): The second number
+
+    Returns:
+      int: The sum of the two numbers
+    """
+
+    return int(a) + int(b)
+
+
 class ChatBot:
-    def __init__(self, model, use_rag=False):
+    def __init__(self, model, use_rag=False, use_tools=False):
         """Initialize ChatBot with OpenAI-type API"""
         self.base_url = "http://localhost:11434"
         self.model = model
-        self.conversation_history = []
-        self.context_id = None  # To track the context for KV cache persistence
+        self.messages = []
 
         self.use_rag = use_rag
         if self.use_rag:
             self.vectorstore = load_vectorstore()
             self.client = chromadb.Client()
 
+        self.use_tools = use_tools
+
     def add_message(self, role, content):
-        """Add a message to conversation history"""
-        self.conversation_history.append({"role": role, "content": content})
+        self.messages.append({"role": role, "content": content})
 
     def get_recent_context(self):
-        context = "\n".join(
-            [message["content"] for message in self.conversation_history[-2:]]
-        )
+        context = "\n".join([message["content"] for message in self.messages[-2:]])
 
         if DEBUG:
             print("-" * 7)
@@ -54,8 +70,8 @@ class ChatBot:
         # Add user message to history
         self.add_message("user", message)
 
-        # Prepare API request - use the generate endpoint for better cache control
-        url = f"{self.base_url}/api/generate"
+        # Prepare API request
+        url = f"{self.base_url}/api/chat"
 
         prompt = ""
         if self.use_rag:
@@ -69,53 +85,65 @@ class ChatBot:
             rag_info.append(doc_texts)
 
             rag_info = "\n\n".join(rag_info)
-
-            if rag_info.strip():
-                prompt += f"Relevant information (optional):\n{rag_info}\n\n"
-
-        # Format conversation history into a prompt
-        prompt += "Chat history:\n"
-        for msg in self.conversation_history[-5:]:
-            role = msg["role"]
-            content = msg["content"]
-
-            if role == "user":
-                prompt += f"User: {content}\n"
-            elif role == "assistant":
-                prompt += f"Jarvis: {content}\n"
-        prompt += "Jarvis: "
+            rag_info = f"Relevant information (optional):\n{rag_info}\n\n"
 
         if DEBUG:
             print("-=" * 7)
-            print("Prompt:\n")
-            print(prompt)
+            print("messages:")
+            print(self.messages)
             print("-=" * 7)
 
-        # Prepare payload with context for KV cache
+        # Prepare payload
         payload = {
             "model": self.model,
-            "prompt": prompt,
             "stream": True,
             "options": {
                 "temperature": 0.25,  # Temperature parameter of softmax
                 "num_ctx": 128000,  # Context window size in tokens
                 "num_predict": 4096,  # Max tokens to predict
-            },
+            }
         }
+        if self.use_rag:
+            payload["messages"] = (
+                [{"role": "system", "content": SYSTEM_PROMPT + "\n" + rag_info}]
+                + self.messages
+            )
+        else:
+            payload["messages"] = [{"role": "system", "content": SYSTEM_PROMPT}] + self.messages
 
-        # Add the context ID if we have one from a previous exchange
-        if self.context_id:
-            payload["context"] = self.context_id
+        # self.use_tools = True
+        if self.use_tools:
+            payload["tools"] = [{
+                "type": "function",
+                "function": {
+                    "name": "add_two_numbers",
+                    "description": "Add two numbers",
+                    "parameters": {
+                        "type": "object",
+                        "required": [
+                            "a",
+                            "b"
+                        ],
+                        "properties": {
+                            "a": {
+                                "type": "integer",
+                                "description": "The first integer number"
+                            },
+                            "b": {
+                                "type": "integer",
+                                "description": "The second integer number"
+                            }
+                        }
+                    }
+                }
+            }]
 
-        payload["system"] = SYSTEM_PROMPT
-
-        # Initialize full response
         full_response = ""
 
         try:
+            # Process the streaming response line by line
             with requests.post(url, json=payload, stream=True) as response:
 
-                # Process the streaming response line by line
                 if just_print:
                     print("Jarvis: ", end="", flush=True)
 
@@ -123,27 +151,31 @@ class ChatBot:
                     if line:
                         # Parse the JSON response
                         chunk = json.loads(line)
+                        message = chunk["message"]
+                        #print(chunk)
 
-                        # Extract the content from the chunk - different format in generate API
-                        if "response" in chunk:
-                            content = chunk["response"]
+                        if "tool_calls" in message:
+                            for call in message["tool_calls"]:
+                                function = call["function"]
+                                if function["name"] == "add_two_numbers":
+                                    args = function["arguments"]
+                                    result = add_two_numbers(**args)
+                                    print(f"\nFunction Result: {result}")
+                                    # Optionally feed this back into the conversation
+
+                        if "content" in message:
+                            content = message["content"]
                             full_response += content
 
                             if just_print:
                                 print(content, end="", flush=True)
 
-                        # Store the context for KV cache persistence
-                        if "context" in chunk:
-                            self.context_id = chunk["context"]
-
-                        # Check if this is the done message
                         if "done" in chunk and chunk["done"]:
                             break
 
             if just_print:
                 print()
 
-            # Add assistant response to history
             self.add_message("assistant", full_response)
 
             return full_response
@@ -182,9 +214,8 @@ class ChatBot:
         return "\n\n".join(doc_texts), doc_ids
 
     def reset_conversation(self):
-        """Reset the conversation history and clear the KV cache context"""
+        """Reset the conversation history"""
         self.conversation_history = []
-        self.context_id = None  # Clear the context to start fresh
 
     def get_conversation_history(self):
         """Display conversation history with markdown formatting for assistant responses"""

@@ -96,4 +96,4 @@ def process_lidar_readings(lidar_readings, rover_position, rover_angles):
     # Transform the local endpoint to global coordinates.
     global_point = local_to_global(sensor_local_endpoint, rover_position, rover_angles)
     points.append(global_point)
-  return points
+  return [tuple(float(x) for x in point) for point in points]
