@@ -21,15 +21,25 @@ class roverState:
     def updateRoverState(self, newData):
         self.data = newData["rover"]
  
+    #gets one way trip distance
+    def getOneWayDist(self, goalCoordinates):
+        curr = (self.data["longitude"], self.data["latitude"])
+        distToGoal = ((curr[0] - goalCoordinates[0]) ** 2 + (curr[1] - goalCoordinates[1]) ** 2) ** (1/2)
+        return distToGoal
 
     #get total distance from current location to goal and abck to base
     def getTotalDist(self, goalCoordinates):
-        curr = (self.data["longitude"], self.data["latitude"])
-        distToGoal = ((curr[0] - goalCoordinates[0]) ** 2 + (curr[1] - goalCoordinates[1]) ** 2) ** (1/2)
+
+        distToGoal = self.getOneWayDist(goalCoordinates)
         distToBase = ((self.baseCoords[0] - goalCoordinates[0]) ** 2 + (self.baseCoords[1] - goalCoordinates[1]) ** 2) ** (1/2)
         totalDist = distToGoal + distToBase
         return totalDist
     
+    #gets one way trip time in seconds
+    def getOneWayTime(self, goalCoordinates):
+        time = self.getOneWayDist(goalCoordinates) * avgSpeed
+        return time
+
     #get total time in seconds needed to get to task, complete task, and get back to base
     def getTotalTime(self, goalCoordinates, estimatedTaskTime):
         dist = self.getTotalDist(self, goalCoordinates)

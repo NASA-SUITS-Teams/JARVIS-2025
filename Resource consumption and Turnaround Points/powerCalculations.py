@@ -3,75 +3,51 @@ from resourceConsumption import roverState
 #power in kW
 totalPower = 100
 
-
-#take into account mission elapsed time
-#calculate power needed for trip given distance, 
-def calculatePowerForTrip(rover, distanceMeters):
-    motorPower = rover.data["motorPowerConsumption"]
-    otherPower = rover.data["powerConsumptionRate"] - motorPower
-    seconds = distanceMeters / rover.data["speed"]
-    #motor power only depends on throttle not speed take this into account
-    powerNeeded = otherPower/3600 * seconds + rover.data["powerConsumptionRate"]/distanceMeters * rover.data["speed"] * 10 / 36 
-    return powerNeeded
+#Trip = to goal and back to base from cureent location
+#drive = to goal
 
 
 
-def kWforTrip(goalCoordinates, estimatedTaskTime):
-    motorPower = roverState.data["motorPowerConsumption"]
-    totalPower = roverState.data["powerConsumptionRate"]
-    otherPower = totalPower - motorPower
+
+#Calculate power time left if continuously driving and using all/most necessary functions
+#100% throttle (0.01/s)
+#functions include internal and external ligts (0.0015/s)
+#ac heating or cooling (0.005/s)
+#co2 scrubber (0.001/s), and dust wiper 0.001/s)
+#100% battery = 1 hr of full function, 90 mins w/o using throttle
+def powerTimeLeft():
+
+    minsLeft = roverState.data['battery_level'] * 0.6
 
 
-    timeSec = roverState.getTotalTime(goalCoordinates, estimatedTaskTime)
-    totalOtherPower = timeSec * otherPower / 36000
+#Calculate total power needed to get to goal location, complete task, and get back to base
+def powerForTrip(goalCoordinates, estimatedTimeTask):
+    totalTime = roverState.getTotalTime(goalCoordinates, estimatedTimeTask)
+    driveTime = totalTime - estimatedTimeTask
+    driveConsumption = driveTime * 0.0275
+    taskConsumption = estimatedTimeTask * 0.0175
+    totalPowerAsPercentage = driveConsumption + taskConsumption
+    return totalPowerAsPercentage
+
+#Get power as percentage needed for one way drive
+def powerForDrive(goalCoordinates):
+
+    time = roverState.getOneWayTime(goalCoordinates)
+    power = time * 0.0275
+    return power
 
 
-#calculate power needed to get to goal andn back to base, 
-def powerBackToBase(rover, goalCoordinates, baseCoordinates):
-    totalDist = roverState.getTotalDist()
-    powerNeeded = calculatePowerForTrip(rover, totalDist)
-    return powerNeeded
 
+#if trip can be made without going below 20% battery return True
+def enoughPower(goalCoordinates, estimatedTimeTask):
+    batteryLow = 0.2 * totalPower
+    batteryNeeded = powerForTrip(goalCoordinates, estimatedTimeTask)
 
-#if trip can be made without going below 10% battery return True
-def enoughPower(rover, powerNeeded, totalPower):
-    batteryLow = 0.1 * totalPower
-    powerLeft = rover.data["batteryLevel"] / 100 * totalPower
-    if powerLeft - powerNeeded <= batteryLow:
+    if (roverState.data['battery_level'] - batteryNeeded) <= batteryLow:
         return False
     else:
         return True
 
 
-#battery time left:
-def batteryTimeLeft(rover):
-
-    #calculate seconds left with current power use (doesn't account for changes)
-    secondsLeft = rover.data["batteryLevel"] / rover.data["powerConsumptionRate"]
-    return secondsLeft
-
-
-#calculate time left with constant (almost) max power usage
-#compare with oxygen time left to find actual time left
-def minTimeLeft(rover, avg_throttle):
-    #calculate MAX power consumption rate / sec
-
-    battLevel = rover.data["batteryLevel"]
-    #consumption values in % per second
-    passiveConsumption = 0.0005
-    #find averaeg throttle for mission to estimate power
-    throttleConsumption = 0.01 * avg_throttle
-    wiperConsumption = 0.001
-    heatingConsumption = 0.005
-    coolingConsumption = 0.005
-    scrubberConsumption = 0.001
-    externalLightsConsumption = 0.001
-    internalLightsConsumption = 0.000
-
-    maxEnergyUse = passiveConsumption + throttleConsumption + wiperConsumption + heatingConsumption + coolingConsumption + scrubberConsumption + externalLightsConsumption + internalLightsConsumption  
-
-    #no recharge
-    secondsLeft = battLevel / maxEnergyUse
-    return secondsLeft
 
 
