@@ -21,7 +21,8 @@ def powerTimeLeft():
 
 
 #Calculate total power needed to get to goal location, complete task, and get back to base
-def powerForTrip(goalCoordinates, estimatedTimeTask):
+#estimated time task in seconds
+def powerForTrip(goalCoordinates, estimatedTimeTask=600):
     totalTime = roverState.getTotalTime(goalCoordinates, estimatedTimeTask)
     driveTime = totalTime - estimatedTimeTask
     driveConsumption = driveTime * 0.0275
@@ -39,8 +40,8 @@ def powerForDrive(goalCoordinates):
 
 
 #if trip can be made without going below 20% battery return True
-def enoughPower(goalCoordinates, estimatedTimeTask):
-    batteryLow = 0.2 * totalPower
+def enoughPower(goalCoordinates, estimatedTimeTask=600):
+    batteryLow = 20
     batteryNeeded = powerForTrip(goalCoordinates, estimatedTimeTask)
 
     if (roverState.data['battery_level'] - batteryNeeded) <= batteryLow:
@@ -48,6 +49,21 @@ def enoughPower(goalCoordinates, estimatedTimeTask):
     else:
         return True
 
+def powerErrors():
 
+    battery = roverState.data['battery_level']
+
+    if battery == 0:
+        return "Out of Battery"
+    elif battery <= 10:
+        return "Battery Levels Critical"
+    elif battery <= 30:
+        return "Battery Levels Low"
+    elif battery <= 60:
+        return "Battery Levels Moderate"
+    elif battery <= 99:
+        return "Battery Levels High"
+    else:
+        return "Battery Levels Full"
 
 

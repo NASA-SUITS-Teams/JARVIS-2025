@@ -1,6 +1,6 @@
 
 from resourceConsumption import roverState
-
+import powerCalculations
 
 #oxygen mass of tank in grams
 
@@ -17,10 +17,35 @@ def oxygenTimeLeft():
     minutes = cycles * 18
     return minutes - 5
 
-
+def oxygenForTrip(goalCoordinates, estimatedTaskTime=600):
     
+    time = roverState.getTotalTime(goalCoordinates) + estimatedTaskTime
+    mins = time / 60
+    cycles = mins / 17
+    percentOxygenNeeded = cycles * 7.25
+    return percentOxygenNeeded
+
+def oxygenForDrive(goalCoordinates):
+    time = roverState.getOneWayTime(goalCoordinates)
+    mins = time / 60
+    cycles = mins / 17
+    percentOxygenNeeded = cycles * 7.25
+    return percentOxygenNeeded
 
 
+
+def enoughOxyen(goalCoordinates, estimatedTimeTask=600):
+    lowOxygen = 20
+    oxygenNeeded = oxygenForTrip(goalCoordinates, estimatedTimeTask)
+
+    if (roverState.data['oxygen_tank'] - oxygenNeeded) <= lowOxygen:
+        return False
+    else:
+        return True
+
+
+#oxygen tank pressure not rover
+'''
 def oxygenPressure():
     p = roverState.data["oxygen_pressure"]
 
@@ -54,6 +79,8 @@ def oxygenPressure():
     else:
         #lethal oxygen toxicity
         return "Lethal Oxygen Toxicity"
+'''
+
 
 def pressure():
 
@@ -87,12 +114,13 @@ def oxygenLevels():
     else:
         return "Oxygen Levels Full"
      
-def enoughTime(timeLeft):
-    #calculated in seconds with 20 minutes buffer time
-    #can change buffertime so its at a constant ration to mission time
-    if roverState.data["mission_planned_time"] <= (timeLeft + 1200):
-        return False
-    else:
+
+
+def enoughTime(goalCoordinates, estimatedTimeTask=600):
+    if powerCalculations.enoughPower(goalCoordinates, estimatedTimeTask) and enoughOxyen(goalCoordinates, estimatedTimeTask):
         return True
+    else: 
+        return False
+
 
 

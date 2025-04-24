@@ -1,4 +1,7 @@
 import json
+battMin = 720
+oxyMin = 720
+coolantMin = 20
 
 # This script is used for checking EVA telemetry values to make sure they are within nominal ranges.
 
