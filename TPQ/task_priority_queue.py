@@ -20,6 +20,8 @@ class TaskPriorityQueue:
         # Properties to keep track of leftover oxygen and power
         self.oxygen = oxygen
         self.power = power
+
+        # TODO: Add timestamp
         
 
     # task_data = (priority, oxygen_req, power_req, distance_to_task)

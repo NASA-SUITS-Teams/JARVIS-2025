@@ -9,15 +9,11 @@ class LunarLink:
         self.UDP_IP = ip
         self.UDP_PORT = port
         self.EXPORT_FILE = "lunarLink.json"
-        self.tssSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.sock.bind((self.UDP_IP, self.UDP_PORT))
 
         self.jsonFile = export.ExportFormat(tpq, cmd_lst) # initializes the json file with tpq being an emtpy dicitionary and command array of 166 entries of invalid value of 200 for now
-
-
-
 
     def server_loop(self):
         while True:
@@ -74,17 +70,10 @@ class LunarLink:
                 print(f"[ERROR] Invalid JSON received from {addr}")
                 self.sock.sendto(b'{"status": "error", "message": "Invalid JSON"}', addr)
                 continue
+
+    
            
-    def updateRover_loop(self, TssIP = "data.cs.purdue.edu", TssPort = 14141, interval = 5):
-        #loop call tss for every rover command value and append number and value tuple into message then send
-        while True:
-            for commandNum in range(119,167):
-                #not including LIDAR command since EVA won't need that information
-                data = getTSS.get_tss_data(clientSocket=self.tssSock, cmd_num=commandNum, addr=(TssIP, TssPort))
-                self.jsonFile.update_command(commandNum, data[2][0])
 
-
-            time.sleep(interval)
 
 
 
