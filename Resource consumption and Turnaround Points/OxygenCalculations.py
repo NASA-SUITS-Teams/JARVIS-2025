@@ -1,96 +1,28 @@
-import datetime 
-import matplotlib.pyplot as plt
-import numpy as np
-from scipy.optimize import curve_fit
+
+from resourceConsumption import roverState
 
 
 #oxygen mass of tank in grams
-oxygenMass = [1300, 1250, 1225, 1175, 1150, 1130, 1100, 1075, 1060, 1020, 1000]
-timestamps = []
-A = 0
-B = 0
 
 
+#predict oxyen time left
+#refill EVA takes approx 2 min
+#refill at approx every 15 min
+#complete cycle 18 mins 7.25%
+#refueling = 125 ticks = 6.25%
+#between refuel = 1% passive intake
+def oxygenTimeLeft():
+    percentLeft = roverState.data["oxygen_tank"]
+    cycles = percentLeft // 7.25
+    minutes = cycles * 18
+    return minutes - 5
 
 
-def calculateOxygenMassLeft(oxygenTankPressure, maxOxygen, tankVolume, temperature):
-
-    temp = getCabinTemp() + 273.15
-
-    R = 0.0821
-    totalOxygen = getOxygenLevel() / 100 * maxOxygen
-    moles = oxygenTankPressure * tankVolume / (R * temp)
-    mass = moles * 32
-    #mass in grams
-    timestamp = datetime.datetime.now().time()
-    timestamps.append(timestamp)
-    oxygenMass.append(mass)
-    return mass
-
-
-def calculateRoverOxygenMass(maxOxygen, roverVolume):
-
-    temp = getCabinTemp() + 273.15
-
-    R = 0.0821
-    totalOxygen = getOxygenLevel() / 100 * maxOxygen
-    moles = getOxygenPressure() * roverVolume / (R * temp)
-    mass = moles * 32
-    #mass in grams
-    return mass
-
-def oxygenConsumptionRate(mass1, mass2):
-    #calculate every second
-    #consumption rate in grams/second
-    consumptionRate = mass1 - mass2
-    return consumptionRate
-
-def plotOxygenConsumptionRate():
-
-    totalSec = (timestamps[len(timestamps) - 1] - timestamps[0]).total_seconds()
-    if  totalSec < 60:
-        time_elapsed = np.array([(t - timestamps[0]).total_seconds() for t in timestamps])  # Convert to hours
-        plt.xlabel("Time (sec)")
-
-    elif totalSec < 3600:
-        time_elapsed = np.array([(t - timestamps[0]).total_seconds() / 60 for t in timestamps])  # Convert to hours
-        plt.xlabel("Time (min)")
-    else:
-        time_elapsed = np.array([(t - timestamps[0]).total_seconds() / 3600 for t in timestamps])  # Convert to hours
-        plt.xlabel("Time (hour)")
     
-
-    plt.scatter(time_elapsed, oxygenMass)
-    
-    plt.ylabel("Oxygen Mass (g)")
-    
-    plt.title("Oxygen Consumption Over Time")
-
-    #consumptionRate = np.diff(oxygenMass) / np.diff(timestamps)
-
-    params, _ = curve_fit(exp_decay, time_elapsed, oxygenMass)
-    A, B = params
-    futureTime = np.linspace(0, max(time_elapsed) * 2, 100)
-    predictedOxygen = exp_decay(futureTime, A, B)
-    print(predictedOxygen, type(predictedOxygen))
-
-    plt.plot(futureTime, predictedOxygen, label="Exponential Fit", color="red", linestyle="--")
-    plt.show()
-
-
-def exp_decay(t, A, B):
-    return A * np.exp(-B * t)
-
-def oxygenTimeLeft(maxOxygen, currentMass = A, decayConstant = B):
-    
-    target = maxOxygen * 0.05
-    #time in seconds
-    timeLeft = -np.log(target / currentMass)/decayConstant
-    return timeLeft
 
 
 def oxygenPressure():
-    p = getOxygenPressure()
+    p = roverState.data["oxygen_pressure"]
 
     if p <= 1:
         #fatal oxygen deprivation
@@ -125,7 +57,7 @@ def oxygenPressure():
 
 def pressure():
 
-    p = getPressure()
+    p = roverState.data["pressure"]
     if p <= 12:
         #risk of hypoxia
         return "Risk of Hypoxia"
@@ -141,7 +73,7 @@ def pressure():
 
 def oxygenLevels():
 
-    l = getOxygenLevel()
+    l = roverState.data["oxygen_levels"]
     if l == 0:
         return "No Remaining Oxygen"
     elif l <= 10:
@@ -155,16 +87,12 @@ def oxygenLevels():
     else:
         return "Oxygen Levels Full"
      
-def enoughTime():
+def enoughTime(timeLeft):
     #calculated in seconds with 20 minutes buffer time
     #can change buffertime so its at a constant ration to mission time
-    if getMissionPlannedTime() <= (timeLeft + 1200):
+    if roverState.data["mission_planned_time"] <= (timeLeft + 1200):
         return False
     else:
         return True
 
 
-for i in range(len(oxygenMass)):
-    timestamps.append(datetime.datetime(2025, 4, 2, 4, 0, i))
-
-plotOxygenConsumptionRate()

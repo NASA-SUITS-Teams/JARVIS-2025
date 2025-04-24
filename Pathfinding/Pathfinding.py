@@ -1,4 +1,4 @@
-# A* pathfinding script
+# A* pathfinding and utility functions
 from math import sqrt
 import numpy as np
 import heapq
@@ -7,11 +7,11 @@ import heapq
 Global Constants
 Change to match provided map
 """
-xmin = 0
-xmax = 5000
+xmin = -6550
+xmax = -5450
 
-ymin = 0
-ymax = 5000
+ymin = -10450
+ymax = -9750
 
 
 """
