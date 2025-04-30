@@ -8,32 +8,14 @@ from LLM.utils.rag import load_vectorstore
 DEBUG = True
 
 CHAT_MODEL = "gemma3:4b-it-q8_0"
-CHAT_MODEL = "llama3.2:latest"
 
 SYSTEM_PROMPT = """
 You are a helpful AI assistant named Jarvis, designed to support astronauts and mission control with clear and efficient communication. Your responses should be concise, accurate, and direct, offering relevant information in a conversational tone.
-
-Only use the function tools if the user explicitly asks you to calculate something (e.g., add numbers).
 
 If you are unsure of an answer or lack sufficient data, clearly state that you are speculating but give your best advice.
 
 Do not use formatting such as bold, italics, or emojis. Communicate clearly and naturally using only plain punctuation.
 """
-
-
-def add_two_numbers(a: int, b: int) -> int:
-    """
-    Add two numbers
-
-    Args:
-      a (int): The first number
-      b (int): The second number
-
-    Returns:
-      int: The sum of the two numbers
-    """
-
-    return int(a) + int(b)
 
 
 class ChatBot:
@@ -101,42 +83,20 @@ class ChatBot:
                 "temperature": 0.25,  # Temperature parameter of softmax
                 "num_ctx": 128000,  # Context window size in tokens
                 "num_predict": 4096,  # Max tokens to predict
-            }
+            },
         }
         if self.use_rag:
-            payload["messages"] = (
-                [{"role": "system", "content": SYSTEM_PROMPT + "\n" + rag_info}]
-                + self.messages
-            )
+            payload["messages"] = [
+                {"role": "system", "content": SYSTEM_PROMPT + "\n" + rag_info}
+            ] + self.messages
         else:
-            payload["messages"] = [{"role": "system", "content": SYSTEM_PROMPT}] + self.messages
+            payload["messages"] = [
+                {"role": "system", "content": SYSTEM_PROMPT}
+            ] + self.messages
 
         # self.use_tools = True
         if self.use_tools:
-            payload["tools"] = [{
-                "type": "function",
-                "function": {
-                    "name": "add_two_numbers",
-                    "description": "Add two numbers",
-                    "parameters": {
-                        "type": "object",
-                        "required": [
-                            "a",
-                            "b"
-                        ],
-                        "properties": {
-                            "a": {
-                                "type": "integer",
-                                "description": "The first integer number"
-                            },
-                            "b": {
-                                "type": "integer",
-                                "description": "The second integer number"
-                            }
-                        }
-                    }
-                }
-            }]
+            pass
 
         full_response = ""
 
@@ -152,16 +112,6 @@ class ChatBot:
                         # Parse the JSON response
                         chunk = json.loads(line)
                         message = chunk["message"]
-                        #print(chunk)
-
-                        if "tool_calls" in message:
-                            for call in message["tool_calls"]:
-                                function = call["function"]
-                                if function["name"] == "add_two_numbers":
-                                    args = function["arguments"]
-                                    result = add_two_numbers(**args)
-                                    print(f"\nFunction Result: {result}")
-                                    # Optionally feed this back into the conversation
 
                         if "content" in message:
                             content = message["content"]
