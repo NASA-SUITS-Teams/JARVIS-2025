@@ -28,18 +28,20 @@ class ToolBot:
             model=self.model, messages=messages, options=options, tools=TOOLS
         )
 
+        full_response = ""
         for tool in response.message.tool_calls or []:
             function_name = tool.function.name
             args = tool.function.arguments
-            print(f"{function_name} {args}")
+            if DEBUG:
+                print(f"{function_name} {args}")
 
             function_to_call = AVAILABLE_FUNCTIONS.get(function_name)
             if function_to_call:
                 try:
-                    print("Function output:", function_to_call(**args))
+                    full_response += f"Function output: {function_to_call(**args)}"
                 except Exception as e:
-                    print(f"ERROR: {e}")
+                    full_response += f"ERROR: {e}"
             else:
-                print("Function not found:", tool.function.name)
+                full_response += f"Function not found: {tool.function.name}"
 
-        return None
+        return full_response

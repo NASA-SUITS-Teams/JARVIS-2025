@@ -137,12 +137,16 @@ class ChatBot:
             if just_print:
                 print()
 
+            self.add_message("assistant", full_response)
+
             if "FUNCTIONS TO CALL:" in full_response:
                 if DEBUG:
                     print("CALLING FUNCTION")
-                self.toolbot.get_response_stream(full_response)
+                response = self.toolbot.get_response_stream(full_response)
+                if just_print:
+                    print(response)
 
-            self.add_message("assistant", full_response)
+                self.add_message("assistant", response)
 
             return full_response
 
