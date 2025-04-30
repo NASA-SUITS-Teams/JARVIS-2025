@@ -2,7 +2,9 @@ import chromadb
 import requests
 import json
 
+from LLM.utils.ToolBot import TOOL_MODEL, ToolBot
 from LLM.utils.rag import load_vectorstore
+from LLM.utils.tools import ALL_TOOLS_STRING
 
 
 DEBUG = True
@@ -31,6 +33,12 @@ class ChatBot:
             self.client = chromadb.Client()
 
         self.use_tools = use_tools
+        if self.use_tools:
+            self.toolbot = ToolBot(model=TOOL_MODEL)
+            self.add_message("user", "Hello")
+            self.add_message("assistant", "Greetings. How may I assist you today?")
+            self.add_message("user", "What is 5 + 3?")
+            self.add_message("assistant", "Sure thing! Let me call a function.\nFUNCTIONS TO CALL:\nadd_two_numbers(a=5, b=3)")
 
     def add_message(self, role, content):
         self.messages.append({"role": role, "content": content})
@@ -47,15 +55,13 @@ class ChatBot:
         return context
 
     def get_response_stream(self, message, just_print=False):
-        """Get a streaming response from OpenAI-type API and display in real-time
-        with KV caching support"""
+        """Get a streaming response from OpenAI-type API and display in real-time"""
         # Add user message to history
         self.add_message("user", message)
 
         # Prepare API request
         url = f"{self.base_url}/api/chat"
 
-        prompt = ""
         if self.use_rag:
             context = self.get_recent_context()
 
@@ -85,17 +91,23 @@ class ChatBot:
                 "num_predict": 4096,  # Max tokens to predict
             },
         }
+        modified_system_prompt = SYSTEM_PROMPT
         if self.use_rag:
-            payload["messages"] = [
-                {"role": "system", "content": SYSTEM_PROMPT + "\n" + rag_info}
-            ] + self.messages
-        else:
-            payload["messages"] = [
-                {"role": "system", "content": SYSTEM_PROMPT}
-            ] + self.messages
-
+            modified_system_prompt += "\n" + rag_info
         if self.use_tools:
-            pass
+            #modified_system_prompt += "\nAt the end of your response, if there are any functions that might help resolve the issue or gather more information, you may suggest them under the header 'FUNCTIONS TO CALL:' in the format `function_name(arg1, arg2)`. However, only suggest functions when they are truly necessary for the current context. If no functions are needed, simply conclude your response without listing any functions.\n"
+            #modified_system_prompt += "At the end of your response, if there are any functions that might help resolve the issue or gather more information, you may suggest them under the header 'FUNCTIONS TO CALL:' in the format `function_name(arg1, arg2)`.\n"
+            #modified_system_prompt += "Only suggest functions if they are truly necessary to proceed. If no functions are needed to assist with the issue, do not include the 'FUNCTIONS TO CALL' section at all. Simply end the response without listing any functions."
+            #modified_system_prompt += "\nAt the end of your response, you may suggest functions under the header 'FUNCTIONS TO CALL:'. If no functions are needed for the current context, do not include the 'FUNCTIONS TO CALL:' section.\n"
+            modified_system_prompt += "\nAt the end of your response, if there are any functions that relevant to the context, you may suggest them under the header 'FUNCTIONS TO CALL:' in the format `function_name(arg1, arg2)`. Only suggest functions when they are truly necessary for the current context. If no functions are needed, do not include the 'FUNCTIONS TO CALL:' section at all.\n"
+
+            modified_system_prompt += "\n" + "Optional functions:\n" + ALL_TOOLS_STRING
+
+        payload["messages"] = [
+            {"role": "system", "content": modified_system_prompt}
+        ] + self.messages
+        print(payload["messages"])
+
 
         full_response = ""
 
@@ -124,6 +136,10 @@ class ChatBot:
 
             if just_print:
                 print()
+
+            if "FUNCTIONS TO CALL:" in full_response:
+                print("CALLING FUNCTION")
+                self.toolbot.get_response_stream(full_response)
 
             self.add_message("assistant", full_response)
 

@@ -3,7 +3,7 @@ import ollama
 from LLM.utils.tools import AVAILABLE_FUNCTIONS, TOOLS, ALL_TOOLS_STRING
 
 
-DEBUG = True
+DEBUG = False
 
 TOOL_MODEL = "llama3.2:latest"
 
