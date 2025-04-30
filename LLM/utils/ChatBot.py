@@ -7,7 +7,7 @@ from LLM.utils.rag import load_vectorstore
 from LLM.utils.tools import ALL_TOOLS_STRING
 
 
-DEBUG = True
+DEBUG = False
 
 CHAT_MODEL = "gemma3:4b-it-q8_0"
 
@@ -37,8 +37,11 @@ class ChatBot:
             self.toolbot = ToolBot(model=TOOL_MODEL)
             self.add_message("user", "Hello")
             self.add_message("assistant", "Greetings. How may I assist you today?")
-            self.add_message("user", "What is 5 + 3?")
-            self.add_message("assistant", "Sure thing! Let me call a function.\nFUNCTIONS TO CALL:\nadd_two_numbers(a=5, b=3)")
+            self.add_message("user", "What is 5 + 3 and 3 - 1?")
+            self.add_message(
+                "assistant",
+                "Sure thing! Let me call a function.\n\nFUNCTIONS TO CALL:\nadd_two_numbers(a=5, b=3)\nsubtract_two_numbers(a=3, b=1)",
+            )
 
     def add_message(self, role, content):
         self.messages.append({"role": role, "content": content})
@@ -95,10 +98,6 @@ class ChatBot:
         if self.use_rag:
             modified_system_prompt += "\n" + rag_info
         if self.use_tools:
-            #modified_system_prompt += "\nAt the end of your response, if there are any functions that might help resolve the issue or gather more information, you may suggest them under the header 'FUNCTIONS TO CALL:' in the format `function_name(arg1, arg2)`. However, only suggest functions when they are truly necessary for the current context. If no functions are needed, simply conclude your response without listing any functions.\n"
-            #modified_system_prompt += "At the end of your response, if there are any functions that might help resolve the issue or gather more information, you may suggest them under the header 'FUNCTIONS TO CALL:' in the format `function_name(arg1, arg2)`.\n"
-            #modified_system_prompt += "Only suggest functions if they are truly necessary to proceed. If no functions are needed to assist with the issue, do not include the 'FUNCTIONS TO CALL' section at all. Simply end the response without listing any functions."
-            #modified_system_prompt += "\nAt the end of your response, you may suggest functions under the header 'FUNCTIONS TO CALL:'. If no functions are needed for the current context, do not include the 'FUNCTIONS TO CALL:' section.\n"
             modified_system_prompt += "\nAt the end of your response, if there are any functions that relevant to the context, you may suggest them under the header 'FUNCTIONS TO CALL:' in the format `function_name(arg1, arg2)`. Only suggest functions when they are truly necessary for the current context. If no functions are needed, do not include the 'FUNCTIONS TO CALL:' section at all.\n"
 
             modified_system_prompt += "\n" + "Optional functions:\n" + ALL_TOOLS_STRING
@@ -106,8 +105,9 @@ class ChatBot:
         payload["messages"] = [
             {"role": "system", "content": modified_system_prompt}
         ] + self.messages
-        print(payload["messages"])
 
+        if DEBUG:
+            print(payload["messages"])
 
         full_response = ""
 
@@ -138,7 +138,8 @@ class ChatBot:
                 print()
 
             if "FUNCTIONS TO CALL:" in full_response:
-                print("CALLING FUNCTION")
+                if DEBUG:
+                    print("CALLING FUNCTION")
                 self.toolbot.get_response_stream(full_response)
 
             self.add_message("assistant", full_response)
