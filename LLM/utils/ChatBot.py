@@ -94,7 +94,6 @@ class ChatBot:
                 {"role": "system", "content": SYSTEM_PROMPT}
             ] + self.messages
 
-        # self.use_tools = True
         if self.use_tools:
             pass
 
