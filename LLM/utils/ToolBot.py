@@ -18,7 +18,7 @@ class ToolBot:
     def get_response_stream(self, message):
         options = {
             "temperature": 0.25,  # Temperature parameter of softmax
-            "num_ctx": 128000,  # Context window size in tokens
+            "num_ctx": 1024,  # Context window size in tokens
             "num_predict": 4096,  # Max tokens to predict
         }
         messages = [
@@ -28,7 +28,7 @@ class ToolBot:
             model=self.model, messages=messages, options=options, tools=TOOLS
         )
 
-        full_response = ""
+        outputs = []
         for tool in response.message.tool_calls or []:
             function_name = tool.function.name
             args = tool.function.arguments
@@ -36,12 +36,17 @@ class ToolBot:
                 print(f"{function_name} {args}")
 
             function_to_call = AVAILABLE_FUNCTIONS.get(function_name)
+            output = ""
             if function_to_call:
+                output += f"{function_name} {args} "
                 try:
-                    full_response += f"Function output: {function_to_call(**args)}"
+                    output += f"Function output: {function_to_call(**args)}"
                 except Exception as e:
-                    full_response += f"ERROR: {e}"
+                    output += f"ERROR: {e}"
             else:
-                full_response += f"Function not found: {tool.function.name}"
+                output += f"Function not found: {tool.function.name}"
+            outputs.append(output)
+
+        full_response = "\n".join(outputs)
 
         return full_response
