@@ -7,7 +7,7 @@ from LLM.utils.rag import load_vectorstore
 from LLM.utils.tools import ALL_TOOLS_STRING
 
 
-DEBUG = True
+DEBUG = False
 
 CHAT_MODEL = "gemma3:4b-it-qat"
 
@@ -16,7 +16,7 @@ You are a helpful AI assistant named Jarvis, designed to support astronauts and 
 
 If you are unsure of an answer or lack sufficient data, clearly state that you are speculating but give your best advice.
 
-Do not use any formatting. Communicate clearly and naturally using only plain punctuation. Strictly limit responses to two short sentences maximum. Avoid bullet points, examples, and elaboration unless absolutely critical to mission safety.
+Do not use any formatting. Communicate clearly and naturally using only plain punctuation.
 """
 
 
@@ -92,21 +92,26 @@ class ChatBot:
             "model": self.model,
             "stream": True,
             "options": {
-                "temperature": 0.25,  # Temperature parameter of softmax
+                "temperature": 0.5,  # Temperature parameter of softmax
                 "num_predict": 4096,  # Max tokens to predict
             },
         }
-        modified_system_prompt = SYSTEM_PROMPT
+
+        system_messages = []
+
         if self.use_rag:
-            modified_system_prompt += "\n" + rag_info
+            system_messages.append({"role": "user", "content": rag_info})
+
         if self.use_tools:
-            modified_system_prompt += "\nIf there are any functions that relevant to the context, at the end of your response suggest them under the header 'FUNCTIONS TO CALL:' in the format `function_name(arg1, arg2)` and type 'END' when you are done suggesting functions. Only suggest functions when they are truly necessary for the current context. If no functions are needed, put 'FUNCTIONS TO CALL: None' at the end.\n"
+            tools_message = ""
+            tools_message += "If there are any functions that relevant to the context, at the end of your response suggest them under the header 'FUNCTIONS TO CALL:' in the format `function_name(arg1, arg2)` and type 'END' when you are done suggesting functions. At the end of your response, only suggest functions when they are truly necessary for the current context. If no functions are needed, at the end of your response, put 'FUNCTIONS TO CALL: None' at the end.\n"
+            tools_message += "\n" + "Optional functions:\n" + ALL_TOOLS_STRING
 
-            modified_system_prompt += "\n" + "Optional functions:\n" + ALL_TOOLS_STRING
+            system_messages.append({"role": "system", "content": tools_message})
 
-        payload["messages"] = [
-            {"role": "system", "content": modified_system_prompt}
-        ] + self.messages
+        system_messages.append({"role": "system", "content": SYSTEM_PROMPT})
+
+        payload["messages"] = system_messages + self.messages
 
         if DEBUG:
             print(payload["messages"])
