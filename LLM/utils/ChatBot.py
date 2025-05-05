@@ -7,16 +7,16 @@ from LLM.utils.rag import load_vectorstore
 from LLM.utils.tools import ALL_TOOLS_STRING
 
 
-DEBUG = False
+DEBUG = True
 
-CHAT_MODEL = "gemma3:4b-it-q8_0"
+CHAT_MODEL = "gemma3:4b-it-qat"
 
 SYSTEM_PROMPT = """
 You are a helpful AI assistant named Jarvis, designed to support astronauts and mission control with clear and efficient communication. Your responses should be concise, accurate, and direct, offering relevant information in a conversational tone.
 
 If you are unsure of an answer or lack sufficient data, clearly state that you are speculating but give your best advice.
 
-Do not use formatting such as bold, italics, or emojis. Communicate clearly and naturally using only plain punctuation.
+Do not use any formatting. Communicate clearly and naturally using only plain punctuation. Strictly limit responses to two short sentences maximum. Avoid bullet points, examples, and elaboration unless absolutely critical to mission safety.
 """
 
 
@@ -93,7 +93,6 @@ class ChatBot:
             "stream": True,
             "options": {
                 "temperature": 0.25,  # Temperature parameter of softmax
-                "num_ctx": 128000,  # Context window size in tokens
                 "num_predict": 4096,  # Max tokens to predict
             },
         }
@@ -101,7 +100,7 @@ class ChatBot:
         if self.use_rag:
             modified_system_prompt += "\n" + rag_info
         if self.use_tools:
-            modified_system_prompt += "\nAt the end of your response, if there are any functions that relevant to the context, you may suggest them under the header 'FUNCTIONS TO CALL:' in the format `function_name(arg1, arg2)` and type 'END' when you are done suggesting functions. Only suggest functions when they are truly necessary for the current context. If no functions are needed, put 'FUNCTIONS TO CALL: None' at the end.\n"
+            modified_system_prompt += "\nIf there are any functions that relevant to the context, at the end of your response suggest them under the header 'FUNCTIONS TO CALL:' in the format `function_name(arg1, arg2)` and type 'END' when you are done suggesting functions. Only suggest functions when they are truly necessary for the current context. If no functions are needed, put 'FUNCTIONS TO CALL: None' at the end.\n"
 
             modified_system_prompt += "\n" + "Optional functions:\n" + ALL_TOOLS_STRING
 

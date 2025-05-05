@@ -32,6 +32,13 @@ python -m tests.{test_name}
 └── ReadMe.md
 ```
 
+### Recommended documents
+
+- Final Proposal
+- LLM ReadMe
+- TPQ ReadMe
+
+
 
 ## Open source models used
 
@@ -42,4 +49,3 @@ Coqui TTS (https://github.com/idiap/coqui-ai-TTS): Used to convert text to audio
 Gemma3 (https://ollama.com/library/gemma3): Large Language Model
 
 Mxbai-embed-large (https://ollama.com/library/mxbai-embed-large): Embedding model for generating vector representations
-

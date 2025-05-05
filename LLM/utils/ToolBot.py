@@ -18,7 +18,6 @@ class ToolBot:
     def get_response_stream(self, message):
         options = {
             "temperature": 0.25,  # Temperature parameter of softmax
-            "num_ctx": 1024,  # Context window size in tokens
             "num_predict": 4096,  # Max tokens to predict
         }
         messages = [

@@ -1,5 +1,7 @@
 from ollama._utils import convert_function_to_tool
 
+from TPQ.task_priority_queue import TaskPriorityQueue
+
 
 def add_two_numbers(a: int, b: int):
     """
@@ -37,10 +39,25 @@ def subtract_two_numbers(a: int, b: int):
     return int(a) - int(b)
 
 
+tpq = TaskPriorityQueue()
+
+
+def peek_task(n=1):
+    """
+    Return the n highest-priority tasks without removing them.
+
+    Args:
+        n (int): The first number
+    """
+
+    return tpq.peek(int(n))
+
+
 AVAILABLE_FUNCTIONS = {
     "add_two_numbers": add_two_numbers,
     "add_two_strings": add_two_strings,
     "subtract_two_numbers": subtract_two_numbers,
+    "peek_task": peek_task,
 }
 
 TOOLS = list(AVAILABLE_FUNCTIONS.values())
