@@ -20,7 +20,7 @@ while True:
     prediction = wakeword.predict(audio_frame)
     print(round(prediction["hey jarvis"], 2))
 
-    if prediction["hey jarvis"] > 0.8:
+    if prediction["hey jarvis"] > 0.5:
         print("Hey Jarvis detected")
         input()
         mic_stream.read(mic_stream.get_read_available(), exception_on_overflow=False)

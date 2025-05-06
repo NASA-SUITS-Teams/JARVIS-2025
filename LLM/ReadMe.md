@@ -42,10 +42,14 @@ python -m tests.{test_name}
 
 ## Open source models used
 
+openWakeWord (https://github.com/dscripka/openWakeWord/blob/main/docs/models/hey_jarvis.md): Used for the wake phrase of "hey jarvis"
+
 Faster Whisper (https://github.com/SYSTRAN/faster-whisper): Used to convert audio to text
 
 Coqui TTS (https://github.com/idiap/coqui-ai-TTS): Used to convert text to audio
 
-Gemma3 (https://ollama.com/library/gemma3): Large Language Model
+Gemma3 (https://ollama.com/library/gemma3): Large Language Model for ChatBot
+
+llama3.2 (https://ollama.com/library/llama3.2): Large Language Model for ToolBot
 
 Mxbai-embed-large (https://ollama.com/library/mxbai-embed-large): Embedding model for generating vector representations
