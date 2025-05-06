@@ -3,3 +3,6 @@
 __pycache__/
 vectorstore/
 LLM/documents/
+LLM/models/
+
+.DS_Store
