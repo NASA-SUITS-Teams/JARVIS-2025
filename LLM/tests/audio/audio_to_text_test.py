@@ -1,7 +1,7 @@
 from faster_whisper import WhisperModel
 import speech_recognition as sr
 
-from utils.audio import calibrate_recognizer, get_audio_data, get_text_from_audio
+from LLM.utils.audio import calibrate_recognizer, get_audio_data, get_text_from_audio
 
 model = WhisperModel("small", compute_type="float32")
 

@@ -1,6 +1,6 @@
 from TTS.api import TTS
 
-from utils.audio import say
+from LLM.utils.audio import say
 
 tts = TTS("tts_models/en/vctk/vits")
 

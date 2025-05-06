@@ -43,7 +43,12 @@ def get_text_from_audio(audio_data, transcribe_model):
 
 
 def say(tts, text):
+    if text == "":
+        return
+
     audio_data = tts.tts(text, "p230")
 
-    sd.play(np.array(audio_data), samplerate=22050)
+    # from tts.synthesizer.output_sample_rate
+    samplerate = int(22050 * 0.95)
+    sd.play(np.array(audio_data), samplerate=samplerate)
     sd.wait()
