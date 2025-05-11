@@ -1,141 +1,111 @@
-# Code for task priority queue (TPQ)
-# The TPQ will be stored in a sorted list, with each task being stored 
-# as a tuple (weight, task_name). The sorted list is organized 
-# based on the weight assigned to each task. High priority tasks have a 
-# starting weight of 5, while medium tasks have weight of 3, and low 
-# tasks have weight of 1. Data will be fed into the TPQ based on a
-# data dictionary that has a task corresponding to a tuple containing
-# various lists. 
-
-import json
+from datetime import datetime
+from enum import IntEnum
 from bisect import insort
 
-class TaskPriorityQueue:
-    def __init__(self, oxygen = 1, power = 1):
-        # Initialize the priority queue list, sorted by task weight (lowest first)
-        # Each entry is of the form (weight, task_name)
-        self.tpq_list = [(0, "Return to Rover")]
-        self.weight_map = {"Return to Rover" : 0}
+class Priority(IntEnum):
+    MAX = 0
+    HIGH = 1
+    MEDIUM = 2
+    LOW = 3
 
-        # Properties to keep track of leftover oxygen and power
-        self.oxygen = oxygen
-        self.power = power
+class Status(IntEnum):
+    CANCELLED = -1
+    NEW = 0
+    IN_PROGRESS = 1
+    COMPLETED = 2
 
-        # TODO: Add timestamp
-        
+class Task:
+    def __init__(self,
+                 name: str,
+                 priority: Priority,
+                 location: tuple[float, float],
+                 status: Status = Status.NEW,
+                 timestamp: datetime = None):
+        self.name = name
+        self.priority = priority
+        self.location = location
+        self.status = status
+        self.timestamp = timestamp or datetime.now()
 
-    # task_data = (priority, oxygen_req, power_req, distance_to_task)
-    def calculate_weight(self, task_data):
-        """Return the corresponding weight for the task."""
+    def get_weight(self):
+        # change weights as required
+        priority_weights = {
+            Priority.HIGH: 5,
+            Priority.MEDIUM: 3,
+            Priority.LOW: 1,
+        }
+        status_weights = {
+            Status.NEW: 0,
+            Status.IN_PROGRESS: 5,
+            Status.CANCELLED: -5,
+            Status.COMPLETED: -5,
+        }
+        weight = priority_weights.get(self.priority, 0)
+        weight += status_weights.get(self.status, 0)
 
-        # If the power or oxygen requirements aren't met, move to bottom of list
-        if task_data[1] >= self.oxygen:
-            return -1
-        if task_data[2] >= self.power:
-            return -1
-        
-        weight = 0
-        if task_data[0] == "high":
-            weight += 5
-        elif task_data[0] == "medium":
-            weight += 3
-        elif task_data[0] == "low":
-            weight += 1
-        else:
-            raise ValueError(f"Unknown task priority: {task_data[0]}")
-        
-        if task_data[3] <= 5:
-            weight += 4
-            weight += 1 - task_data[3]/5
-        elif task_data[3] <= 10:
-            weight += 2
-            weight += 1 - (task_data[3] - 5)/5
+        # update weight based on location data with resource consumption team
 
         return weight
-    
-    def add_task(self, task_name, weight):
-        """Add a task with the given task type to the priority queue."""
-        # Insert task into sorted list (low to high)
-        insort(self.tpq_list, (weight, task_name))
-        self.weight_map[task_name] = weight
 
-    def remove_task(self, task_name):
-        """Remove and return the matching task from the queue."""
-        if task_name not in self.weight_map:
-            raise ValueError(f"Task '{task_name}' not found in queue")
-        # Search for task and remove it
-        weight = self.weight_map[task_name]
-        self.tpq_list.remove((weight, task_name))
-        del self.weight_map[task_name]
+    def __lt__(self, other: 'Task') -> bool:
+        if self.get_weight() != other.get_weight():
+            return self.get_weight() < other.get_weight()
+        return self.timestamp < other.timestamp
 
-        return task_name
+    def __repr__(self):
+        return (f"<Task {self.name!r} priority={self.priority.name} "
+                f"status={self.status.name} weight={self.get_weight()}>")
 
-    def peek(self, n=1):
-        """Return the n highest-priority tasks without removing them."""
-        if self.is_empty():
-            return None
-        return self.tpq_list[-n:]
+class TaskPriorityQueue:
+    def __init__(self):
+        # Maintain a sorted list of Task objects
+        self._tasks: list[Task] = []
 
-    def is_empty(self):
-        """Check if the priority queue is empty."""
-        return len(self.tpq_list) == 0
+    def add_task(self, task: Task):
+        """Insert task into the queue, keeping it sorted."""
+        insort(self._tasks, task)
 
-    def import_tpq(self, file_path):
-        """Import tasks from a JSON file into the priority queue."""
-        with open(file_path, 'r') as file:
-            self.tpq_list = json.load(file)
+    def remove_task(self, task_name: str) -> Task:
+        """Remove task by name and return it."""
+        for index, task in enumerate(self._tasks):
+            if task.name == task_name:
+                return self._tasks.pop(index)
+        raise KeyError(f"Task '{task_name}' not found")
 
-    def export_tpq(self, file_path):
-        """Export the priority queue to a JSON file."""
-        with open(file_path, 'w') as file:
-            json.dump(self.tpq_list, file, indent=4)
-
-    def feed_from_data(self, data_map):
+    def peek(self, n: int = 1, reverse: bool = True) -> list[Task]:
         """
-        Feed tasks into the TPQ based on a data dictionary that maps
-        task names to tuples containing task details.
+        Return the top-n tasks without removing them.
+        reverse=True gives highest weight first.
         """
-        for task_name, task_data in data_map.items():
-            weight = self.calculate_weight(task_data)
-            self.add_task(task_name, weight)
-    
-    def update_resources(self, oxygen, power):
-        self.oxygen = oxygen
-        self.power = power
+        if not self._tasks:
+            return []
+        return (sorted(self._tasks, reverse=reverse)[:n]
+                if reverse else self._tasks[:n])
 
-    def size(self):
-        """Return the number of tasks in the priority queue."""
-        return len(self.tpq_list)
+    def pop(self, reverse: bool = True) -> Task:
+        """Remove and return the single highest-(or lowest-)priority task."""
+        if not self._tasks:
+            raise IndexError("pop from empty TaskPriorityQueue")
+        return self._tasks.pop(-1 if reverse else 0)
 
-    def get_list(self):
-        return self.tpq_list
-    
-# # Example usage:
+    def is_empty(self) -> bool:
+        return not self._tasks
 
-# # Example data_map structure - each task corresponds to a tuple containing (priority, required oxygen, required power, distance to task):
-# data_map = {
-#     "Task A": ("high", .1, .1, 7),
-#     "Task B": ("medium", .01, .04, 4),
-#     "Task C": ("low", .02, .05, 1),
-# }
+    def sort_by(self, key: str, reverse: bool = False):
+        """
+        Re-sort the queue by any Task attribute or method:
+          key can be 'weight', 'priority', 'status', 'timestamp', or any attribute.
+        """
+        if key == 'weight':
+            self._tasks.sort(key=lambda t: t.get_weight(), reverse=reverse)
+        else:
+            self._tasks.sort(key=lambda t: getattr(t, key), reverse=reverse)
 
-# # Create an instance of TaskPriorityQueue
-# tpq = TaskPriorityQueue()
+    def __len__(self):
+        return len(self._tasks)
 
-# # Feed tasks from the data_map
-# tpq.feed_from_data(data_map)
+    def __iter__(self):
+        yield from self._tasks
 
-# # Peek at the highest-priority task
-# print("Top Priority Task:", tpq.peek())
-
-# # Export the priority queue to a JSON file
-# tpq.export_tpq('tpq.json')
-
-# # Import the priority queue from a JSON file
-# tpq.import_tpq('tpq.json')
-
-# # Remove and print the highest-priority task
-# removed_task = tpq.remove_task("Task A")
-# print("Removed Task:", removed_task)
-
-# tpq.export_tpq('tpq1.json')
+    def __repr__(self):
+        return f"TPQ[{', '.join(repr(t) for t in self._tasks)}]"
