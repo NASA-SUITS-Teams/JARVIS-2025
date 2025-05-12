@@ -25,7 +25,7 @@ chatbot = ChatBot(model=CHAT_MODEL)
 while True:
 
     input("Press enter then speak")
-    audio_data = get_audio_data(r)
+    audio_data = get_audio_data(r, phrase_time_limit=5)
     user = get_text_from_audio(audio_data, model)
     print(f"User:{user}")
 

@@ -1,35 +1,49 @@
 import openwakeword
 import time
-import numpy as np
-import pyaudio
+import sounddevice as sd
+
+from collections import deque
 
 openwakeword.utils.download_models()
 
 
-FORMAT = pyaudio.paInt16
-CHANNELS = 1
-RATE = 16000
+audio_q = deque()
+
+
+def audio_callback(indata, frames, time_info, status):
+    audio_q.append(indata.copy())
+
+
+SAMPLE_RATE = 16000
 CHUNK = 2000
-audio = pyaudio.PyAudio()
-mic_stream = audio.open(
-    format=FORMAT, channels=CHANNELS, rate=RATE, input=True, frames_per_buffer=CHUNK
+stream = sd.InputStream(
+    samplerate=SAMPLE_RATE,
+    channels=1,
+    dtype="int16",
+    blocksize=CHUNK,
+    callback=audio_callback,
 )
+stream.start()
 
 owwModel = openwakeword.Model(
     wakeword_models=["hey jarvis"], enable_speex_noise_suppression=True
 )
 
 while True:
-    audio_frame = np.frombuffer(mic_stream.read(CHUNK), dtype=np.int16)
+    if len(audio_q) == 0:
+        time.sleep(0.1)
+        continue
 
-    prediction = owwModel.predict(audio_frame)
+    chunk = audio_q.pop()
+
+    prediction = owwModel.predict(chunk)
 
     print(round(prediction["hey jarvis"], 2))
 
     if prediction["hey jarvis"] > 0.5:
         print("Hey Jarvis detected")
         input()
-        mic_stream.read(mic_stream.get_read_available(), exception_on_overflow=False)
-        print(mic_stream.get_read_available())
+        audio_q.clear()
+        owwModel.reset()
 
     time.sleep(0.1)
