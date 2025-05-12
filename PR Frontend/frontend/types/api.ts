@@ -1,4 +1,4 @@
-export interface APIResponseData {
+export type APIResponseData {
   tssData;
   mapData: MapElement[];
   alertData: Alert[];
@@ -8,14 +8,14 @@ export interface APIResponseData {
   //scanData: ScanData;
 }
 
-export interface Alert {
+export type Alert {
   name: string;
   description: string;
   time: string;
 }
 
 
-export interface MapElement {
+export type MapElement {
   name: string;
   type: MapElementType;
   status: string;
@@ -38,20 +38,20 @@ enum GridMode {
   "Grid",
 }
 
-export interface TPQItem {
+export type TPQItem {
   name: string;
   priority: number;
   timestamp: string;
 }
 
-interface LLMResponse {
+type LLMResponse {
 
 }
 
-interface LLMRequest {
+type LLMRequest {
 }
 
-interface EVAData {
+type EVAData {
   eva1: {
     position: [number, number];
     status: string;
@@ -62,17 +62,17 @@ interface EVAData {
   };
 }
 
-interface RoverData {
+type RoverData {
   position: [number, number];
   heading: number;
   speed: number;
 }
 
-interface ScanData {
+type ScanData {
   scans: ScanItem[];
 }
 
-interface ScanItem {
+type ScanItem {
   title: string;
   size: string;
   color: string;

@@ -32,7 +32,6 @@ export const useAPI = () => {
       setData(result);
     } catch (error) {
       setError(error);
-      alert("Error: " + error);
     } finally {
       setLoading(false);
     }
@@ -43,7 +42,7 @@ export const useAPI = () => {
     fetchData(); // fetch once on mount
 
     const interval = setInterval(() => {
-      console.log("Fetching data...");
+      setError(null); // Reset error state before fetching
       fetchData();
     }, 5000);
 

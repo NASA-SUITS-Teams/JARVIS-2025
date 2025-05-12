@@ -48,9 +48,9 @@ export default function Map({
   }
 
   return (
-    <div className="col-span-2 row-span-2 bg-gray-800 rounded-lg border border-blue-600 shadow-lg shadow-blue-500/20 overflow-hidden flex flex-col">
+    <div className="w-full h-full bg-gray-800 rounded-lg border border-blue-600 shadow-lg shadow-blue-500/20 overflow-hidden flex flex-col">
       <div className="bg-gray-700 p-2 border-b border-blue-600 flex justify-between items-center">
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 drag-handle hover:cursor-move">
           <MapIcon size={18} className="text-blue-400" />
           <span className="font-bold">MAP</span>
         </div>
