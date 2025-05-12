@@ -10,6 +10,6 @@ r.pause_threshold = 2
 calibrate_recognizer(r)
 
 while True:
-    audio_data = get_audio_data(r)
+    audio_data = get_audio_data(r, phrase_time_limit=10)
     text = get_text_from_audio(audio_data, model)
     print(f"User:{text}")

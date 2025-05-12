@@ -35,9 +35,7 @@ def get_text_from_audio(audio_data, transcribe_model):
 
     segments, _ = transcribe_model.transcribe(audio_file)
 
-    text = ""
-    for segment in segments:
-        text += segment.text
+    text = "".join(segment.text for segment in segments)
 
     return text
 
