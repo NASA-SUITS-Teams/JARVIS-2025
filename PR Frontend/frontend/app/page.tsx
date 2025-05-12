@@ -9,6 +9,7 @@ import MapToggles from "@/components/widgets/MapToggles";
 import SystemControl from "@/components/widgets/SystemControl";
 import { useAPI } from "@/hooks/useAPI";
 import { APIResponseData } from "@/types/api";
+import CameraFeeds from "@/components/widgets/CameraFeeds";
 
 export default function Home() {
   const { data, error, loading } = useAPI();
@@ -16,7 +17,6 @@ export default function Home() {
   if (!data) return <p>loading...</p>
 
   const backendData: APIResponseData = data;
-  console.log("backendData", backendData);
   const tssData = backendData.tssData; // TSS data values (array of all values)
   const mapData = backendData.mapData; // Map data I.E. pins
   const alertData = backendData.alertData; // Alerts data in JSON array
@@ -58,6 +58,7 @@ export default function Home() {
           />
           <TaskQueue taskData={tpqData} />
           <ScanData />
+          <CameraFeeds />
           <MapToggles visibleLayers={visibleLayers} toggleLayer={toggleLayer} />
         </div>
         <SystemControl handleAddPoint={handleAddPoint} alertData={alertData} />

@@ -16,10 +16,13 @@ def get_tss_data(clientSocket,
 	if tstamp == 'now':
 		tstamp = int(time.time())
 
-	clientSocket.sendto(tstamp.to_bytes(4) + cmd_num.to_bytes(4), addr)
+	clientSocket.sendto(tstamp.to_bytes(4) + (69).to_bytes(4), addr)
 	data, server = clientSocket.recvfrom(1024)
+	
 	return parse_tss_response(data)
 
 
 clientSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 data = get_tss_data(clientSocket, cmd_num=137)
+
+print(data)
