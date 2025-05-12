@@ -5,8 +5,7 @@ from LLM.utils.tools import AVAILABLE_FUNCTIONS, TOOLS, ALL_TOOLS_STRING
 
 DEBUG = False
 
-TOOL_MODEL = "llama3.2:latest"
-
+TOOL_MODEL = "qwen3:4b-q8_0"
 
 class ToolBot:
     def __init__(self, model):
@@ -17,7 +16,6 @@ class ToolBot:
 
     def get_response_stream(self, message):
         options = {
-            "temperature": 0.25,  # Temperature parameter of softmax
             "num_predict": 4096,  # Max tokens to predict
         }
         messages = [

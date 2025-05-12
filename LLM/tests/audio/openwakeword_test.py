@@ -3,6 +3,8 @@ import time
 import numpy as np
 import pyaudio
 
+openwakeword.utils.download_models()
+
 wakeword = openwakeword.Model(
     wakeword_models=["hey jarvis"], enable_speex_noise_suppression=True
 )

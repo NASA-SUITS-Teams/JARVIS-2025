@@ -9,10 +9,10 @@ from LLM.utils.tools import ALL_TOOLS_STRING
 
 DEBUG = False
 
-CHAT_MODEL = "gemma3:4b-it-qat"
+CHAT_MODEL = "qwen3:4b-q8_0"
 
 SYSTEM_PROMPT = """
-You are a helpful AI assistant named Jarvis, designed to support astronauts and mission control with clear and efficient communication. Your responses should be concise, accurate, and direct, offering relevant information in a conversational tone.
+You are a helpful AI assistant named Jarvis, designed to support astronauts and mission control with clear and efficient communication. Do not overthink. Your responses should be concise, accurate, and direct, offering relevant information in a conversational tone.
 
 If you are unsure of an answer or lack sufficient data, clearly state that you are speculating but give your best advice.
 
@@ -38,12 +38,12 @@ class ChatBot:
             self.add_message("user", "Hello")
             self.add_message(
                 "assistant",
-                "Greetings. How may I assist you today?\n\nFUNCTIONS TO CALL: None\nEND",
+                "Greetings. How may I assist you today?",
             )
             self.add_message("user", "What is 5 + 3 and 3 - 1?")
             self.add_message(
                 "assistant",
-                "Sure thing! Let me call a function.\n\nFUNCTIONS TO CALL:\nadd_two_numbers(a=5, b=3)\nsubtract_two_numbers(a=3, b=1)\nEND",
+                "Let me call two functions to assist you.\n\n<functions>\nadd_two_numbers(a=5, b=3)\nsubtract_two_numbers(a=3, b=1)\n</functions>",
             )
 
     def add_message(self, role, content):
@@ -92,7 +92,6 @@ class ChatBot:
             "model": self.model,
             "stream": True,
             "options": {
-                "temperature": 0.5,  # Temperature parameter of softmax
                 "num_predict": 4096,  # Max tokens to predict
             },
         }
@@ -104,7 +103,7 @@ class ChatBot:
 
         if self.use_tools:
             tools_message = ""
-            tools_message += "If there are any functions that relevant to the context, at the end of your response suggest them under the header 'FUNCTIONS TO CALL:' in the format `function_name(arg1, arg2)` and type 'END' when you are done suggesting functions. At the end of your response, only suggest functions when they are truly necessary for the current context. If no functions are needed, at the end of your response, put 'FUNCTIONS TO CALL: None' at the end.\n"
+            tools_message += "If you need more information or there are any functions that relevant to the context do not overthink. Instead, explain which function you are calling and at the end of your response suggest them in a block of '<functions>' in the format `function_name(arg1, arg2)` and type '</functions>' when you are done suggesting functions. At the end of your response, only suggest functions when they are truly necessary for the current context.\n"
             tools_message += "\n" + "Optional functions:\n" + ALL_TOOLS_STRING
 
             system_messages.append({"role": "system", "content": tools_message})
@@ -147,15 +146,14 @@ class ChatBot:
             self.add_message("assistant", full_response)
 
             if (
-                "FUNCTIONS TO CALL:" in full_response
-                and not "FUNCTIONS TO CALL: None" in full_response
+                "<functions>" in full_response
             ):
-                function_calls = full_response.split("FUNCTIONS TO CALL:")[1].strip()
+                function_calls = full_response.split("<functions>")[1].strip()
                 if DEBUG:
                     print(f"CALLING FUNCTIONS: {function_calls}")
 
                 response = self.toolbot.get_response_stream(
-                    f"Call these functions:\n{function_calls}"
+                    f"/no_think Call these functions:\n{function_calls}"
                 )
                 if just_print:
                     print(response)

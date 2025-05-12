@@ -1,6 +1,6 @@
 # LLM
 
-As part of our team, we created an AI assistant named Jarvis, powered by multiple open source models and integrated through this program. We aim to use audio from a microphone or text to ask Jarvis questions ranging from how to use our UI to how to aid astronauts in certain scenarios. Jarvis utilizes Retrieval-Augmented Generation to select relevant information from documents we provide and then responds both in text and audibly.
+As part of our team, we created an AI assistant named Jarvis, powered by multiple open source models and integrated through this program. We aim to use audio from a microphone or text to ask Jarvis questions ranging from how to use our UI to how to aid astronauts in certain scenarios. Jarvis utilizes Retrieval-Augmented Generation to select relevant information from documents we provide and then responds both in text and audibly. Jarvis is also able to recommend function calls to aid the user. The open source models used have licenses that are either MIT, Apache 2.0, or something similar.
 
 
 ## Requirements
@@ -48,8 +48,6 @@ Faster Whisper (https://github.com/SYSTRAN/faster-whisper): Used to convert audi
 
 Coqui TTS (https://github.com/idiap/coqui-ai-TTS): Used to convert text to audio
 
-Gemma3 (https://ollama.com/library/gemma3): Large Language Model for ChatBot
-
-llama3.2 (https://ollama.com/library/llama3.2): Large Language Model for ToolBot
+Qwen3 (https://ollama.com/library/qwen3): Large Language Model for ChatBot and ToolBot
 
 Mxbai-embed-large (https://ollama.com/library/mxbai-embed-large): Embedding model for generating vector representations

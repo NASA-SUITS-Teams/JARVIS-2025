@@ -42,7 +42,7 @@ def subtract_two_numbers(a: int, b: int):
 tpq = TaskPriorityQueue()
 
 
-def peek_task(n=1):
+def peek_task(n: int = 1):
     """
     Return the n highest-priority tasks without removing them.
 
