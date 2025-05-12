@@ -1,6 +1,6 @@
 import { Terminal } from "lucide-react";
 
-export default function SensorData() {
+export default function ScanData() {
   const samples = [
     {
       id: 1,
@@ -24,7 +24,7 @@ export default function SensorData() {
     <div className="col-start-4 row-start-1 bg-gray-800 rounded-lg border border-blue-600 shadow-lg shadow-blue-500/20 overflow-hidden flex flex-col">
       <div className="bg-gray-700 p-2 border-b border-blue-600 flex items-center space-x-2">
         <Terminal size={18} className="text-blue-400" />
-        <span className="font-bold">SENSOR DATA</span>
+        <span className="font-bold">SCAN DATA</span>
       </div>
 
       <div className="flex-1 p-2 overflow-y-auto">

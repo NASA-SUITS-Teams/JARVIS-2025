@@ -4,25 +4,35 @@ import React, { useState, useRef } from "react";
 import Header from "@/components/Header";
 import Map from "@/components/widgets/Map";
 import TaskQueue from "@/components/widgets/TaskQueue";
-import SensorData from "@/components/widgets/SensorData";
+import ScanData from "@/components/widgets/ScanData";
 import MapToggles from "@/components/widgets/MapToggles";
-import CameraFeeds from "@/components/widgets/CameraFeeds";
 import SystemControl from "@/components/widgets/SystemControl";
+import { useAPI } from "@/hooks/useAPI";
+import { APIResponseData } from "@/types/api";
 
 export default function Home() {
-  const [activeMap, setActiveMap] = useState('grid');
+  const { data, error, loading } = useAPI();
+
+  if (!data) return <p>loading...</p>
+
+  const backendData: APIResponseData = data;
+  const tssData = backendData.tssData; // TSS data values (array of all values)
+  const mapData = backendData.mapData; // Map data I.E. pins
+  const alertData = backendData.alertData; // Alerts data in JSON array
+  const tpqData = backendData.tpqData; // Task priority queue data in JSON array
+
+  const [activeMap, setActiveMap] = useState("grid");
   const [visibleLayers, setVisibleLayers] = useState({
-    breadcrumb: false,
     eva: true,
     pr: true,
-    poi: true
+    poi: true,
   });
   const addPointRef = useRef(null);
 
   const toggleLayer = (layer) => {
-    setVisibleLayers(prev => ({
+    setVisibleLayers((prev) => ({
       ...prev,
-      [layer]: !prev[layer]
+      [layer]: !prev[layer],
     }));
   };
 
@@ -35,16 +45,15 @@ export default function Home() {
       <Header />
       <div className="flex flex-1 overflow-hidden">
         <div className="flex-1 p-4 grid grid-cols-4 grid-rows-2 gap-4">
-          <Map 
-            activeMap={activeMap} 
-            setActiveMap={setActiveMap} 
-            visibleLayers={visibleLayers} 
-            handleAddPoint={addPointRef} 
+          <Map
+            activeMap={activeMap}
+            setActiveMap={setActiveMap}
+            visibleLayers={visibleLayers}
+            handleAddPoint={addPointRef}
           />
           <TaskQueue />
-          <SensorData />
+          <ScanData />
           <MapToggles visibleLayers={visibleLayers} toggleLayer={toggleLayer} />
-          <CameraFeeds />
         </div>
         <SystemControl handleAddPoint={handleAddPoint} />
       </div>
