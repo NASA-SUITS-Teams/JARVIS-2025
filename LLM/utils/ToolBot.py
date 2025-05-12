@@ -7,6 +7,7 @@ DEBUG = False
 
 TOOL_MODEL = "qwen3:4b-q8_0"
 
+
 class ToolBot:
     def __init__(self, model):
         self.model = model
