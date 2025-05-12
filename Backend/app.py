@@ -64,17 +64,49 @@ def get_data():
     """
     alert_data = [
         {
-            "title": alert.title,
+            "name": alert.name,
+            "description": alert.description,
             "type": alert.type,
             "time": alert.time,
         }
         for alert in __
     ]"""
 
-    return jsonify({
+    # this is technically the start of the real response, but I'm using some fake data below
+    """return jsonify({
         "tssData": cmd_lst,
         "mapData": {},
         "alertData": [],
+        "tpqData": tpq_data
+    })"""
+
+    # Placeholder
+    tpq_data = [
+        { "name": "Oxygen level maintenance", "priority": 5, "timestamp": "00:01:30"},
+        { "name": "Sample #2 scan incomplete", "priority": 5, "timestamp": "00:01:30"},
+        { "name": "Oxygen level maintenance", "priority": 5, "timestamp": "00:01:30"},
+        { "name": "Oxygen level maintenance", "priority": 5, "timestamp": "00:01:30"},
+    ]
+
+    # Placeholder
+    map_data = [
+        { "name": "eva-1", "status": "active", "type": "eva", "position": [2, 4] },
+        { "name": "eva-2", "status": "active", "type": "eva", "position": [6, 6] },
+        { "name": "pr-1",  "status": "active", "type": "pr",  "position": [4, 5] },
+        { "name": "poi-1", "status": "active", "type": "poi", "position": [1, 1] },
+        { "name": "poi-2", "status": "active", "type": "poi", "position": [7, 2] },
+    ]
+
+    # Placeholder
+    alert_data = [
+        { "name": "Low O2 Warning", "description": "Tank level below 50%", "time": "00:06:02" },
+        { "name": "Sample #2 Scan Incomplete", "description": "Return to Sample #2", "time": "00:05:37" },
+    ]
+
+    return jsonify({
+        "tssData": cmd_lst,
+        "mapData": map_data,
+        "alertData": alert_data,
         "tpqData": tpq_data
     })
 

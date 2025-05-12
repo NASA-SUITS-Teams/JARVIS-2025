@@ -1,33 +1,36 @@
-import React, { useState } from "react";
-import { MapIcon, Grid, BarChart2, Satellite, AlertCircle } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { MapIcon, Grid, BarChart2, Satellite, AlertCircle, X } from "lucide-react";
+import { MapElement } from "@/types/api";
 
 export default function Map({
   activeMap,
   setActiveMap,
   visibleLayers,
   handleAddPoint,
-}) {
-  const [mapElements, setMapElements] = useState([
-    { id: "eva-1", type: "eva", location: [2, 4] },
-    { id: "eva-2", type: "eva", location: [6, 6] },
-    { id: "pr-1", type: "pr", location: [4, 5] },
-    { id: "poi-1", type: "poi", location: [1, 1] },
-    { id: "poi-2", type: "poi", location: [7, 2] },
-  ]);
+  mapData,
+}: {
+  mapData: MapElement[];
+}) {  
+  const [mapElements, setMapElements] = useState(mapData);
   const [isPoiMode, setIsPoiMode] = useState(false);
   let poiCounter = mapElements.filter((el) => el.type === "poi").length + 1;
+
+  useEffect(() => {
+    setMapElements(mapData);
+  }
+  , [mapData]);
 
   const handleGridClick = (x, y) => {
     if (!isPoiMode) return;
 
     const poiExists = mapElements.some(
-      (el) => el.type === "poi" && el.location[0] === x && el.location[1] === y
+      (el) => el.type === "poi" && el.position[0] === x && el.position[1] === y
     );
 
     if (!poiExists) {
       setMapElements((prev) => [
         ...prev,
-        { id: `poi-${poiCounter++}`, type: "poi", location: [x, y] },
+        { name: `poi-${poiCounter++}`, type: "poi", position: [x, y] },
       ]);
     }
 
@@ -87,9 +90,8 @@ export default function Map({
             ))}
 
             {mapElements.map((element) => {
-              const [x, y] = element.location;
+              const [x, y] = element.position;
               const visible =
-                (element.type === "breadcrumb" && visibleLayers.breadcrumb) ||
                 (element.type === "eva" && visibleLayers.eva) ||
                 (element.type === "pr" && visibleLayers.pr) ||
                 (element.type === "poi" && visibleLayers.poi);
@@ -107,13 +109,6 @@ export default function Map({
               }
 
               switch (element.type) {
-                case "breadcrumb":
-                  elementIcon = (
-                    <div className="text-cyan-400 bg-cyan-900/60 p-1 rounded-md flex items-center justify-center w-full h-full">
-                      <Grid size={16} />
-                    </div>
-                  );
-                  break;
                 case "eva":
                   elementIcon = (
                     <div className="text-green-400 bg-green-900/60 p-1 rounded-md flex items-center justify-center w-full h-full">
@@ -141,7 +136,7 @@ export default function Map({
 
               return (
                 <div
-                  key={element.id}
+                  key={element.name}
                   style={{
                     position: "absolute",
                     top: `${y * 10}%`,
@@ -161,7 +156,7 @@ export default function Map({
                     ></div>
                     <div className="hidden group-hover:block absolute top-full left-0 bg-gray-800 border border-blue-500 p-2 rounded-md shadow-lg text-xs min-w-32 z-30">
                       <div className="font-bold text-blue-300">
-                        {element.id.toUpperCase()}
+                        {element.name.toUpperCase()}
                       </div>
                       <div className="text-gray-300">Type: {element.type}</div>
                       <div className="text-gray-300">

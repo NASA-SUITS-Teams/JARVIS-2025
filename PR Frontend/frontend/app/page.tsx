@@ -16,11 +16,15 @@ export default function Home() {
   if (!data) return <p>loading...</p>
 
   const backendData: APIResponseData = data;
+  console.log("backendData", backendData);
   const tssData = backendData.tssData; // TSS data values (array of all values)
   const mapData = backendData.mapData; // Map data I.E. pins
   const alertData = backendData.alertData; // Alerts data in JSON array
   const tpqData = backendData.tpqData; // Task priority queue data in JSON array
 
+  console.log("alertData", alertData);
+
+  // Map global states
   const [activeMap, setActiveMap] = useState("grid");
   const [visibleLayers, setVisibleLayers] = useState({
     eva: true,
@@ -50,12 +54,13 @@ export default function Home() {
             setActiveMap={setActiveMap}
             visibleLayers={visibleLayers}
             handleAddPoint={addPointRef}
+            mapData={mapData}
           />
-          <TaskQueue />
+          <TaskQueue taskData={tpqData} />
           <ScanData />
           <MapToggles visibleLayers={visibleLayers} toggleLayer={toggleLayer} />
         </div>
-        <SystemControl handleAddPoint={handleAddPoint} />
+        <SystemControl handleAddPoint={handleAddPoint} alertData={alertData} />
       </div>
     </div>
   );

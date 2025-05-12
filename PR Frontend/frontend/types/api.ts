@@ -1,33 +1,21 @@
-import { EVAData } from "./eva";
-import { RoverData } from "./rover";
-
 export interface APIResponseData {
-  //roverData: RoverData;
-  tssData
-  mapData: MapData;
-  alertData: AlertData;
+  tssData;
+  mapData: MapElement[];
+  alertData: Alert[];
+  tpqData: TPQItem[];
   //evaData: EVAData;
-  tpqData: TPQData;
+  //roverData: RoverData;
   //scanData: ScanData;
 }
 
-export interface AlertData {
-  alerts: Alert[];
-}
-
-interface Alert {
-  title: string;
+export interface Alert {
+  name: string;
   description: string;
   time: string;
 }
 
-interface MapData {
-  gridMode: GridMode;
-  mapToggles: MapToggle[];
-  mapElements: MapElement[];
-}
 
-interface MapElement {
+export interface MapElement {
   name: string;
   type: MapElementType;
   status: string;
@@ -50,19 +38,44 @@ enum GridMode {
   "Grid",
 }
 
-interface TPQData {
-  tasks: TPQItem[];
-}
-
-interface TPQItem {
+export interface TPQItem {
   name: string;
   priority: number;
   timestamp: string;
 }
 
-export interface LLMResponse {
+interface LLMResponse {
 
 }
 
-export interface LLMRequest {
+interface LLMRequest {
+}
+
+interface EVAData {
+  eva1: {
+    position: [number, number];
+    status: string;
+  };
+  eva2: {
+    position: [number, number];
+    status: string;
+  };
+}
+
+interface RoverData {
+  position: [number, number];
+  heading: number;
+  speed: number;
+}
+
+interface ScanData {
+  scans: ScanItem[];
+}
+
+interface ScanItem {
+  title: string;
+  size: string;
+  color: string;
+  texture: string;
+  status: string;
 }
