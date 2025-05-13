@@ -1,33 +1,17 @@
 import openwakeword
 import time
-import sounddevice as sd
 
-from collections import deque
+from LLM.utils.audio import audio_q, create_stream
 
 openwakeword.utils.download_models()
-
-
-audio_q = deque()
-
-
-def audio_callback(indata, frames, time_info, status):
-    audio_q.append(indata.copy())
-
-
-SAMPLE_RATE = 16000
-CHUNK = 2000
-stream = sd.InputStream(
-    samplerate=SAMPLE_RATE,
-    channels=1,
-    dtype="int16",
-    blocksize=CHUNK,
-    callback=audio_callback,
-)
-stream.start()
 
 owwModel = openwakeword.Model(
     wakeword_models=["hey jarvis"], enable_speex_noise_suppression=True
 )
+
+
+stream = create_stream()
+
 
 while True:
     if len(audio_q) == 0:
@@ -42,8 +26,10 @@ while True:
 
     if prediction["hey jarvis"] > 0.5:
         print("Hey Jarvis detected")
+        stream.stop()
         input()
         audio_q.clear()
+        stream.start()
         owwModel.reset()
 
     time.sleep(0.1)
