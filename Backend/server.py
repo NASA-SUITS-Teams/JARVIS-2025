@@ -10,8 +10,7 @@ from flask_cors import CORS
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from TPQ import task_priority_queue as TPQ
-from LunarLink import LunarLink_Server as LunarLink
-from LunarLink import LunarClient as client
+#from LunarLink import LunarLink_Server as LunarLink
 from Backend.tss import fetch_json_data
 
 # Init Flask app and global state
@@ -23,7 +22,7 @@ tss_data = {}
 tpq = TPQ.TaskPriorityQueue()
 clientSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 tssSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-lunar_link = LunarLink.LunarLink(tpq, cmd_lst, "0.0.0.0")
+#lunar_link = LunarLink.LunarLink(tpq, cmd_lst, "0.0.0.0")
 
 """
 # Background thread: updates rover commands from TSS
@@ -69,11 +68,10 @@ def get_data():
 
     # Placeholder
     map_data = [
-        { "name": "eva-1", "status": "active", "type": "eva", "position": [2, 4] },
-        { "name": "eva-2", "status": "active", "type": "eva", "position": [6, 6] },
-        { "name": "pr-1",  "status": "active", "type": "pr",  "position": [4, 5] },
-        { "name": "poi-1", "status": "active", "type": "poi", "position": [1, 1] },
-        { "name": "poi-2", "status": "active", "type": "poi", "position": [7, 2] },
+        { "name": "poi-1", "status": "active", "type": "poi", "position": [-5766.5, -10200.1] },
+        { "name": "poi-2", "status": "active", "type": "poi", "position": [-5666.5, -10100.1] },
+        { "name": "pin-1", "status": "active", "type": "pin", "position": [-5766.5, -10400.1] },
+        { "name": "pin-2", "status": "active", "type": "pin", "position": [-5966.5, -10300.1] },
     ]
 
     # Placeholder
@@ -112,7 +110,7 @@ def update_tss_loop():
 
 # Start threads and server
 if __name__ == "__main__":
-    threading.Thread(target=lunar_link.server_loop, daemon=True).start()
+    #threading.Thread(target=lunar_link.server_loop, daemon=True).start()
     threading.Thread(target=update_tss_loop, daemon=True).start()
     #threading.Thread(target=update_rover_loop, daemon=True).start()
 

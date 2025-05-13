@@ -15,7 +15,7 @@ export default function SystemControl({
   tssData: TSSData;
 }) {
   return (
-    <div className="h-full border-l border-blue-600 bg-gray-800 flex flex-col">
+    <div className="overflow-y-auto min-h-screen border-l border-blue-600 bg-gray-800 flex flex-col">
       <div className="bg-gray-700 p-2 border-b border-blue-600 flex items-center justify-center">
         <span className="font-bold">SYSTEM CONTROL</span>
       </div>

@@ -1,4 +1,4 @@
-import { AlertCircle, BarChart2, Layers, Satellite } from "lucide-react";
+import { AlertCircle, BarChart2, Layers, Pin, Satellite } from "lucide-react";
 
 export default function MapToggles({ visibleLayers, toggleLayer }) {
   return (
@@ -11,10 +11,11 @@ export default function MapToggles({ visibleLayers, toggleLayer }) {
       <div className="flex-1 p-3">
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <BarChart2 size={16} className="text-green-400" />
+            <div className="flex items-center space-x-1">
+              <BarChart2 size={16} className="text-pink-400" />
               <span className="text-sm">EVAs</span>
             </div>
+
             <button
               onClick={() => toggleLayer("eva")}
               className={`w-10 h-5 rounded-full p-1 ${
@@ -30,9 +31,9 @@ export default function MapToggles({ visibleLayers, toggleLayer }) {
           </div>
 
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1">
               <Satellite size={16} className="text-purple-400" />
-              <span className="text-sm">Pressurized Rover</span>
+              <span className="text-sm">Rover</span>
             </div>
             <button
               onClick={() => toggleLayer("pr")}
@@ -49,9 +50,9 @@ export default function MapToggles({ visibleLayers, toggleLayer }) {
           </div>
 
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1">
               <AlertCircle size={16} className="text-yellow-400" />
-              <span className="text-sm">Points of Interest</span>
+              <span className="text-sm">POI</span>
             </div>
             <button
               onClick={() => toggleLayer("poi")}
@@ -62,6 +63,25 @@ export default function MapToggles({ visibleLayers, toggleLayer }) {
               <div
                 className={`w-3 h-3 rounded-full bg-white absolute top-1 transition-all duration-200 ${
                   visibleLayers.poi ? "left-6" : "left-1"
+                }`}
+              ></div>
+            </button>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-1">
+              <Pin size={16} className="text-green-400" />
+              <span className="text-sm">Pins</span>
+            </div>
+            <button
+              onClick={() => toggleLayer("pin")}
+              className={`w-10 h-5 rounded-full p-1 ${
+                visibleLayers.pin ? "bg-blue-600" : "bg-gray-600"
+              } transition-colors duration-200 relative`}
+            >
+              <div
+                className={`w-3 h-3 rounded-full bg-white absolute top-1 transition-all duration-200 ${
+                  visibleLayers.pin ? "left-6" : "left-1"
                 }`}
               ></div>
             </button>

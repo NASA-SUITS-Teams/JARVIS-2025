@@ -20,8 +20,29 @@ export default function SystemStates({ tssData }: { tssData: TSSData }) {
         const telem = tssData.ROVER_TELEMETRY?.pr_telemetry;
         if (!telem) return {};
 
-        // destructure to omit lidar
-        const { lidar, throttle, current_pos_x, current_pos_y, current_pos_alt, motor_power_consumption, mission_elapsed_time, mission_planned_time, terrain_condition, sim_running, sim_paused, sim_completed, latitude, longitude, dest_x, dest_y, dest_z, ...rest } = telem;
+        // destructure to omit all of the telemetry values we don't want
+        const {
+          lidar,
+          throttle,
+          current_pos_x,
+          current_pos_y,
+          current_pos_alt,
+          motor_power_consumption,
+          mission_elapsed_time,
+          mission_planned_time,
+          terrain_condition,
+          sim_running,
+          sim_paused,
+          sim_completed,
+          latitude,
+          longitude,
+          dest_x,
+          dest_y,
+          dest_z,
+          solar_panel_dust_accum,
+          solar_panel_efficiency,
+          ...rest
+        } = telem;
         return rest;
       })(),
     ],

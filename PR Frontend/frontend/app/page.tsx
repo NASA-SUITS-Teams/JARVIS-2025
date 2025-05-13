@@ -17,14 +17,13 @@ import "react-resizable/css/styles.css";
 import LLMWidget from "@/components/widgets/LLM";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
-
 const defaultLayout: Layout[] = [
-  { i: "map", x: 0, y: 0, w: 2, h: 5 },
-  { i: "taskQueue", x: 2, y: 0, w: 1, h: 3 },
-  { i: "scanData", x: 3, y: 0, w: 1, h: 3 },
-  { i: "cameraFeeds", x: 3, y: 3, w: 1, h: 2 },
+  { i: "map", x: 0, y: 0, w: 3, h: 3 },
+  { i: "taskQueue", x: 3, y: 0, w: 1, h: 3 },
+  { i: "scanData", x: 4, y: 0, w: 1, h: 3 },
+  { i: "cameraFeeds", x: 3, y: 3, w: 2, h: 2 },
   { i: "mapToggles", x: 2, y: 3, w: 1, h: 2 },
-  { i: "llm", x: 2, y: 5, w: 2, h: 2 },
+  { i: "llm", x: 0, y: 3, w: 2, h: 2 },
 ];
 
 export default function Home() {
@@ -41,11 +40,11 @@ export default function Home() {
   const [layout, setLayout] = useState<Layout[]>(defaultLayout);
 
   // Map global states
-  const [activeMap, setActiveMap] = useState("grid");
   const [visibleLayers, setVisibleLayers] = useState({
     eva: true,
     pr: true,
     poi: true,
+    pin: true
   });
   const addPointRef = useRef<() => void>(null);
 
@@ -66,7 +65,7 @@ export default function Home() {
             className="layout"
             layouts={{ lg: layout }}
             breakpoints={{ lg: 1200 }}
-            cols={{ lg: 4 }}
+            cols={{ lg: 5 }}
             rowHeight={150}
             isDraggable
             isResizable
@@ -77,8 +76,6 @@ export default function Home() {
           >
             <div key="map">
               <Map
-                activeMap={activeMap}
-                setActiveMap={setActiveMap}
                 visibleLayers={visibleLayers}
                 handleAddPoint={addPointRef}
                 mapData={mapData}
