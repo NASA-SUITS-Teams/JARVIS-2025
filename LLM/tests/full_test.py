@@ -1,44 +1,48 @@
 from TTS.api import TTS
-import speech_recognition as sr
 from faster_whisper import WhisperModel
-import chromadb
+import openwakeword
+import time
 
-from utils.ChatBot import CHAT_MODEL, ChatBot
-from utils.audio import get_audio_data, get_text_from_audio, calibrate_recognizer, say
-from utils.ChatBot import ChatBot
-from utils.rag import load_vectorstore
+from LLM.utils.ChatBot import CHAT_MODEL, ChatBot
+from LLM.utils.audio import Audio, say
 
-vectorstore = load_vectorstore()
-client = chromadb.Client()
+print("Setting up...")
+
+openwakeword.utils.download_models()
+
+owwModel = openwakeword.Model(
+    wakeword_models=["hey jarvis"], enable_speex_noise_suppression=True
+)
 
 model = WhisperModel("small", compute_type="float32")
 
-r = sr.Recognizer()
-r.pause_threshold = 2
-calibrate_recognizer(r)
-
 tts = TTS("tts_models/en/vctk/vits")
 
-chatbot = ChatBot(model=CHAT_MODEL)
+audio = Audio()
 
 
+chatbot = ChatBot(model=CHAT_MODEL, use_rag=True, use_tools=True)
+
+
+print("Ready!")
 while True:
+    chunk = audio.pop_audio_q()
+    prediction = owwModel.predict(chunk)
+    if prediction["hey jarvis"] > 0.5:
+        print("Hey Jarvis detected")
+        audio.stream.stop()
 
-    input("Press enter then speak")
-    audio_data = get_audio_data(r, phrase_time_limit=5)
-    user = get_text_from_audio(audio_data, model)
-    print(f"User:{user}")
+        audio_data = audio.record_until_silence(2, 10)
 
-    retriever = vectorstore.as_retriever()
-    retrieved_docs = retriever.invoke(user, k=3)
-    doc_data = " ".join([doc.page_content for doc in retrieved_docs])
+        text = audio.get_text_from_audio(audio_data, model)
+        print(f"User: {text}")
 
-    content = f"""Respond to the prompt based on the following context:
+        response = chatbot.get_response_stream("/no_think " + text, just_print=True)
 
-    {doc_data}
+        say(tts, response)
 
-    Prompt: {user}
-    """
+        audio.audio_q.clear()
+        owwModel.reset()
+        print("Ready!")
 
-    response = chatbot.get_response_stream(content, just_print=True)
-    say(tts, response)
+    time.sleep(0.1)

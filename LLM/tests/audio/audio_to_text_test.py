@@ -1,5 +1,4 @@
 from faster_whisper import WhisperModel
-import speech_recognition as sr
 
 from LLM.utils.audio import Audio
 

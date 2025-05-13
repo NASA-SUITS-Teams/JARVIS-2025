@@ -7,7 +7,7 @@ import sounddevice as sd
 import speech_recognition as sr
 import soundfile as sf
 
-DEBUG = True
+DEBUG = False
 
 SAMPLE_RATE = 16000
 CHUNK = 2000
