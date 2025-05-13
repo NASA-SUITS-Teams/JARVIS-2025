@@ -59,7 +59,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-900 text-blue-100 font-mono">
-      <Header />
+      <Header elapsedTime={tssData.ROVER_TELEMETRY?.pr_telemetry.mission_elapsed_time} error={error}/>
       <div className="flex flex-1 overflow-auto">
         <div className="flex-1 p-4">
           <ResponsiveGridLayout
