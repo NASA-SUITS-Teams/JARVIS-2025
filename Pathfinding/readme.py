@@ -2,7 +2,8 @@
 PATHFINDING FUNCTIONALITY
 
 The pathfinding system will consist of three primary functions that revolve around a graph of nodes and edges
-representing the terrain the rover will navigate on, initialization, iteration, and pathfinding.
+representing the terrain the rover will navigate on, initialization, iteration, and pathfinding. To use pathfinding,
+import pathfinding.py and call find_path(start, end).
 
 INITIALIZATION
 Input:
