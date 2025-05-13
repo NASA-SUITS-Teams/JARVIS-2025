@@ -30,3 +30,7 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+button:hover {
+  cursor: pointer;
+}

@@ -58,6 +58,8 @@ export default function Map({
 
   // @TODO handle adding points to the map
 
+  // @TODO offer option to store historical data pointa and draw a line from starting to end
+
   return (
     <div className="flex flex-col h-full w-full bg-gray-800 rounded-lg border border-blue-600 shadow-lg overflow-hidden">
       {/* Header */}

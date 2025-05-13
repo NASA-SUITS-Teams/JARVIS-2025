@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import React, { useState, useMemo } from "react";
 import { TSSData } from "@/types/tss";
 import { PRTelemetry } from "@/types/api";
 
 export default function SystemStates({ tssData }: { tssData: TSSData }) {
-  const tabs = ["EVA #1", "EVA #2", "ROVER"] as const;
+  const tabs = ["ROVER", "EVA #1", "EVA #2"] as const;
   const [activeIndex, setActiveIndex] = useState(0);
 
   // Build an array of telemetry objects every render
@@ -12,8 +14,6 @@ export default function SystemStates({ tssData }: { tssData: TSSData }) {
   >(
     () => [
       // static EVA values @TODO pull this from LunarLink soon
-      { oxygen: 48, co2: 63 },
-      { oxygen: 72, co2: 45 },
 
       // pull rover telemetry and omit some values
       (() => {
@@ -45,6 +45,9 @@ export default function SystemStates({ tssData }: { tssData: TSSData }) {
         } = telem;
         return rest;
       })(),
+      { oxygen: 48, co2: 63 },
+      { oxygen: 72, co2: 45 },
+,
     ],
     [tssData]
   );
@@ -78,7 +81,11 @@ export default function SystemStates({ tssData }: { tssData: TSSData }) {
           <div key={key} className="flex justify-between">
             <span className="capitalize">{key.replace(/_/g, " ")}</span>
             <span>
-              {Array.isArray(val) ? `[${val.join(", ")}]` : String(val)}
+              {Array.isArray(val)
+                ? `[${val.map((v) => (typeof v === "number" ? Math.round(v * 100) / 100 : v)).join(", ")}]`
+                : typeof val === "number"
+                ? Math.round(val * 100) / 100
+                : String(val)}
             </span>
           </div>
         ))}

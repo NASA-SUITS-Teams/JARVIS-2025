@@ -1,20 +1,20 @@
 "use client";
 
 import React, { useState, useRef } from "react";
+import { Responsive, WidthProvider, Layout } from "react-grid-layout";
+import "react-grid-layout/css/styles.css";
+import "react-resizable/css/styles.css";
+
 import Header from "@/components/Header";
 import Map from "@/components/widgets/Map";
-import TaskQueue from "@/components/widgets/TaskQueue";
 import ScanData from "@/components/widgets/ScanData";
 import MapToggles from "@/components/widgets/MapToggles";
 import SystemControl from "@/components/widgets/SystemControl";
 import CameraFeeds from "@/components/widgets/CameraFeeds";
+import LLMWidget from "@/components/widgets/LLM";
+import Alerts from "@/components/widgets/Alerts";
 import { useAPI } from "@/hooks/useAPI";
 import { APIResponseData } from "@/types/api";
-
-import { Responsive, WidthProvider, Layout } from "react-grid-layout";
-import "react-grid-layout/css/styles.css";
-import "react-resizable/css/styles.css";
-import LLMWidget from "@/components/widgets/LLM";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 const defaultLayout: Layout[] = [
@@ -27,8 +27,7 @@ const defaultLayout: Layout[] = [
 ];
 
 export default function Home() {
-  const { data, error, loading } = useAPI();
-  if (!data) return <p>loading...</p>;
+  const { data, error } = useAPI();
 
   const backendData: APIResponseData = data;
   const tssData = backendData.tssData;
@@ -58,7 +57,10 @@ export default function Home() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-900 text-blue-100 font-mono">
-      <Header elapsedTime={tssData.ROVER_TELEMETRY?.pr_telemetry.mission_elapsed_time} error={error}/>
+      <Header
+        elapsedTime={tssData.ROVER_TELEMETRY?.pr_telemetry.mission_elapsed_time}
+        error={error}
+      />
       <div className="flex flex-1 overflow-auto">
         <div className="flex-1 p-4">
           <ResponsiveGridLayout
@@ -83,7 +85,7 @@ export default function Home() {
               />
             </div>
             <div key="taskQueue">
-              <TaskQueue taskData={tpqData} />
+              <Alerts alertData={alertData} />
             </div>
             <div key="scanData">
               <ScanData />
@@ -98,7 +100,7 @@ export default function Home() {
               />
             </div>
             <div key="llm">
-              <LLMWidget/>
+              <LLMWidget />
             </div>
           </ResponsiveGridLayout>
         </div>

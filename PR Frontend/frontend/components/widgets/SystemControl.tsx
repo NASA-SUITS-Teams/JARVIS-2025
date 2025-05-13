@@ -2,7 +2,6 @@ import React from "react";
 import SystemStates from "@/components/widgets/SystemStates";
 import Alerts from "@/components/widgets/Alerts";
 import QuickActions from "@/components/widgets/QuickActions";
-import { Alert } from "@/types/api";
 import { TSSData } from "@/types/tss";
 
 export default function SystemControl({
@@ -20,7 +19,6 @@ export default function SystemControl({
         <span className="font-bold">SYSTEM CONTROL</span>
       </div>
       <QuickActions handleAddPoint={handleAddPoint} />
-      <Alerts alertData={alertData} />
       <SystemStates tssData={tssData} />
     </div>
   );
