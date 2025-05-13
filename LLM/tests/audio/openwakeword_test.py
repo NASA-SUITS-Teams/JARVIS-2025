@@ -1,31 +1,31 @@
 import openwakeword
 import time
-import numpy as np
-import pyaudio
+
+from LLM.utils.audio import Audio
 
 openwakeword.utils.download_models()
 
-wakeword = openwakeword.Model(
+owwModel = openwakeword.Model(
     wakeword_models=["hey jarvis"], enable_speex_noise_suppression=True
 )
 
-audio = pyaudio.PyAudio()
-mic_stream = audio.open(
-    format=pyaudio.paInt16, channels=1, rate=16000, input=True, frames_per_buffer=3000
-)
+
+audio = Audio()
+
 
 while True:
-    audio_frame = np.frombuffer(
-        mic_stream.read(3000, exception_on_overflow=False), dtype=np.int16
-    )
 
-    prediction = wakeword.predict(audio_frame)
+    chunk = audio.pop_audio_q()
+
+    prediction = owwModel.predict(chunk)
+
     print(round(prediction["hey jarvis"], 2))
 
     if prediction["hey jarvis"] > 0.5:
         print("Hey Jarvis detected")
+        audio.stream.stop()
         input()
-        mic_stream.read(mic_stream.get_read_available(), exception_on_overflow=False)
-        print(mic_stream.get_read_available())
+        audio.audio_q.clear()
+        owwModel.reset()
 
     time.sleep(0.1)

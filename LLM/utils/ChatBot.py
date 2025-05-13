@@ -1,3 +1,4 @@
+import re
 import chromadb
 import requests
 import json
@@ -143,12 +144,11 @@ class ChatBot:
             if just_print:
                 print()
 
-            self.add_message("assistant", full_response)
+            full_response = re.sub(r"<think>(\n|.)*</think>", "", full_response).strip()
 
-            if (
-                "<functions>" in full_response
-            ):
-                function_calls = full_response.split("<functions>")[1].strip()
+            match = re.search(r"<functions>((\n|.)*)</functions>", full_response)
+            if match:
+                function_calls = match.group(1).strip()
                 if DEBUG:
                     print(f"CALLING FUNCTIONS: {function_calls}")
 
@@ -159,6 +159,11 @@ class ChatBot:
                     print(response)
 
                 self.add_message("system", response)
+
+            full_response = re.sub(
+                r"<functions>(\n|.)*</functions>", "", full_response
+            ).strip()
+            self.add_message("assistant", full_response)
 
             return full_response
 

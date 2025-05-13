@@ -1,15 +1,16 @@
 from faster_whisper import WhisperModel
-import speech_recognition as sr
 
-from LLM.utils.audio import calibrate_recognizer, get_audio_data, get_text_from_audio
+from LLM.utils.audio import Audio
 
 model = WhisperModel("small", compute_type="float32")
 
-r = sr.Recognizer()
-r.pause_threshold = 2
-calibrate_recognizer(r)
+
+audio = Audio()
+
 
 while True:
-    audio_data = get_audio_data(r)
-    text = get_text_from_audio(audio_data, model)
+    audio_data = audio.record_until_silence(2, 10)
+
+    text = audio.get_text_from_audio(audio_data, model)
+
     print(f"User:{text}")
