@@ -3,13 +3,12 @@ import requests
 BASE_URL = "http://data.cs.purdue.edu:14141/json_data"
 
 FILE_KEYS = [
-    "COMM", # comm
     #"DCU",
     "ERROR", # error
     #"IMU",
     "ROVER", # rover
     "SPEC", # spec
-    "UIA", # uia
+    #"UIA", # uia
 ]
 
 # data will be retruned in a dictionary format with keys as file names as mentioned above in FILE_KEYS

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { MapIcon, Grid, BarChart2, Satellite, AlertCircle, X } from "lucide-react";
 import { MapElement } from "@/types/api";
+import { TSSData } from "@/types/tss";
 
 export default function Map({
   activeMap,
@@ -8,8 +9,10 @@ export default function Map({
   visibleLayers,
   handleAddPoint,
   mapData,
+  tssData,
 }: {
   mapData: MapElement[];
+  tssData: TSSData;
 }) {  
   const [mapElements, setMapElements] = useState(mapData);
   const [isPoiMode, setIsPoiMode] = useState(false);
@@ -186,8 +189,8 @@ export default function Map({
         </div>
 
         <div className="absolute left-0 top-0 p-1 bg-gray-800/80 rounded-br-md border-r border-b border-blue-600/50 text-xs flex flex-col">
-          <div className="text-blue-300">LAT: 23°12'66"N</div>
-          <div className="text-blue-300">LONG: 42°40'15"E</div>
+          <div className="text-blue-300">X {tssData.ROVER?.rover.posx}</div>
+          <div className="text-blue-300">Y {tssData.ROVER?.rover.posy}</div>
         </div>
 
         <div className="absolute right-0 bottom-0 p-1 bg-gray-800/80 rounded-tl-md border-l border-t border-blue-600/50 text-xs">

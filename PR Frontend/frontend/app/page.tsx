@@ -14,6 +14,7 @@ import { APIResponseData } from "@/types/api";
 import { Responsive, WidthProvider, Layout } from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
+import LLMWidget from "@/components/widgets/LLM";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -23,6 +24,7 @@ const defaultLayout: Layout[] = [
   { i: "scanData", x: 3, y: 0, w: 1, h: 3 },
   { i: "cameraFeeds", x: 3, y: 3, w: 1, h: 2 },
   { i: "mapToggles", x: 2, y: 3, w: 1, h: 2 },
+  { i: "llm", x: 2, y: 5, w: 2, h: 2 },
 ];
 
 export default function Home() {
@@ -80,6 +82,7 @@ export default function Home() {
                 visibleLayers={visibleLayers}
                 handleAddPoint={addPointRef}
                 mapData={mapData}
+                tssData={tssData}
               />
             </div>
             <div key="taskQueue">
@@ -96,6 +99,9 @@ export default function Home() {
                 visibleLayers={visibleLayers}
                 toggleLayer={toggleLayer}
               />
+            </div>
+            <div key="llm">
+              <LLMWidget/>
             </div>
           </ResponsiveGridLayout>
         </div>

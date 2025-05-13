@@ -1,20 +1,21 @@
-export type APIResponseData {
-  tssData;
+import { TSSData } from "./tss";
+
+export type APIResponseData = {
+  tssData: TSSData;
   mapData: MapElement[];
   alertData: Alert[];
   tpqData: TPQItem[];
   //evaData: EVAData;
-  //roverData: RoverData;
   //scanData: ScanData;
 }
 
-export type Alert {
+export type Alert = {
   name: string;
   description: string;
   time: string;
 }
 
-export type MapElement {
+export type MapElement = {
   name: string;
   type: MapElementType;
   status: string;
@@ -37,20 +38,20 @@ enum GridMode {
   "Grid",
 }
 
-export type TPQItem {
+export type TPQItem = {
   name: string;
   priority: number;
   timestamp: string;
 }
 
-type LLMResponse {
+type LLMResponse = {
 
 }
 
-type LLMRequest {
+type LLMRequest = {
 }
 
-type EVAData {
+type EVAData = {
   eva1: {
     position: [number, number];
     status: string;
@@ -61,17 +62,11 @@ type EVAData {
   };
 }
 
-type RoverData {
-  position: [number, number];
-  heading: number;
-  speed: number;
-}
-
-type ScanData {
+type ScanData  {
   scans: ScanItem[];
 }
 
-type ScanItem {
+type ScanItem = {
   title: string;
   size: string;
   color: string;

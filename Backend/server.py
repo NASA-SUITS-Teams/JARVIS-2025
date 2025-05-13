@@ -51,30 +51,6 @@ def get_data():
         for t in tpq.peek(n=len(tpq))
     ]
 
-    # WHAT MAP DATA NEEDS TO LOOK LIKE
-    """
-    map_data = [
-        {
-            "name": element.name,
-            "type": element.type,
-            "status": element.status,
-            "position": element.position
-        }
-        for element in __
-    ]"""
-
-    # WHAT ALERT DATA NEEDS TO LOOK LIKE
-    """
-    alert_data = [
-        {
-            "name": alert.name,
-            "description": alert.description,
-            "type": alert.type,
-            "time": alert.time,
-        }
-        for alert in __
-    ]"""
-
     # this is technically the start of the real response, but I'm using some fake data below
     """return jsonify({
         "tssData": cmd_lst,
