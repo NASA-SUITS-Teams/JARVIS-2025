@@ -1,7 +1,7 @@
 export default function Alerts({ alertData }: { alertData: Alert[] }) {
   if (alertData.length === 0) {
     return (
-      <div className="p-3 border-b border-blue-600/50">
+      <div className="p-3 border-t border-blue-600/50">
         <div className="text-sm font-bold text-blue-300 mb-2">ALERTS</div>
         <div className="text-xs text-gray-500">No alerts at the moment.</div>
       </div>
@@ -9,7 +9,7 @@ export default function Alerts({ alertData }: { alertData: Alert[] }) {
   }
 
   return (
-    <div className="p-3 border-b border-blue-600/50">
+    <div className="p-3 border-t border-blue-600/50">
       <div className="text-sm font-bold text-blue-300 mb-2">ALERTS</div>
       <div className="space-y-2 text-xs">
       {alertData.map((alert, index) => (

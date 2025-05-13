@@ -109,6 +109,7 @@ export default function Home() {
           handleAddPoint={handleAddPoint}
           alertData={alertData}
           dataError={error}
+          tssData={tssData}
         />
       </div>
     </div>

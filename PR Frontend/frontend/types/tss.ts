@@ -5,7 +5,7 @@ export type TSSData = {
     ROVER: {
         rover: RoverData;
     }
-    ROVER_TELEMTRY: {
+    ROVER_TELEMETRY: {
         pr_telemetry: PRTelemetry;
     }
     //SPEC: this is the data for the spectrometer, we should only fetch it here as a backup in case we can't communicate with the EVAs directly
@@ -17,7 +17,7 @@ type ErrorData = {
   pump_error: boolean;
 }
 
-type RoverData = {
+export type RoverData = {
   posx: number;
   posy: number;
   poi_1_x: number;
@@ -29,7 +29,7 @@ type RoverData = {
   ping: boolean;
 }
 
-type PRTelemetry = {
+export type PRTelemetry = {
   ac_heating: boolean;
   ac_cooling: boolean;
   co2_scrubber: boolean;
