@@ -12,18 +12,20 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from TPQ import task_priority_queue as TPQ
 from LunarLink import LunarLink_Server as LunarLink
 from LunarLink import LunarClient as client
-from Backend.tss import get_tss_data
+from Backend.tss import fetch_json_data
 
 # Init Flask app and global state
 app = Flask(__name__)
 CORS(app)
 cmd_lst = [-1] * 165
+tss_data = {}
 
 tpq = TPQ.TaskPriorityQueue()
 clientSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 tssSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 lunar_link = LunarLink.LunarLink(tpq, cmd_lst, "0.0.0.0")
 
+"""
 # Background thread: updates rover commands from TSS
 def update_rover_loop(ip="data.cs.purdue.edu", port=14141, interval=5):
     while True:
@@ -31,6 +33,7 @@ def update_rover_loop(ip="data.cs.purdue.edu", port=14141, interval=5):
             data = get_tss_data(clientSocket=tssSocket, cmd_num=cmd_num, addr=(ip, port))
             lunar_link.jsonFile.update_command(cmd_num, data[2][0])
         time.sleep(interval)
+"""
 
 @app.route('/', methods=['GET'])
 def santiy():
@@ -104,7 +107,7 @@ def get_data():
     ]
 
     return jsonify({
-        "tssData": cmd_lst,
+        "tssData": tss_data,
         "mapData": map_data,
         "alertData": alert_data,
         "tpqData": tpq_data
@@ -122,9 +125,19 @@ def add_task():
 # @TODO add routes for LLM
 
 
+# Update all TSS data every 10 seconds
+def update_tss_loop():
+    global tss_data
+
+    while True:
+        tss_data = fetch_json_data()
+
+        time.sleep(10) # poll every 10 seconds
+
 # Start threads and server
 if __name__ == "__main__":
     threading.Thread(target=lunar_link.server_loop, daemon=True).start()
-    threading.Thread(target=update_rover_loop, daemon=True).start()
+    threading.Thread(target=update_tss_loop, daemon=True).start()
+    #threading.Thread(target=update_rover_loop, daemon=True).start()
 
     app.run(debug=True, use_reloader=False, host="0.0.0.0", port=8282)

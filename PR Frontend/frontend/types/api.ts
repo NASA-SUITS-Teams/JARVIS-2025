@@ -14,7 +14,6 @@ export type Alert {
   time: string;
 }
 
-
 export type MapElement {
   name: string;
   type: MapElementType;

@@ -1,31 +1,44 @@
-import time
-import struct
-import math
+import requests
 
-URL = "data.cs.purdue.edu"
-PORT = 14141
+BASE_URL = "http://data.cs.purdue.edu:14141/json_data"
 
-def parse_tss_response(data):
-	return (int.from_bytes(data[:4]), int.from_bytes(data[4:8]), struct.unpack('>f', data[8:]))
+FILE_KEYS = [
+    "COMM", # comm
+    #"DCU",
+    "ERROR", # error
+    #"IMU",
+    "ROVER", # rover
+    "SPEC", # spec
+    "UIA", # uia
+]
 
-def get_tss_data(clientSocket, 
-				addr = (URL, PORT), 
-				cmd_num = 58,  
-				tstamp = 'now'):
-	# by default gets the EVA time for team 1	
-	if tstamp == 'now':
-		tstamp = int(time.time())
+# data will be retruned in a dictionary format with keys as file names as mentioned above in FILE_KEYS
+def fetch_json_data():
+    data = {}
 
-	clientSocket.sendto(tstamp.to_bytes(4) + cmd_num.to_bytes(4), addr)
-	data, server = clientSocket.recvfrom(1024)
-	return parse_tss_response(data)
+    for key in FILE_KEYS:
+        url = f"{BASE_URL}/{key}.json"
 
-def calc_distance_to(x_0, y_0, x_1,y_1):
-	''' Calculate the distance from the rover's current position to x,y '''
-	distance = (x_1 - x_0) ** 2 + (y_1 - y_0) ** 2
-	return math.sqrt(distance)
+        try:
+            resp = requests.get(url, timeout=5)
+            resp.raise_for_status()
+            
+            data[key] = resp.json()
+        except requests.RequestException as e:
+            print(f"Error fetching {key}.json: {e}")
+            data[key] = None
 
-def get_rover_coordinates(clientSocket):
-	_, _, posx = get_tss_data(clientSocket, cmd_num=128)
-	_, _, posy = get_tss_data(clientSocket, cmd_num=129)
-	return (posx, posy)
+    # fetch rover telemtry data which is a unique URL that is team based
+    url = f"{BASE_URL}/teams/0/ROVER_TELEMETRY.json"
+    key = "ROVER_TELEMETRY"
+
+    try:
+        resp = requests.get(url, timeout=5)
+        resp.raise_for_status()
+            
+        data[key] = resp.json()
+    except requests.RequestException as e:
+        print(f"Error fetching {key}.json: {e}")
+        data[key] = None
+
+    return data
