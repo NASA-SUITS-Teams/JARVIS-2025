@@ -1,7 +1,7 @@
 import openwakeword
 import time
 
-from LLM.utils.audio import audio_q, create_stream
+from LLM.utils.audio import Audio
 
 openwakeword.utils.download_models()
 
@@ -10,15 +10,12 @@ owwModel = openwakeword.Model(
 )
 
 
-stream = create_stream()
+audio = Audio()
 
 
 while True:
-    if len(audio_q) == 0:
-        time.sleep(0.1)
-        continue
 
-    chunk = audio_q.pop()
+    chunk = audio.pop_audio_q()
 
     prediction = owwModel.predict(chunk)
 
@@ -26,10 +23,9 @@ while True:
 
     if prediction["hey jarvis"] > 0.5:
         print("Hey Jarvis detected")
-        stream.stop()
+        audio.stream.stop()
         input()
-        audio_q.clear()
-        stream.start()
+        audio.audio_q.clear()
         owwModel.reset()
 
     time.sleep(0.1)
