@@ -10,7 +10,7 @@ export default function LLMWidget() {
     transcript,
     listening,
     resetTranscript,
-    browserSupportsSpeechRecognition,
+    // browserSupportsSpeechRecognition, note: using this causes a hydration mismatch, @TODO: investigate
     browserSupportsContinuousListening,
   } = useSpeechRecognition();
   const [editableTranscript, setEditableTranscript] = useState("");
@@ -19,14 +19,6 @@ export default function LLMWidget() {
   React.useEffect(() => {
     setEditableTranscript(transcript);
   }, [transcript]);
-
-  if (!browserSupportsSpeechRecognition) {
-    return (
-      <div className="p-4 text-red-400 bg-gray-900 rounded">
-        😔 Speech Recognition isn’t supported in this browser.
-      </div>
-    );
-  }
 
   const startListening = () => {
     resetTranscript();
@@ -48,7 +40,7 @@ export default function LLMWidget() {
   const handleSend = () => {
     // @TODO: implement the LLM API call here - Peter
 
-    
+
     setResponse(`LLM Response to: "${editableTranscript}"`);
   };
 
