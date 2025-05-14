@@ -1,74 +1,55 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState } from "react";
+import SpeechRecognition, {
+  useSpeechRecognition,
+} from "react-speech-recognition";
 import { Terminal, Music4Icon, Send } from "lucide-react";
 
 export default function LLMWidget() {
-  const [listening, setListening] = useState(false);
-  const [transcript, setTranscript] = useState("");
   const [response, setResponse] = useState("");
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const {
+    transcript,
+    listening,
+    resetTranscript,
+    browserSupportsSpeechRecognition,
+    browserSupportsContinuousListening,
+  } = useSpeechRecognition();
+  const [editableTranscript, setEditableTranscript] = useState("");
 
-  useEffect(() => {
-    const SpeechRecognition =
-      (window as any).SpeechRecognition ||
-      (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) return;
+  // Keep editableTranscript in sync when SpeechRecognition updates
+  React.useEffect(() => {
+    setEditableTranscript(transcript);
+  }, [transcript]);
 
-    const recog = new SpeechRecognition();
-    recog.continuous = true;
-    recog.interimResults = true;
-    recog.lang = "en-US";
-
-    recog.onstart = () => {
-      setListening(true);
-    };
-
-    recog.onresult = (event: SpeechRecognitionEvent) => {
-      let finalTranscript = "";
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        finalTranscript += event.results[i][0].transcript;
-      }
-      setTranscript(finalTranscript.trim());
-    };
-
-    recog.onerror = (event: any) => {
-      console.warn("Speech recognition error", event.error);
-      // If it fails due to “no-speech”, just restart
-      if (event.error === "no-speech" && listening) {
-        recog.start();
-      }
-    };
-
-    recog.onend = () => {
-      // Auto-restart if still “listening”
-      if (listening) {
-        recog.start();
-      } else {
-        // truly stopped
-        setListening(false);
-      }
-    };
-
-    recognitionRef.current = recog;
-  }, [listening]);
+  if (!browserSupportsSpeechRecognition) {
+    return (
+      <div className="p-4 text-red-400 bg-gray-900 rounded">
+        😔 Speech Recognition isn’t supported in this browser.
+      </div>
+    );
+  }
 
   const startListening = () => {
-    if (recognitionRef.current && !listening) {
-      setTranscript("");
-      setResponse("");
-      recognitionRef.current.start();
-      // setListening(true) will happen in onstart
+    resetTranscript();
+    setResponse("");
+    if (browserSupportsContinuousListening) {
+      SpeechRecognition.startListening({
+        continuous: true,
+        language: "en-US",
+      });
+    } else {
+      SpeechRecognition.startListening({ language: "en-US" });
     }
   };
 
   const stopListening = () => {
-    if (recognitionRef.current && listening) {
-      // this will trigger onend → setListening(false)
-      recognitionRef.current.stop();
-    }
+    SpeechRecognition.stopListening();
   };
 
   const handleSend = () => {
-    setResponse(`LLM Response to: "${transcript}"`);
+    // @TODO: implement the LLM API call here - Peter
+
+    
+    setResponse(`LLM Response to: "${editableTranscript}"`);
   };
 
   return (
@@ -97,17 +78,16 @@ export default function LLMWidget() {
           </button>
         )}
 
-        <div className="flex-1 p-2 rounded-md border border-blue-600 bg-gray-900 text-gray-200 overflow-auto text-sm">
-          {transcript || (
-            <span className="text-gray-500">
-              Your voice transcript will appear here.
-            </span>
-          )}
-        </div>
+        <textarea
+          value={editableTranscript}
+          onChange={(e) => setEditableTranscript(e.target.value)}
+          placeholder="Your voice transcript will appear here."
+          className="flex-1 p-2 rounded-md border border-blue-600 bg-gray-900 text-gray-200 overflow-auto text-sm resize-none"
+        />
 
         <button
           onClick={handleSend}
-          disabled={!transcript}
+          disabled={!editableTranscript.trim()}
           className="flex items-center justify-center p-2 rounded-md border border-blue-400 bg-blue-600 text-sm text-white font-medium hover:bg-blue-500 disabled:opacity-50"
         >
           <Send size={16} className="mr-2" />
