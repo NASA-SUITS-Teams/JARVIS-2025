@@ -10,35 +10,25 @@ from flask_cors import CORS
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from TPQ import task_priority_queue as TPQ
-#from LunarLink import LunarLink_Server as LunarLink
-from Backend.tss import fetch_json_data
+from Backend.tss import fetch_tss_json_data
+from Backend.lunarlink import fetch_lunarlink_json_data, send_lunarlink_data
 
 # Init Flask app and global state
 app = Flask(__name__)
 CORS(app)
-cmd_lst = [-1] * 165
+
+# Init global variables
 tss_data = {}
+lunarlink_data = {}
 
 tpq = TPQ.TaskPriorityQueue()
-clientSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 tssSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-#lunar_link = LunarLink.LunarLink(tpq, cmd_lst, "0.0.0.0")
-
-"""
-# Background thread: updates rover commands from TSS
-def update_rover_loop(ip="data.cs.purdue.edu", port=14141, interval=5):
-    while True:
-        for cmd_num in range(119, 167):
-            data = get_tss_data(clientSocket=tssSocket, cmd_num=cmd_num, addr=(ip, port))
-            lunar_link.jsonFile.update_command(cmd_num, data[2][0])
-        time.sleep(interval)
-"""
 
 @app.route('/', methods=['GET'])
 def santiy():
     return jsonify({"status": "ok", "message": "Backend is running"}), 200
 
-# Flask API routes
+# Fetch all TSS data and other related information from subteams
 @app.route('/get_data', methods=['GET'])
 def get_data():
     tpq_data = [
@@ -49,15 +39,7 @@ def get_data():
         }
         for t in tpq.peek(n=len(tpq))
     ]
-
-    # this is technically the start of the real response, but I'm using some fake data below
-    """return jsonify({
-        "tssData": cmd_lst,
-        "mapData": {},
-        "alertData": [],
-        "tpqData": tpq_data
-    })"""
-
+    
     # Placeholder
     tpq_data = [
         { "name": "Oxygen level maintenance", "priority": 5, "timestamp": "00:01:30"},
@@ -84,9 +66,19 @@ def get_data():
         "tssData": tss_data,
         "mapData": map_data,
         "alertData": alert_data,
-        "tpqData": tpq_data
+        "tpqData": tpq_data,
+        "lunarlinkData": lunarlink_data
     })
 
+# Send rover data to AetherNet (LunarLink)
+@app.route('/lunarlink', methods=['GET'])
+def lunarlink():
+  json_response = send_lunarlink_data(tss_data)
+  return jsonify(json_response)
+
+# Add a pin to the map
+
+# Add a command to the task priority queue
 @app.route('/add_task/', methods=['POST'])
 def add_task():
     task_name = request.form.get('task_name')
@@ -96,6 +88,8 @@ def add_task():
         return jsonify({"status": "task added"}), 200
     return jsonify({"error": "Missing task_name or priority"}), 400
 
+
+
 # @TODO add routes for LLM
 
 
@@ -104,14 +98,23 @@ def update_tss_loop():
     global tss_data
 
     while True:
-        tss_data = fetch_json_data()
+        tss_data = fetch_tss_json_data()
 
         time.sleep(10) # poll every 10 seconds
 
+# Update lunarlink data every 10 seconds, including EVA, etc
+def update_lunarlink_loop():
+    global lunarlink_data
+
+    while True:
+        lunarlink_data = fetch_lunarlink_json_data()
+
+        time.sleep(10)  # poll every 10 seconds
+
+
 # Start threads and server
 if __name__ == "__main__":
-    #threading.Thread(target=lunar_link.server_loop, daemon=True).start()
     threading.Thread(target=update_tss_loop, daemon=True).start()
-    #threading.Thread(target=update_rover_loop, daemon=True).start()
+    #threading.Thread(target=update_lunarlink_loop, daemon=True).start()
 
     app.run(debug=True, use_reloader=False, host="0.0.0.0", port=8282)

@@ -12,7 +12,7 @@ FILE_KEYS = [
 ]
 
 # data will be retruned in a dictionary format with keys as file names as mentioned above in FILE_KEYS
-def fetch_json_data():
+def fetch_tss_json_data():
     data = {}
 
     for key in FILE_KEYS:

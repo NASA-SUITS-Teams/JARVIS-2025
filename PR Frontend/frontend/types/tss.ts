@@ -9,6 +9,7 @@ export type TSSData = {
         pr_telemetry: PRTelemetry;
     }
     //SPEC: this is the data for the spectrometer, we should only fetch it here as a backup in case we can't communicate with the EVAs directly
+    //EVA
 }
 
 type ErrorData = {
