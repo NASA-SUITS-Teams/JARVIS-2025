@@ -38,8 +38,6 @@ export default function SystemStates({
         dest_x,
         dest_y,
         dest_z,
-        solar_panel_dust_accum,
-        solar_panel_efficiency,
         in_sunlight,
         internal_lights_on,
         ac_cooling,

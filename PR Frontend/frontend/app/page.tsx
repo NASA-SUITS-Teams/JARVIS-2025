@@ -46,7 +46,7 @@ export default function Home() {
     eva: true,
     pr: true,
     poi: true,
-    pin: true
+    pin: true,
   });
   const addPointRef = useRef<() => void>(null);
 
@@ -110,12 +110,12 @@ export default function Home() {
             </div>
           </ResponsiveGridLayout>
         </div>
-        <SystemControl
-          handleAddPoint={handleAddPoint}
-          alertData={alertData}
-          dataError={error}
-          tssData={tssData}
-        />
+          <SystemControl
+            handleAddPoint={handleAddPoint}
+            alertData={alertData}
+            dataError={error}
+            tssData={tssData}
+          />
       </div>
     </div>
   );

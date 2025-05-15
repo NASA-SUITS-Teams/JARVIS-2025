@@ -105,37 +105,73 @@ export default function Map({
 
           {roverPos && visibleLayers.pr && (
             <div
-              className="absolute w-5 h-5 bg-purple-500 rounded-full border-2 border-white z-20"
+              className="absolute z-20"
               style={{
                 left: `${roverPos.left}%`,
                 top: `${roverPos.top}%`,
-                transform: "translate(-50%, -50%)",
+                transform: `translate(-50%, -50%) rotate(${
+                  tssData.ROVER_TELEMETRY?.pr_telemetry.heading || 0
+                }deg)`,
               }}
-            />
+            >
+              <svg width="30" height="30" viewBox="0 0 24 24">
+                <polygon
+                  points="12,2 4,20 12,15 20,20"
+                  fill="#9333ea"
+                  stroke="white"
+                  strokeWidth="2"
+                  className="drop-shadow-md"
+                />
+              </svg>
+            </div>
           )}
 
           {eva1Pos && visibleLayers.eva && (
             <div
-              className="absolute w-5 h-5 bg-purple-500 rounded-full border-2 border-white z-20"
+              className="absolute z-20"
               style={{
                 left: `${eva1Pos.left}%`,
                 top: `${eva1Pos.top}%`,
-                transform: "translate(-50%, -50%)",
+                transform: `translate(-50%, -50%) rotate(${
+                  tssData.IMU.imu.eva1.heading || 0
+                }deg)`,
               }}
-            />
+            >
+              <svg width="30" height="30" viewBox="0 0 24 24">
+                <polygon
+                  points="12,2 4,20 12,15 20,20"
+                  fill="#ec4899"
+                  stroke="white"
+                  strokeWidth="2"
+                  className="drop-shadow-md"
+                />
+              </svg>
+            </div>
           )}
 
           {eva2Pos && visibleLayers.eva && (
             <div
-              className="absolute w-5 h-5 bg-pink-500 rounded-full border-2 border-white z-20"
+              className="absolute z-20"
               style={{
                 left: `${eva2Pos.left}%`,
                 top: `${eva2Pos.top}%`,
-                transform: "translate(-50%, -50%)",
+                transform: `translate(-50%, -50%) rotate(${
+                  tssData.IMU.imu.eva1.heading || 0
+                }deg)`,
               }}
-            />
+            >
+              <svg width="30" height="30" viewBox="0 0 24 24">
+                <polygon
+                  points="12,2 4,20 12,15 20,20"
+                  fill="#ec4899"
+                  stroke="white"
+                  strokeWidth="2"
+                  className="drop-shadow-md"
+                />
+              </svg>
+            </div>
           )}
-
+          
           <div className="absolute top-2 right-2 bg-gray-800/80 text-xs text-blue-300 p-1 rounded">
             X {rover?.posx.toFixed(1)} Y {rover?.posy.toFixed(1)}
           </div>
