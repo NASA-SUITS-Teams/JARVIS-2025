@@ -13,7 +13,6 @@ from TPQ import task_priority_queue as TPQ
 from Backend.tss import fetch_tss_json_data
 from Backend.lunarlink import fetch_lunarlink_json_data, send_lunarlink_data
 from Pathfinding.pathfinding import find_path
-from Alerts.alerts import get_alerts
 
 # Init Flask app and global state
 app = Flask(__name__)
@@ -54,7 +53,6 @@ def get_data():
     return jsonify({
         "tssData": tss_data,
         "mapData": map_data,
-        "alertData": alert_data,
         "lunarlinkData": lunarlink_data
     })
 

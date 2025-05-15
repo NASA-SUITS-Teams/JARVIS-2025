@@ -5,7 +5,6 @@ export type APIResponseData = {
   tssData: TSSData;
   lunarlinkData: LunarLinkData; // main source for partner teams data, we will use the TSS data as a backu
   mapData: MapElement[];
-  alertData: Alert[];
 }
 
 export type Alert = {

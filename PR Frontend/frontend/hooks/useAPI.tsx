@@ -1,8 +1,9 @@
 import { APIResponseData } from "@/types/api";
 import { useEffect, useState } from "react";
 
-const API_URL =
-  process.env.REACT_APP_API_URL || "http://localhost:8282/get_data"; // replace with the python flask server URL
+// @TODO add historical data storage too
+
+const API_URL = "http://localhost:8282"; // replace with the python flask server URL
 
 export const useAPI = () => {
   const [data, setData] = useState<APIResponseData>({
@@ -26,7 +27,7 @@ export const useAPI = () => {
         },
       };
 
-      const response = await fetch(API_URL, options);
+      const response = await fetch(API_URL + '/get_data', options);
       const result: APIResponseData = await response.json();
     
       setData(result);
@@ -48,6 +49,13 @@ export const useAPI = () => {
 
     return () => clearInterval(interval);
   }, []);
+
+  const sendPin = async (pin: { x: number; y: number }) => {
+  }
+
+  const requestTerrainScan = async () => {
+
+  }
 
   return { data, error, loading };
 };

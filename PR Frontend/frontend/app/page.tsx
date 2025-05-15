@@ -34,8 +34,6 @@ export default function Home() {
   const backendData: APIResponseData = data;
   const tssData = backendData.tssData;
   const mapData = backendData.mapData;
-  const alertData = backendData.alertData;
-  //const tpqData = backendData.tpqData;
   const specData = tssData.SPEC?.spec;
 
   // Draggable layout state
@@ -88,7 +86,7 @@ export default function Home() {
               />
             </div>
             <div key="taskQueue">
-              <Alerts alertData={alertData} />
+              <Alerts tssData={tssData} />
             </div>
             <div key="scanData">
               <ScanData specData={specData} />
@@ -112,7 +110,6 @@ export default function Home() {
         </div>
           <SystemControl
             handleAddPoint={handleAddPoint}
-            alertData={alertData}
             dataError={error}
             tssData={tssData}
           />

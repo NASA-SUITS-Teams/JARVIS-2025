@@ -73,7 +73,7 @@ export default function Map({
     <div className="flex flex-col h-full w-full bg-gray-800 rounded-lg border border-blue-600 shadow-lg overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-2 bg-gray-700 border-b border-blue-600">
-        <div className="flex items-center space-x-2 drag-handle">
+        <div className="flex items-center space-x-2 drag-handle hover:cursor-move">
           <MapIcon size={18} className="text-blue-400" />
           <span className="font-bold">MAP</span>
         </div>
@@ -171,7 +171,7 @@ export default function Map({
               </svg>
             </div>
           )}
-          
+
           <div className="absolute top-2 right-2 bg-gray-800/80 text-xs text-blue-300 p-1 rounded">
             X {rover?.posx.toFixed(1)} Y {rover?.posy.toFixed(1)}
           </div>
