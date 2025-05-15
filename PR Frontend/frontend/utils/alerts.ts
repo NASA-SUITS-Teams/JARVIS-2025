@@ -1,8 +1,8 @@
-// utils/alerts.ts
-import { PRTelemetry, Alert } from "@/types/api";
+import { PRTelemetry, EVATelemetry, Alert } from "@/types/api";
 
 const STORAGE_KEY = "alertStartTimes";
 
+// Load any persisted timestamps
 function loadStartTimes(): Record<string, number> {
   if (typeof window === "undefined") return {};
   try {
@@ -12,16 +12,17 @@ function loadStartTimes(): Record<string, number> {
   }
 }
 
+// Persist timestamps in local storage
 function saveStartTimes(times: Record<string, number>) {
   if (typeof window === "undefined") return;
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(times));
   } catch {
-    /* ignore quota errors */
+    // ignore for now
   }
 }
 
-const THRESHOLDS: Record<keyof PRTelemetry, [number, number]> = {
+const ROVER_THRESHOLDS: Record<keyof PRTelemetry, [number, number]> = {
   pitch: [0.0, 50.0],
   roll: [0.0, 50.0],
   speed: [0.0, 18.0],
@@ -42,58 +43,107 @@ const THRESHOLDS: Record<keyof PRTelemetry, [number, number]> = {
   distance_from_base: [0.0, 2500.0],
 };
 
-// Rehydrate on module import
+const EVA_THRESHOLDS: Record<keyof EVATelemetry, [number, number]> = {
+  batt_time_left: [3600, 10800],
+  oxy_pri_storage: [20, 100],
+  oxy_sec_storage: [20, 100],
+  oxy_pri_pressure: [600, 3000],
+  oxy_sec_pressure: [600, 3000],
+  oxy_time_left: [3600, 21600],
+  heart_rate: [50, 160],
+  oxy_consumption: [0.05, 0.15],
+  co2_production: [0.05, 0.15],
+  suit_pressure_oxy: [3.5, 4.1],
+  suit_pressure_co2: [0.0, 0.1],
+  suit_pressure_other: [0.0, 0.5],
+  suit_pressure_total: [3.5, 4.5],
+  helmet_pressure_co2: [0.0, 0.15],
+  fan_pri_rpm: [20000, 30000],
+  fan_sec_rpm: [20000, 30000],
+  scrubber_a_co2_storage: [0, 60],
+  scrubber_b_co2_storage: [0, 60],
+  temperature: [50, 90],
+  coolant_liquid_pressure: [100, 700],
+  coolant_gas_pressure: [0, 700],
+};
+
 const alertStartTimes: Record<string, number> = loadStartTimes();
 
-export function getAlerts(telemetry: Partial<PRTelemetry>): Alert[] {
+function computeAlerts(
+  telemetry: Record<string, any>,
+  thresholds: Record<string, [number, number]>,
+  label: string
+): Alert[] {
   const now = Date.now();
-  const alerts: Alert[] = [];
+  const out: Alert[] = [];
 
-  for (const key in THRESHOLDS) {
-    // skip if missing or not numeric
-    const valRaw = (telemetry as any)[key];
-    if (typeof valRaw !== "number") continue;
-    const val = valRaw;
-    const [minV, maxV] = THRESHOLDS[key as keyof typeof THRESHOLDS];
+  for (const key in thresholds) {
+    const raw = telemetry[key];
+    if (typeof raw !== "number") continue;
+    const val = raw;
+    const [minV, maxV] = thresholds[key];
 
-    // start the clock if first trip
-    if (!(key in alertStartTimes)) {
-      alertStartTimes[key] = now;
+    // build a unique key per source+field
+    const uniqueKey = `${label}:${key}`;
+
+    // start timer if first seen
+    if (!(uniqueKey in alertStartTimes)) {
+      alertStartTimes[uniqueKey] = now;
       saveStartTimes(alertStartTimes);
     }
 
+    // out of range?
     if (val < minV || val > maxV) {
+      // ignore zero readings
       if (val === 0) {
-        // bad reading → clear
-        delete alertStartTimes[key];
+        delete alertStartTimes[uniqueKey];
         saveStartTimes(alertStartTimes);
         continue;
       }
 
-      // compute percentage out
       const pctOut =
-        val < minV && minV !== 0
-          ? ((minV - val) / minV) * 100
-          : ((val - maxV) / maxV) * 100;
-      const elapsedSec = Math.floor((now - alertStartTimes[key]) / 1000);
+        val < minV ? ((minV - val) / minV) * 100 : ((val - maxV) / maxV) * 100;
+      const elapsed = Math.floor((now - alertStartTimes[uniqueKey]) / 1000);
 
-      alerts.push({
-        name: key.toUpperCase().replace(/_/g, " ") + " Out Of Range",
-        description:
-          `Current: ${val.toFixed(2)} ` +
-          (val < minV
+      out.push({
+        name: `${label} ${key.toUpperCase().replace(/_/g, " ")} Out Of Range`,
+        description: `Current: ${val.toFixed(2)} ${
+          val < minV
             ? `- below by ${Math.abs(pctOut).toFixed(2)}%`
-            : `above by ${Math.abs(pctOut).toFixed(2)}%`),
-        time: `${elapsedSec} seconds`,
+            : `above by ${Math.abs(pctOut).toFixed(2)}%`
+        }`,
+        time: `${elapsed} seconds`,
+        type: label,
       });
     } else {
       // back in range → clear timer
-      if (key in alertStartTimes) {
-        delete alertStartTimes[key];
+      if (uniqueKey in alertStartTimes) {
+        delete alertStartTimes[uniqueKey];
         saveStartTimes(alertStartTimes);
       }
     }
   }
 
-  return alerts;
+  return out;
+}
+
+export function getAlerts(
+  prTelemetry: Partial<PRTelemetry>,
+  evaTelemetryList: {
+    eva1: EVATelemetry;
+    eva2: EVATelemetry;
+  }
+): Alert[] {
+  const all: Alert[] = [];
+
+  console.log("EVA telemetry list", evaTelemetryList);
+
+  // Rover
+  all.push(...computeAlerts(prTelemetry, ROVER_THRESHOLDS, "ROVER"));
+
+  // EVA1 and EVA2
+  all.push(...computeAlerts(evaTelemetryList.eva1, EVA_THRESHOLDS, "EVA1"));
+  all.push(...computeAlerts(evaTelemetryList.eva2, EVA_THRESHOLDS, "EVA2"));
+
+  return all;
 }

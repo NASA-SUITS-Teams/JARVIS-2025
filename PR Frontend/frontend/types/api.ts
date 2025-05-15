@@ -11,6 +11,7 @@ export type Alert = {
   name: string;
   description: string;
   time: string;
+  type: string;
 }
 
 export type MapElement = {
