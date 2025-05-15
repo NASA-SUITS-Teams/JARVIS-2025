@@ -1,12 +1,12 @@
+import { LunarLinkData } from "./lunarlink";
 import { TSSData } from "./tss";
 
 export type APIResponseData = {
   tssData: TSSData;
+  lunarlinkData: LunarLinkData; // main source for partner teams data, we will use the TSS data as a backu
   mapData: MapElement[];
   alertData: Alert[];
   tpqData: TPQItem[];
-  //evaData: EVAData;
-  //scanData: ScanData;
 }
 
 export type Alert = {
@@ -24,52 +24,13 @@ export type MapElement = {
 
 enum MapElementType {
   poi,
+  pin,
   eva,
   pr,
-}
-
-enum MapToggle {
-  "EVAs",
-  "Pressurized Rover",
-  "Points of Interest",
-}
-
-enum GridMode {
-  "Grid",
 }
 
 export type TPQItem = {
   name: string;
   priority: number;
   timestamp: string;
-}
-
-type LLMResponse = {
-
-}
-
-type LLMRequest = {
-}
-
-type EVAData = {
-  eva1: {
-    position: [number, number];
-    status: string;
-  };
-  eva2: {
-    position: [number, number];
-    status: string;
-  };
-}
-
-type ScanData  {
-  scans: ScanItem[];
-}
-
-type ScanItem = {
-  title: string;
-  size: string;
-  color: string;
-  texture: string;
-  status: string;
 }

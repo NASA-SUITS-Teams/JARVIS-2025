@@ -6,7 +6,8 @@ const API_URL =
 
 export const useAPI = () => {
   const [data, setData] = useState<APIResponseData>({
-    tssData: [],
+    tssData: {},
+    lunarlinkData: {},
     mapData: [],
     alertData: [],
     tpqData: [],
@@ -37,7 +38,7 @@ export const useAPI = () => {
     }
   };
 
-  // Fetch new data every 5 second
+  // Fetch new data every 5 seconds
   useEffect(() => {
     fetchData(); // fetch once on mount
 

@@ -1,56 +1,56 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-
 import React, { useState, useMemo } from "react";
-import { TSSData } from "@/types/tss";
+import { EVATelemetry, TSSData } from "@/types/tss";
 import { PRTelemetry } from "@/types/api";
+import { EVAState } from "@/types/EVAStateTypes"; // the interface you generated
 
-export default function SystemStates({ tssData }: { tssData: TSSData }) {
+export default function SystemStates({
+  tssData,
+}: {
+  tssData: TSSData & { eva?: EVAState }; // assume `eva` is your state payload
+}) {
   const tabs = ["ROVER", "EVA #1", "EVA #2"] as const;
   const [activeIndex, setActiveIndex] = useState(0);
 
-  // Build an array of telemetry objects every render
   const systemData = useMemo<
-    (Partial<PRTelemetry> & { oxygen?: number; co2?: number })[]
-  >(
-    () => [
-      // static EVA values @TODO pull this from LunarLink soon
+    (Partial<PRTelemetry> & EVATelemetry & Partial<EVAState>)[]
+  >(() => {
+    const roverTelemetry = tssData.ROVER_TELEMETRY?.pr_telemetry;
+    let roverData: Partial<PRTelemetry> = {};
 
-      // pull rover telemetry and omit some values
-      (() => {
-        const telem = tssData.ROVER_TELEMETRY?.pr_telemetry;
-        if (!telem) return {};
+    // destructure to remove all the telemtry data values that we don't need
+    if (roverTelemetry) {
+      const {
+        lidar,
+        throttle,
+        current_pos_x,
+        current_pos_y,
+        current_pos_alt,
+        motor_power_consumption,
+        mission_elapsed_time,
+        mission_planned_time,
+        terrain_condition,
+        sim_running,
+        sim_paused,
+        sim_completed,
+        latitude,
+        longitude,
+        dest_x,
+        dest_y,
+        dest_z,
+        solar_panel_dust_accum,
+        solar_panel_efficiency,
+        ...rest
+      } = roverTelemetry;
+      roverData = rest;
+    }
 
-        // destructure to omit all of the telemetry values we don't want
-        const {
-          lidar,
-          throttle,
-          current_pos_x,
-          current_pos_y,
-          current_pos_alt,
-          motor_power_consumption,
-          mission_elapsed_time,
-          mission_planned_time,
-          terrain_condition,
-          sim_running,
-          sim_paused,
-          sim_completed,
-          latitude,
-          longitude,
-          dest_x,
-          dest_y,
-          dest_z,
-          solar_panel_dust_accum,
-          solar_panel_efficiency,
-          ...rest
-        } = telem;
-        return rest;
-      })(),
-      { oxygen: 48, co2: 63 },
-      { oxygen: 72, co2: 45 },
-,
-    ],
-    [tssData]
-  );
+    // @TODO integrate EVA data from lunarlink fist and thn use the tss data as a backup
+    const eva1Telemetry = tssData.TELEMETRY?.telemetry?.eva1 ?? {};
+    const eva2Telemetry = tssData.TELEMETRY?.telemetry?.eva2 ?? {};
+
+    return [roverData, eva1Telemetry, eva2Telemetry];
+  }, [tssData]);
 
   const active = systemData[activeIndex] || {};
 
@@ -81,8 +81,14 @@ export default function SystemStates({ tssData }: { tssData: TSSData }) {
           <div key={key} className="flex justify-between">
             <span className="capitalize">{key.replace(/_/g, " ")}</span>
             <span>
-              {Array.isArray(val)
-                ? `[${val.map((v) => (typeof v === "number" ? Math.round(v * 100) / 100 : v)).join(", ")}]`
+              {typeof val === "boolean"
+                ? val.toString()
+                : Array.isArray(val)
+                ? `[${val
+                    .map((v) =>
+                      typeof v === "number" ? Math.round(v * 100) / 100 : v
+                    )
+                    .join(", ")}]`
                 : typeof val === "number"
                 ? Math.round(val * 100) / 100
                 : String(val)}
