@@ -65,7 +65,7 @@ export default function Home() {
         error={error}
       />
       <div className="flex flex-1 overflow-auto">
-        <div className="flex-1 p-4">
+        <div className="flex-1 p-2">
           <ResponsiveGridLayout
             className="layout"
             layouts={{ lg: layout }}

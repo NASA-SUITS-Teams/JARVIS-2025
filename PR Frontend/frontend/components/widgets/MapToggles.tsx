@@ -2,7 +2,7 @@ import { AlertCircle, BarChart2, Layers, Pin, Satellite } from "lucide-react";
 
 export default function MapToggles({ visibleLayers, toggleLayer }) {
   return (
-    <div className="w-full h-full bg-gray-800 rounded-lg border border-blue-600 shadow-lg shadow-blue-500/20 overflow-hidden flex flex-col">
+    <div className="w-full h-full bg-gray-800 rounded-lg border border-blue-600 shadow-lg shadow-blue-500/10 overflow-hidden flex flex-col">
       <div className="bg-gray-700 p-2 border-b border-blue-600 flex items-center space-x-2 drag-handle hover:cursor-move">
         <Layers size={18} className="text-blue-400" />
         <span className="font-bold">MAP TOGGLES</span>

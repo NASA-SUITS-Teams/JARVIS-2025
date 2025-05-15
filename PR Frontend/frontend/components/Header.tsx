@@ -1,4 +1,3 @@
-import { Moon } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export default function Header({
@@ -22,7 +21,7 @@ export default function Header({
   }, []);
 
   return (
-    <div className="bg-gray-800 p-4 border-b border-blue-500 flex justify-between items-center">
+    <div className="bg-gray-800 p-3 border-b border-blue-500 flex justify-between items-center">
       <div className="flex items-center space-x-2">
         <span className="text-xl font-bold tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-300">
           TEAM JARVIS
