@@ -16,20 +16,22 @@ import Alerts from "@/components/widgets/Alerts";
 import { useAPI } from "@/hooks/useAPI";
 import { APIResponseData } from "@/types/api";
 import RoverControls from "@/components/widgets/RoverControls";
+import ResourceConsumption from "@/components/widgets/ResourceConsumption";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 const defaultLayout: Layout[] = [
   { i: "map", x: 0, y: 0, w: 3, h: 3 },
   { i: "taskQueue", x: 3, y: 0, w: 1, h: 3 },
   { i: "scanData", x: 4, y: 0, w: 1, h: 3 },
-  { i: "roverControls", x: 3, y: 3, w: 2, h: 2 },
+  { i: "resourceConsumption", x: 3, y: 3, w: 2, h: 2 },
   { i: "mapToggles", x: 2, y: 3, w: 1, h: 2 },
   { i: "llm", x: 0, y: 3, w: 2, h: 2 },
   { i: "cameraFeeds", x: 0, y: 3, w: 2, h: 2 },
+  { i: "roverControls", x: 2, y: 4, w: 2, h: 2 },
 ];
 
 export default function Home() {
-  const { data, error } = useAPI();
+  const { data, error, historicalData } = useAPI();
 
   const backendData: APIResponseData = data;
   const tssData = backendData.tssData;
@@ -106,13 +108,16 @@ export default function Home() {
             <div key="cameraFeeds">
               <CameraFeeds />
             </div>
+            <div key="resourceConsumption">
+              <ResourceConsumption currentData={tssData} historicalData={historicalData} />
+            </div>
           </ResponsiveGridLayout>
         </div>
-          <SystemControl
-            handleAddPoint={handleAddPoint}
-            dataError={error}
-            tssData={tssData}
-          />
+        <SystemControl
+          handleAddPoint={handleAddPoint}
+          dataError={error}
+          tssData={tssData}
+        />
       </div>
     </div>
   );

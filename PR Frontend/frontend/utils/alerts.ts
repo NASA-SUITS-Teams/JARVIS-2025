@@ -135,9 +135,7 @@ export function getAlerts(
   }
 ): Alert[] {
   const all: Alert[] = [];
-
-  console.log("EVA telemetry list", evaTelemetryList);
-
+  
   // Rover
   all.push(...computeAlerts(prTelemetry, ROVER_THRESHOLDS, "ROVER"));
 

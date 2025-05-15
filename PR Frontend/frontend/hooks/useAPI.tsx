@@ -1,8 +1,6 @@
 import { APIResponseData } from "@/types/api";
 import { useEffect, useState } from "react";
 
-// @TODO add historical data storage too
-
 const API_URL = "http://localhost:8282"; // replace with the python flask server URL
 
 export const useAPI = () => {
@@ -10,9 +8,29 @@ export const useAPI = () => {
     tssData: {},
     lunarlinkData: {},
     mapData: [],
-    alertData: [],
   });
   const [error, setError] = useState(null);
+  const [historicalData, setHistoricalData] = useState<APIResponseData[]>(
+    () => {
+      if (typeof window === "undefined") {
+        // server or prerender – no localStorage
+        return [];
+      }
+
+      const saved = localStorage.getItem("historicalData");
+      return saved ? JSON.parse(saved) : [];
+    }
+  );
+
+  // Function to add new data to history
+  const addToHistory = (newData: APIResponseData) => {
+    setHistoricalData((prev) => {
+      const next = [...prev, { ...newData, timestamp: Date.now() }].slice(-20);
+      localStorage.setItem("historicalData", JSON.stringify(next));
+      return next;
+    });
+  };
+
   const [loading, setLoading] = useState(true);
 
   const fetchData = async () => {
@@ -27,10 +45,11 @@ export const useAPI = () => {
         },
       };
 
-      const response = await fetch(API_URL + '/get_data', options);
+      const response = await fetch(API_URL + "/get_data", options);
       const result: APIResponseData = await response.json();
-    
+
       setData(result);
+      addToHistory(result);
     } catch (error) {
       setError(error);
     } finally {
@@ -50,12 +69,9 @@ export const useAPI = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const sendPin = async (pin: { x: number; y: number }) => {
-  }
+  const sendPin = async (pin: { x: number; y: number }) => {};
 
-  const requestTerrainScan = async () => {
+  const requestTerrainScan = async () => {};
 
-  }
-
-  return { data, error, loading };
+  return { data, error, loading, historicalData };
 };
