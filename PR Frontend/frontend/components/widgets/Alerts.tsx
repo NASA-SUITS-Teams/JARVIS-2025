@@ -20,10 +20,9 @@ export default function Alerts({ alertData }: { alertData: Alert[] }) {
             >
               <div className="flex justify-between">
                 <span className="font-bold text-blue-200">{alert.name}</span>
-                <span className="uppercase text-red-400 text-xs">ALERT</span>
               </div>
               <div className="mt-1 text-gray-300">{alert.description}</div>
-              <div className="mt-1 text-gray-400 flex justify-end">
+              <div className="mt-1 text-gray-400 flex">
                 <span>Time: {alert.time}</span>
               </div>
             </div>

@@ -12,6 +12,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from TPQ import task_priority_queue as TPQ
 from Backend.tss import fetch_tss_json_data
 from Backend.lunarlink import fetch_lunarlink_json_data, send_lunarlink_data
+from Pathfinding.pathfinding import find_path
+from Alerts.alerts import get_alerts
 
 # Init Flask app and global state
 app = Flask(__name__)
@@ -22,7 +24,6 @@ tss_data = {}
 lunarlink_data = {}
 
 tpq = TPQ.TaskPriorityQueue()
-tssSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 @app.route('/', methods=['GET'])
 def santiy():
@@ -30,16 +31,7 @@ def santiy():
 
 # Fetch all TSS data and other related information from subteams
 @app.route('/get_data', methods=['GET'])
-def get_data():
-    tpq_data = [
-        {
-            "name": t.name,
-            "priority": t.priority.name,
-            "timestamp": t.timestamp.isoformat(),
-        }
-        for t in tpq.peek(n=len(tpq))
-    ]
-    
+def get_data():    
     # Placeholder
     tpq_data = [
         { "name": "Oxygen level maintenance", "priority": 5, "timestamp": "00:01:30"},
@@ -56,12 +48,11 @@ def get_data():
         { "name": "pin-2", "status": "active", "type": "pin", "position": [-5966.5, -10300.1] },
     ]
 
-    # Placeholder
-    alert_data = [
-        { "name": "Low O2 Warning", "description": "Tank level below 50%", "time": "00:06:02" },
-        { "name": "Sample #2 Scan Incomplete", "description": "Return to Sample #2", "time": "00:05:37" },
-    ]
+    #path = find_path((-5766.5, -10200.1), (-5966.5, -10300.1))
+    #print("Calculated path:", path)
 
+    alert_data = get_alerts(tss_data.get("ROVER_TELEMETRY", {}).get("pr_telemetry", {}))
+    
     return jsonify({
         "tssData": tss_data,
         "mapData": map_data,
