@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import { MapIcon, BarChart2, Satellite, AlertCircle } from "lucide-react";
+import { MapIcon } from "lucide-react";
 import { TSSData } from "@/types/tss";
 import { MapElement } from "@/types/api";
 
@@ -46,7 +46,6 @@ export default function Map({
 }) {
   const [activeMap, setActiveMap] = useState<"moon" | "rock">("moon");
   const [poiMode, setPoiMode] = useState(false);
-  const poiCount = mapData.filter((e) => e.type === "poi").length + 1;
 
   // calculate rover position from tssData
   const rover = tssData.ROVER?.rover;
