@@ -21,10 +21,7 @@ export type TSSData = {
   };
   SPEC: {
     // this is the data for the spectrometer, we should only fetch it here as a backup in case we can't communicate with the EVAs directly
-    spec: {
-      eva1: SpecEntry;
-      eva2: SpecEntry;
-    };
+    spec: SpecData;
   };
 };
 
@@ -40,6 +37,11 @@ type RockComposition = {
   K2O: number;
   P2O3: number;
   other: number;
+};
+
+export type SpecData = {
+      eva1: SpecEntry;
+      eva2: SpecEntry;
 };
 
 // Data from the spectrometer

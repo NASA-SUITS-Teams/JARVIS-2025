@@ -33,7 +33,8 @@ export default function Home() {
   const tssData = backendData.tssData;
   const mapData = backendData.mapData;
   const alertData = backendData.alertData;
-  const tpqData = backendData.tpqData;
+  //const tpqData = backendData.tpqData;
+  const specData = tssData.SPEC?.spec;
 
   // Draggable layout state
   const [layout, setLayout] = useState<Layout[]>(defaultLayout);
@@ -88,7 +89,7 @@ export default function Home() {
               <Alerts alertData={alertData} />
             </div>
             <div key="scanData">
-              <ScanData />
+              <ScanData specData={specData} />
             </div>
             <div key="cameraFeeds">
               <CameraFeeds />
