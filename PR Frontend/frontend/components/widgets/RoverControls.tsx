@@ -66,13 +66,13 @@ export default function RoverControls({
   };
 
   return (
-    <div className="w-full h-full bg-gray-800 rounded-lg border border-blue-600 shadow-lg shadow-blue-500/20 overflow-hidden flex flex-col">
+    <div className="w-full h-full bg-gray-800 rounded-lg border border-blue-600 shadow-lg shadow-blue-500/10overflow-hidden flex flex-col">
       <div className="bg-gray-700 p-2 border-b border-blue-600 flex items-center space-x-2 drag-handle hover:cursor-move">
         <TowerControl size={18} className="text-blue-400" />
         <span className="font-bold">ROVER CONTROLS</span>
       </div>
 
-      <div className="flex-1 p-3 grid grid-cols-2 gap-x-4 gap-y-1">
+      <div className="flex-1 p-3 grid grid-cols-2">
         {controls.map(({ key, label, value }) => {
           const isOn = value;
           return (
