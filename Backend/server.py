@@ -47,8 +47,6 @@ def get_data():
 
     #path = find_path((-5766.5, -10200.1), (-5966.5, -10300.1))
     #print("Calculated path:", path)
-
-    alert_data = get_alerts(tss_data.get("ROVER_TELEMETRY", {}).get("pr_telemetry", {}))
     
     return jsonify({
         "tssData": tss_data,
