@@ -6,7 +6,6 @@ export type APIResponseData = {
   lunarlinkData: LunarLinkData; // main source for partner teams data, we will use the TSS data as a backu
   mapData: MapElement[];
   alertData: Alert[];
-  tpqData: TPQItem[];
 }
 
 export type Alert = {
@@ -27,10 +26,4 @@ enum MapElementType {
   pin,
   eva,
   pr,
-}
-
-export type TPQItem = {
-  name: string;
-  priority: number;
-  timestamp: string;
 }

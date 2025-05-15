@@ -23,8 +23,6 @@ CORS(app)
 tss_data = {}
 lunarlink_data = {}
 
-tpq = TPQ.TaskPriorityQueue()
-
 @app.route('/', methods=['GET'])
 def santiy():
     return jsonify({"status": "ok", "message": "Backend is running"}), 200
@@ -57,7 +55,6 @@ def get_data():
         "tssData": tss_data,
         "mapData": map_data,
         "alertData": alert_data,
-        "tpqData": tpq_data,
         "lunarlinkData": lunarlink_data
     })
 

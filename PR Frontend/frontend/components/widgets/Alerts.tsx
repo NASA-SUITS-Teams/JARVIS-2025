@@ -2,8 +2,6 @@ import { Alert } from "@/types/api";
 import { Bell } from "lucide-react";
 
 export default function Alerts({ alertData }: { alertData: Alert[] }) {
-  // @TODO handle changing color based on alert type
-
   return (
     <div className="w-full h-full bg-gray-800 rounded-lg border border-blue-600 shadow-lg shadow-blue-500/10 overflow-hidden flex flex-col">
       <div className="bg-gray-700 p-2 border-b border-blue-600 flex items-center space-x-2 drag-handle hover:cursor-move">

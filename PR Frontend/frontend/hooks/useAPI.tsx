@@ -10,7 +10,6 @@ export const useAPI = () => {
     lunarlinkData: {},
     mapData: [],
     alertData: [],
-    tpqData: [],
   });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);

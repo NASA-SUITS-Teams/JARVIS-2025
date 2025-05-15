@@ -23,7 +23,7 @@ export default function Header({
   return (
     <div className="bg-gray-800 p-3 border-b border-blue-500 flex justify-between items-center">
       <div className="flex items-center space-x-2">
-        <span className="text-xl font-bold tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-300">
+        <span className="text-xl font-bold tracking-wider text-blue-400">
           TEAM JARVIS
         </span>
       </div>
@@ -41,7 +41,8 @@ export default function Header({
           <span>SYSTEMS {error ? "FAILURE" : "NORMAL"}</span>
         </div>
         <div className="text-blue-300">
-          Mission Timer: {convertTimeToString(time)}
+          Mission Timer: {convertTimeToString(time)} (
+          {calculateTimePercentage(time).toFixed(0)}%)
         </div>
       </div>
     </div>
@@ -58,3 +59,11 @@ const convertTimeToString = (time: number) => {
     "0"
   )}:${String(seconds).padStart(2, "0")}`;
 };
+
+// Calculate the percentage of time elapsed out of 45 minutes
+const calculateTimePercentage = (time: number) => {
+  const totalTime = 45 * 60;
+  const percentage = (time / totalTime) * 100;
+
+  return percentage;
+}

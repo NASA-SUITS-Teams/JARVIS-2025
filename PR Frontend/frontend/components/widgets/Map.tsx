@@ -94,7 +94,7 @@ export default function Map({
         </div>
       </div>
 
-      <div className="flex-1 flex items-center justify-center p-4">
+      <div className="flex-1 flex items-center justify-center p-2">
         <div className="relative w-full aspect-[9/7] overflow-hidden rounded-sm">
           <Image
             src={`/maps/${activeMap}.tiff`}

@@ -1,4 +1,4 @@
-import { AlertCircle, Grid, MapIcon, Satellite } from "lucide-react";
+import { AlertCircle, MapIcon, Satellite } from "lucide-react";
 
 export default function QuickActions({ handleAddPoint }) {
   return (
@@ -7,7 +7,7 @@ export default function QuickActions({ handleAddPoint }) {
       <div className="grid grid-cols-2 gap-2 text-xs">
         <button className="p-2 bg-blue-900/50 hover:bg-blue-800/50 border border-blue-600 rounded-md flex flex-col items-center">
           <Satellite size={16} className="mb-1" />
-          <span>Path to Rover</span>
+          <span>Calc Best Path</span>
         </button>
         <button
           className="p-2 bg-blue-900/50 hover:bg-blue-800/50 border border-blue-600 rounded-md flex flex-col items-center"
