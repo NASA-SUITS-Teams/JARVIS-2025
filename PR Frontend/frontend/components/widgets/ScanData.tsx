@@ -1,9 +1,7 @@
-import { SpecData } from "@/types/tss";
+import { SpecData, SpecEntry } from "@/types/tss";
 import { Terminal } from "lucide-react";
 
 export default function ScanData({ specData }: { specData: SpecData }) {
-  console.log("ScanData", specData);
-
   return (
     <div className="w-full h-full bg-gray-800 rounded-lg border border-blue-600 shadow-lg shadow-blue-500/20 overflow-hidden flex flex-col">
       <div className="bg-gray-700 p-2 border-b border-blue-600 flex items-center space-x-2 drag-handle hover:cursor-move">
@@ -15,7 +13,11 @@ export default function ScanData({ specData }: { specData: SpecData }) {
         <div className="space-y-2">
           <div
             key={specData?.eva1.id}
-            className={`p-2 rounded-md border text-xs border-green-500 bg-green-900/30`}
+            className={`p-2 rounded-md border text-xs ${
+              checkScientificSignificance(specData?.eva1)
+                ? "border-green-500 bg-green-900/30"
+                : "border-orange-500 bg-orange-900/30"
+            }`}
           >
             <div className="font-bold text-blue-200">
               Name: {specData?.eva1.name}
@@ -35,7 +37,11 @@ export default function ScanData({ specData }: { specData: SpecData }) {
         <div className="space-y-2 pt-2">
           <div
             key={specData?.eva2.id}
-            className={`p-2 rounded-md border text-xs border-green-500 bg-green-900/30`}
+            className={`p-2 rounded-md border text-xs ${
+              checkScientificSignificance(specData?.eva2)
+                ? "border-green-500 bg-green-900/30"
+                : "border-orange-500 bg-orange-900/30"
+            }`}
           >
             <div className="font-bold text-blue-200">
               Name: {specData?.eva2.name}
@@ -55,3 +61,35 @@ export default function ScanData({ specData }: { specData: SpecData }) {
     </div>
   );
 }
+
+const checkScientificSignificance = (specData: SpecEntry) => {
+  // hardcoded thresholds for significant elements that can be found on the EVA procedures document
+  const significantElements = {
+    SiO2: { threshold: 30, comparison: "<" },
+    TiO2: { threshold: 10, comparison: ">" },
+    Al2O3: { threshold: 25, comparison: ">" },
+    FeO: { threshold: 20, comparison: ">" },
+    MnO: { threshold: 0.5, comparison: ">" },
+    MgO: { threshold: 10, comparison: ">" },
+    CaO: { threshold: 5, comparison: "<" },
+    K2O: { threshold: 1, comparison: ">" },
+    P2O3: { threshold: 1, comparison: ">" },
+    other: { threshold: 50, comparison: ">" },
+  };
+
+  let isSignificant = false;
+  for (const [key, value] of Object.entries(specData || {})) {
+    if (significantElements[key]) {
+      const { threshold, comparison } = significantElements[key];
+      if (
+        (comparison === ">" && value > threshold) ||
+        (comparison === "<" && value < threshold)
+      ) {
+        isSignificant = true;
+        break;
+      }
+    }
+  }
+
+  return isSignificant;
+};

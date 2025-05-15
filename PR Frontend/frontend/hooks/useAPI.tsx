@@ -29,9 +29,7 @@ export const useAPI = () => {
 
       const response = await fetch(API_URL, options);
       const result: APIResponseData = await response.json();
-      
-      console.log("API Response:", result); // Log the response for debugging
-
+    
       setData(result);
     } catch (error) {
       setError(error);

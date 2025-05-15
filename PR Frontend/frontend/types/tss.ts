@@ -60,7 +60,7 @@ export type SpecData = {
 };
 
 // Data from the spectrometer
-type SpecEntry = {
+export type SpecEntry = {
   name: string;
   id: number;
   data: RockComposition;

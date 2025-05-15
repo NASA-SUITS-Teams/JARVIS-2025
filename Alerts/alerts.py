@@ -6,18 +6,18 @@ THRESHOLDS: Dict[str, Tuple[float, float]] = {
     "roll":                  (0.0,    50.0),
     "speed":                 (0.0,    18.0),
     "surface_incline":       (0.0,    50.0),
-    "oxygen_tank":           (25.0,   99.99),
+    "oxygen_tank":           (25.0,   100.0),
     "oxygen_pressure":       (2997.0, 3000.0),
     "oxygen_levels":         (20.0,   21.0),
     "ac_fan_pri":            (29999.0,30005.0),
     "ac_fan_sec":            (29999.0,30005.0),
     "cabin_pressure":        (3.5,    4.10),
     "cabin_temperature":     (50.0,   90.0),
-    "battery_level":         (30.0,   99.99),
-    "solar_panel_efficiency":(40.0,   99.99),
+    "battery_level":         (30.0,   100.0),
+    "solar_panel_efficiency":(40.0,   100.0),
     "pr_coolant_level":      (40.0,   45.0),
     "pr_coolant_pressure":   (495.0,  501.0),
-    "pr_coolant_tank":       (60.0,   99.99),
+    "pr_coolant_tank":       (60.0,   100.0),
     "solar_panel_dust_accum":(0.0,    25.0),
     "distance_from_base":    (0.0,    2500.0),
 }
@@ -55,7 +55,7 @@ def get_alerts(telemetry: Dict[str, Any]) -> List[Dict[str, str]]:
                 "name":   f"{key.upper().replace('_', ' ')} Out Of Range",
                 "description": (
                     f"Current: {val:.2f} "
-                    f"{'below' if val < min_v else 'above'} by {abs(percentage_out):.2f}% "
+                    f"{'- below' if val < min_v else 'above'} by {abs(percentage_out):.2f}% "
                 ),
                 "time": f"{elapsed_time:.0f} seconds",
             })

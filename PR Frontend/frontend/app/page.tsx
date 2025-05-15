@@ -15,15 +15,17 @@ import LLMWidget from "@/components/widgets/LLM";
 import Alerts from "@/components/widgets/Alerts";
 import { useAPI } from "@/hooks/useAPI";
 import { APIResponseData } from "@/types/api";
+import RoverControls from "@/components/widgets/RoverControls";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 const defaultLayout: Layout[] = [
   { i: "map", x: 0, y: 0, w: 3, h: 3 },
   { i: "taskQueue", x: 3, y: 0, w: 1, h: 3 },
   { i: "scanData", x: 4, y: 0, w: 1, h: 3 },
-  { i: "cameraFeeds", x: 3, y: 3, w: 2, h: 2 },
+  { i: "roverControls", x: 3, y: 3, w: 2, h: 2 },
   { i: "mapToggles", x: 2, y: 3, w: 1, h: 2 },
   { i: "llm", x: 0, y: 3, w: 2, h: 2 },
+  { i: "cameraFeeds", x: 0, y: 3, w: 2, h: 2 },
 ];
 
 export default function Home() {
@@ -91,8 +93,8 @@ export default function Home() {
             <div key="scanData">
               <ScanData specData={specData} />
             </div>
-            <div key="cameraFeeds">
-              <CameraFeeds />
+            <div key="roverControls">
+              <RoverControls tssData={tssData} />
             </div>
             <div key="mapToggles">
               <MapToggles
@@ -102,6 +104,9 @@ export default function Home() {
             </div>
             <div key="llm">
               <LLMWidget />
+            </div>
+            <div key="cameraFeeds">
+              <CameraFeeds />
             </div>
           </ResponsiveGridLayout>
         </div>
