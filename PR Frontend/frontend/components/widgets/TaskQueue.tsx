@@ -3,7 +3,7 @@ import { List } from "lucide-react";
 
 export default function TaskQueue({ taskData }: { taskData: TPQItem[] }) {
   return (
-    <div className="w-full h-full bg-gray-800 rounded-lg border border-blue-600 shadow-lg shadow-blue-500/10overflow-hidden flex flex-col">
+    <div className="w-full h-full bg-gray-800 rounded-lg border border-blue-600 shadow-lg shadow-blue-500/20 overflow-hidden flex flex-col">
       <div className="bg-gray-700 p-2 border-b border-blue-600 flex items-center space-x-2  drag-handle hover:cursor-move">
         <List size={18} className="text-blue-400" />
         <span className="font-bold">TASK QUEUE</span>
@@ -51,7 +51,7 @@ export default function TaskQueue({ taskData }: { taskData: TPQItem[] }) {
   );
 }
 
-const calculatePriority = (priority: number) => {
+const calculatePriority = (priority: number) =>  {
   switch (priority) {
     case priority < 2:
       return "critical";
@@ -64,4 +64,4 @@ const calculatePriority = (priority: number) => {
     default:
       return "low";
   }
-};
+}

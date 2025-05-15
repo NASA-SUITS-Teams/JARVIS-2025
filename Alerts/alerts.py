@@ -58,7 +58,6 @@ def get_alerts(telemetry: Dict[str, Any]) -> List[Dict[str, str]]:
                     f"{'- below' if val < min_v else 'above'} by {abs(percentage_out):.2f}% "
                 ),
                 "time": f"{elapsed_time:.0f} seconds",
-                "type": "rover"
             })
         else:
             alert_start_times.pop(key, None)

@@ -40,15 +40,6 @@ export default function SystemStates({
         dest_z,
         solar_panel_dust_accum,
         solar_panel_efficiency,
-        in_sunlight,
-        internal_lights_on,
-        ac_cooling,
-        ac_heating,
-        dust_wiper,
-        fan_pri,
-        ac_fan_pri,
-        ac_fan_sec,
-        co2_scrubber,
         ...rest
       } = roverTelemetry;
       roverData = rest;
