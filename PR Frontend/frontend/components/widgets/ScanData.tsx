@@ -9,8 +9,14 @@ export default function ScanData({ specData }: { specData: SpecData }) {
         <span className="font-bold">SCAN DATA</span>
       </div>
 
-      <div className="flex-1 p-2 overflow-y-auto">
-        <div className="space-y-2">
+      <div className="space-y-2 p-2">
+        {specData?.eva1.name === "default_rock" ? (
+          <div className="p-2 rounded-md border border-gray-500 bg-gray-700/30 text-xs">
+            <div className="text-gray-400">
+              No rock has been scanned yet by EVA1
+            </div>
+          </div>
+        ) : (
           <div
             key={specData?.eva1.id}
             className={`p-2 rounded-md border text-xs ${
@@ -32,9 +38,15 @@ export default function ScanData({ specData }: { specData: SpecData }) {
               </div>
             ))}
           </div>
-        </div>
+        )}
 
-        <div className="space-y-2 pt-2">
+        {specData?.eva2.name === "default_rock" ? (
+          <div className="p-2 rounded-md border border-gray-500 bg-gray-700/30 text-xs">
+            <div className="text-gray-400">
+              No rock has been scanned yet by EVA2
+            </div>
+          </div>
+        ) : (
           <div
             key={specData?.eva2.id}
             className={`p-2 rounded-md border text-xs ${
@@ -56,7 +68,7 @@ export default function ScanData({ specData }: { specData: SpecData }) {
               </div>
             ))}
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
