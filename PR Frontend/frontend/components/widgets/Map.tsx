@@ -53,6 +53,16 @@ export default function Map({
     ? percentPosition([rover.posx, rover.posy], activeMap)
     : null;
 
+  // calculate EVA position from tssData
+  const eva1 = tssData.IMU?.imu.eva1;
+  const eva2 = tssData.IMU?.imu.eva2;
+  const eva1Pos = eva1
+    ? percentPosition([eva1.posx, eva1.posy], activeMap)
+    : null;
+  const eva2Pos = eva2
+    ? percentPosition([eva2.posx, eva2.posy], activeMap)
+    : null;
+
   // @TODO calculate EVA position from lunar link or TSS data
 
   // @TODO handle adding points to the map
@@ -99,6 +109,28 @@ export default function Map({
               style={{
                 left: `${roverPos.left}%`,
                 top: `${roverPos.top}%`,
+                transform: "translate(-50%, -50%)",
+              }}
+            />
+          )}
+
+          {eva1Pos && visibleLayers.eva && (
+            <div
+              className="absolute w-5 h-5 bg-purple-500 rounded-full border-2 border-white z-20"
+              style={{
+                left: `${eva1Pos.left}%`,
+                top: `${eva1Pos.top}%`,
+                transform: "translate(-50%, -50%)",
+              }}
+            />
+          )}
+
+          {eva2Pos && visibleLayers.eva && (
+            <div
+              className="absolute w-5 h-5 bg-pink-500 rounded-full border-2 border-white z-20"
+              style={{
+                left: `${eva2Pos.left}%`,
+                top: `${eva2Pos.top}%`,
                 transform: "translate(-50%, -50%)",
               }}
             />

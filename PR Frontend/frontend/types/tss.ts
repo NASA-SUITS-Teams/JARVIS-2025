@@ -19,11 +19,26 @@ export type TSSData = {
   EVA: {
     eva: EVAData;
   };
+  IMU: {
+    imu: IMUData;
+  }
   SPEC: {
     // this is the data for the spectrometer, we should only fetch it here as a backup in case we can't communicate with the EVAs directly
     spec: SpecData;
   };
 };
+
+// Position data from the IMU about the EVAs
+type IMUData = {
+  eva1: IMUEntry;
+  eva2: IMUEntry;
+}
+
+type IMUEntry = {
+  posx: number;
+  posy: number;
+  heading: number;
+}
 
 // Rock composition data from spectrometer sample
 type RockComposition = {

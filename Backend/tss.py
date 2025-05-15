@@ -6,7 +6,7 @@ TEAM_NUMBER = 0
 DATA_KEYS = [
     #"DCU",
     "ERROR", # error
-    #"IMU",
+    "IMU",
     "ROVER", # rover
     "SPEC", # spec
     #"UIA", # uia
