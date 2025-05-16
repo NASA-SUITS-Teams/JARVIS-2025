@@ -6,6 +6,7 @@ import { TSSData } from "@/types/tss";
 export default function SystemControl({
   handleAddPoint,
   tssData,
+  changeLayout,
 }: {
   handleAddPoint: () => void;
   alertData: Alert[];
@@ -17,7 +18,7 @@ export default function SystemControl({
         <span className="font-bold">SYSTEM CONTROL</span>
       </div>
       <QuickActions handleAddPoint={handleAddPoint} />
-      <SystemStates tssData={tssData} />
+      <SystemStates tssData={tssData} changeLayout={changeLayout} />
     </div>
   );
 }

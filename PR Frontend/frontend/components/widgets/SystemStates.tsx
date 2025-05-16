@@ -1,16 +1,26 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { EVATelemetry, TSSData } from "@/types/tss";
 import { PRTelemetry } from "@/types/api";
 import { EVAState } from "@/types/EVAStateTypes"; // the interface you generated
 
 export default function SystemStates({
   tssData,
+  changeLayout,
 }: {
   tssData: TSSData & { eva?: EVAState }; // assume `eva` is your state payload
 }) {
   const tabs = ["ROVER", "EVA #1", "EVA #2"] as const;
   const [activeIndex, setActiveIndex] = useState(0);
+
+  // Edit the layout of the entire UI when selecting either the EVA or the rover tabs
+  useEffect(() => {
+    if (activeIndex === 0) {
+      changeLayout("rover");
+    } else {
+      changeLayout("eva");
+    }
+  }, [activeIndex, changeLayout]);
 
   const systemData = useMemo<
     (Partial<PRTelemetry> & EVATelemetry & Partial<EVAState>)[]
