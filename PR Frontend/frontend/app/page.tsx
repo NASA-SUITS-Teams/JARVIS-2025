@@ -50,7 +50,7 @@ export default function Home() {
 
   const backendData: APIResponseData = data;
   const tssData = backendData.tssData;
-  const mapData = backendData.mapData;
+  const pinData = backendData.pinData;
   const specData = tssData.SPEC?.spec;
 
   // Draggable layout state
@@ -106,7 +106,7 @@ export default function Home() {
               <Map
                 visibleLayers={visibleLayers}
                 handleAddPoint={addPointRef}
-                mapData={mapData}
+                pinData={pinData}
                 tssData={tssData}
               />
             </div>

@@ -4,7 +4,7 @@ import { TSSData } from "./tss";
 export type APIResponseData = {
   tssData: TSSData;
   lunarlinkData: LunarLinkData; // main source for partner teams data, we will use the TSS data as a backu
-  mapData: MapElement[];
+  pinData: MapElement[];
 }
 
 export type Alert = {
@@ -14,16 +14,8 @@ export type Alert = {
   type: string;
 }
 
-export type MapElement = {
+export type PinElement = {
   name: string;
-  type: MapElementType;
-  status: string;
   position: [number, number];
-}
-
-enum MapElementType {
-  poi,
-  pin,
-  eva,
-  pr,
+  timestamp: string;
 }

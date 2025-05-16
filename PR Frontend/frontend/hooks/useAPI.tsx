@@ -7,7 +7,7 @@ export const useAPI = () => {
   const [data, setData] = useState<APIResponseData>({
     tssData: {},
     lunarlinkData: {},
-    mapData: [],
+    pinData: [],
   });
   const [error, setError] = useState(null);
   const [historicalData, setHistoricalData] = useState<APIResponseData[]>(

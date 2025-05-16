@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { MapIcon } from "lucide-react";
 import { TSSData } from "@/types/tss";
-import { MapElement } from "@/types/api";
+import { PinElement } from "@/types/api";
 
 // coordinate ranges for the maps as provided
 const coordinateRanges = {
@@ -36,11 +36,11 @@ function percentPosition(pos: readonly [number, number], map: "moon" | "rock") {
 
 export default function Map({
   tssData,
-  mapData,
+  pinData,
   visibleLayers,
 }: {
   tssData: TSSData;
-  mapData: MapElement[];
+  pinData: PinElement[];
   visibleLayers: {
     eva: boolean;
     pr: boolean;
@@ -49,7 +49,6 @@ export default function Map({
   };
 }) {
   const [activeMap, setActiveMap] = useState<"moon" | "rock">("moon");
-  const [poiMode, setPoiMode] = useState(false);
 
   // calculate rover position from tssData
   const rover = tssData.ROVER?.rover;
@@ -67,6 +66,14 @@ export default function Map({
     ? percentPosition([eva2.posx, eva2.posy], activeMap)
     : null;
 
+  const poiArray = rover
+    ? [
+        [rover.poi_1_x, rover.poi_1_y],
+        [rover.poi_2_x, rover.poi_2_y],
+        [rover.poi_3_x, rover.poi_3_y],
+      ].filter(([x, y]) => (x != null && x != 0 && y != null && y != 0))
+    : []; // only keep the ones where both coords are not null/undefined
+
   // @TODO handle adding points to the map
 
   // @TODO offer option to store historical data pointa and draw a line from starting to end
@@ -80,7 +87,8 @@ export default function Map({
           <span className="font-bold">MAP</span>
           <span className="text-xs text-gray-400">
             {" "}
-            (X:{rover?.posx.toFixed(1)} Y:{rover?.posy.toFixed(1)})
+            (X:{rover?.posx?.toFixed(1) || "N/A"} Y:
+            {rover?.posy?.toFixed(1) || "N/A"})
           </span>
         </div>
         <div className="flex space-x-2">
@@ -155,6 +163,24 @@ export default function Map({
             </div>
           )}
 
+          {poiArray.length > 0 &&
+            visibleLayers.poi &&
+            poiArray.map(([x, y], index) => {
+              const pos = percentPosition([x, y], activeMap);
+              return (
+                <div
+                  key={`poi-${index}`}
+                  style={{
+                    position: "absolute",
+                    left: `${pos.left}%`,
+                    top: `${pos.top}%`,
+                    transform: "translate(-50%, -50%)",
+                  }}
+                  className="absolute w-5 h-5 bg-yellow-500 rounded-full border-2 border-white z-20"
+                />
+              );
+            })}
+
           {eva2Pos && visibleLayers.eva && (
             <div
               className="absolute z-20"
@@ -178,30 +204,11 @@ export default function Map({
             </div>
           )}
 
-          {mapData.map((el) => {
+          {pinData.map((el) => {
             const [x, y] = el.position;
             const pos = percentPosition([x, y], activeMap);
 
-            // calculate color based on type
-            let color;
-            switch (el.type) {
-              case "pin":
-                color = "bg-green-500";
-                break;
-              case "poi":
-                color = "bg-orange-500";
-                break;
-              default:
-                color = "bg-blue-500";
-            }
-
-            // loop through and check if layer is visible
-            const isVisible =
-              (el.type === "pin" && visibleLayers.pin) ||
-              (el.type === "poi" && visibleLayers.poi);
-            if (!isVisible) return null;
-
-            console.log("element, position:", el, pos);
+            if (!visibleLayers.pin) return null;
 
             return (
               <div
@@ -214,7 +221,7 @@ export default function Map({
                   // conditionally show the icon based on if top/left is an axtreme like 0 or 100
                   opacity: pos.left === 0 || pos.left === 100 ? 0 : 1,
                 }}
-                className={`absolute w-5 h-5 ${color} rounded-full border-2 border-white z-20`}
+                className={`absolute w-5 h-5 bg-green-500 rounded-full border-2 border-white z-20`}
               />
             );
           })}
