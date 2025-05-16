@@ -6,7 +6,9 @@ parser.add_argument("--use_rag", action="store_true")
 parser.add_argument("--use_tools", action="store_true")
 args = parser.parse_args()
 
-chatbot = ChatBot(model=CHAT_MODEL, use_rag=args.use_rag, use_tools=args.use_tools)
+chatbot = ChatBot(
+    model=CHAT_MODEL, use_rag=args.use_rag, use_tools=args.use_tools, THINKING=False
+)
 
 while True:
     user = input("User: ")

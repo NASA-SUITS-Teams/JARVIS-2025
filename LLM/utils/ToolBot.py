@@ -16,9 +16,7 @@ class ToolBot:
             print(ALL_TOOLS_STRING)
 
     def get_response_stream(self, message):
-        options = {
-            "num_predict": 4096,  # Max tokens to predict
-        }
+        options = {"num_predict": 4096}
         messages = [
             {"role": "user", "content": message},
         ]
