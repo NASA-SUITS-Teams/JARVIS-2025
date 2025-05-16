@@ -22,11 +22,15 @@ Do not use any formatting. Communicate clearly and naturally using only plain pu
 
 
 class ChatBot:
-    def __init__(self, model, use_rag=False, use_tools=False):
+    def __init__(
+        self, model, use_rag=False, use_tools=False, THINKING=True, TESTING=False
+    ):
         """Initialize ChatBot with OpenAI-type API"""
         self.base_url = "http://localhost:11434"
         self.model = model
         self.messages = []
+        self.THINKING = THINKING
+        self.TESTING = TESTING
 
         self.use_rag = use_rag
         if self.use_rag:
@@ -61,9 +65,14 @@ class ChatBot:
 
         return context
 
-    def get_response_stream(self, message, just_print=False):
+    def get_response_stream(self, message, just_print=False, add_messages=True):
         """Get a streaming response from OpenAI-type API and display in real-time"""
-        # Add user message to history
+        if not add_messages:
+            old_messages = self.messages.copy()
+
+        if not self.THINKING:
+            message = message + " /no_think"
+
         self.add_message("user", message)
 
         # Prepare API request
@@ -147,23 +156,30 @@ class ChatBot:
             full_response = re.sub(r"<think>(\n|.)*</think>", "", full_response).strip()
 
             match = re.search(r"<functions>((\n|.)*)</functions>", full_response)
+            tool_response = ""
             if match:
                 function_calls = match.group(1).strip()
                 if DEBUG:
                     print(f"CALLING FUNCTIONS: {function_calls}")
 
-                response = self.toolbot.get_response_stream(
+                tool_response = self.toolbot.get_response_stream(
                     f"/no_think Call these functions:\n{function_calls}"
                 )
                 if just_print:
-                    print(response)
+                    print(tool_response)
 
-                self.add_message("system", response)
+                self.add_message("system", tool_response)
 
             full_response = re.sub(
                 r"<functions>(\n|.)*</functions>", "", full_response
             ).strip()
             self.add_message("assistant", full_response)
+
+            if not add_messages:
+                self.messages = old_messages
+
+            if self.TESTING:
+                return full_response, tool_response
 
             return full_response
 
@@ -199,21 +215,3 @@ class ChatBot:
             doc_ids.append(doc.id)
 
         return "\n\n".join(doc_texts), doc_ids
-
-    def reset_conversation(self):
-        """Reset the conversation history"""
-        self.conversation_history = []
-
-    def get_conversation_history(self):
-        """Display conversation history with markdown formatting for assistant responses"""
-        print("\n----- Conversation History -----\n")
-        for message in self.conversation_history:
-            role = "You" if message["role"] == "user" else "Assistant"
-
-            if role == "Assistant":
-                print(f"{role}:")
-                print(message["content"])
-            else:
-                print(f"{role}: {message['content']}")
-            print("---")
-        print("\n-------------------------------\n")

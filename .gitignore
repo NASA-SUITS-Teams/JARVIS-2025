@@ -4,5 +4,6 @@ __pycache__/
 vectorstore/
 LLM/documents/
 LLM/models/
+LLM/metrics/results/
 
 .DS_Store
