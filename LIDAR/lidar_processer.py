@@ -3,59 +3,28 @@ from lidar_utils import process_lidar_readings
 
 import numpy as np
 import math
-import socket
-import time
-import struct
-import sys
-import select
-import os
-import re
 
-def get_tss_data(clientSocket, cmd_num, timeout=0.5):
+# LiDAR data corresponds to output from TSS cmd_num 167
+# Position data corresponds to output from TSS cmd_nums 128 - 133 in ascending order
+def process_lidar(floats, position):
     """
-    Helper function to get TSS data given socket and command number.
-    Returns None on timeout or unpack failure.
+    Given an array of floats representing 13 LiDAR values and an array of position data,
+    return a list of tuples in global coordinates detected by LiDAR, returns None if
+    there is an error with data
     """
-    tstamp = int(time.time())
-    clientSocket.sendto(
-        tstamp.to_bytes(4, byteorder="big") + cmd_num.to_bytes(4, byteorder="big"),
-        ("data.cs.purdue.edu", 14141)
-    )
-    try:
-        data, _ = clientSocket.recvfrom(1024)
-    except socket.timeout:
+    posx = position[0] # cmd 128
+    posy = position[1] # cmd 129
+    posz = position[2] # cmd 130
+    yaw = position[3] # cmd 131
+    pitch = position[4] # cmd 132
+    roll = position[5] # cmd 133
+
+    if len(floats) != 13 or len(position) != 6:
+        print("Error: Bad data")
         return None
 
-    if cmd_num == 167:
-        try:
-            return list(struct.unpack('>13f', data[8:8+4*13]))
-        except struct.error:
-            return None
-    else:
-        # slice exactly 4 bytes for a single float
-        chunk = data[8:12]
-        try:
-            return struct.unpack('>f', chunk)[0]
-        except struct.error:
-            return None
-
-
-
-def process_lidar(clientSocket):
-    """
-    Given a web socket (to communicate with TSS), return a list of tuples in global
-    coordinates detected by LiDAR, returns None if there is an error with tss readings
-    """
-    floats = get_tss_data(clientSocket, cmd_num=167)
-    posx = get_tss_data(clientSocket, cmd_num=128)
-    posy = get_tss_data(clientSocket, cmd_num=129)
-    posz = get_tss_data(clientSocket, cmd_num=130)
-    yaw = get_tss_data(clientSocket, cmd_num=131)
-    pitch = get_tss_data(clientSocket, cmd_num=132)
-    roll = get_tss_data(clientSocket, cmd_num=133)
-
     if floats is None or any(v is None for v in (posx, posy, posz, yaw, pitch, roll)):
-        print("Error: TSS timeout or bad data.")
+        print("Error: Bad data")
         return None
     
     if not isinstance(floats, (list, tuple)):
@@ -64,6 +33,10 @@ def process_lidar(clientSocket):
     
     if any(math.isnan(x) for x in floats):
         print("Error: LiDAR data contains NaN.")
+        return None
+    
+    if any(x < 0 for x in position):
+        print("Error: Invalid position data")
         return None
 
     rover_angle = (
@@ -79,5 +52,7 @@ def process_lidar(clientSocket):
     return process_lidar_readings(floats, rover_position, tuple(rover_angle))
 
 if __name__ == '__main__':
-    clientSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    print(process_lidar(clientSocket))
+    floats = [1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8, 9.9, -1.0, -1.0, -1.0 -1.0, -1.0]
+    position  = [0, 0, 0, 0, 0, 0]
+    print(floats, position)
+    print(process_lidar(floats, position))
