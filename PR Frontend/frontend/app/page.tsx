@@ -94,7 +94,7 @@ export default function Home() {
             layouts={{ lg: layout }}
             breakpoints={{ lg: 1200 }}
             cols={{ lg: 5 }}
-            rowHeight={150}
+            rowHeight={135}
             isDraggable
             isResizable
             compactType="vertical"

@@ -10,7 +10,7 @@ export default function ScanData({ specData }: { specData: SpecData }) {
       </div>
 
       <div className="space-y-2 p-2">
-        {specData?.eva1.name === "default_rock" ? (
+        {specData?.eva1.name === "default_rock" || !specData ? (
           <div className="p-2 rounded-md border border-gray-500 bg-gray-700/30 text-xs">
             <div className="text-gray-400">
               No rock has been scanned yet by EVA1
@@ -40,7 +40,7 @@ export default function ScanData({ specData }: { specData: SpecData }) {
           </div>
         )}
 
-        {specData?.eva2.name === "default_rock" ? (
+        {specData?.eva2.name === "default_rock" || !specData ? (
           <div className="p-2 rounded-md border border-gray-500 bg-gray-700/30 text-xs">
             <div className="text-gray-400">
               No rock has been scanned yet by EVA2

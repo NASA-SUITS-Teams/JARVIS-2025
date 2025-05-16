@@ -47,6 +47,7 @@ export const useAPI = () => {
 
       const response = await fetch(API_URL + "/get_data", options);
       const result: APIResponseData = await response.json();
+      if (!result.tssData) setError("No TSS data found"); // handle error if not recieving TSS data
 
       setData(result);
       addToHistory(result);

@@ -8,11 +8,15 @@ import { MapElement } from "@/types/api";
 
 // coordinate ranges for the maps as provided
 const coordinateRanges = {
-  moon: { x: [-6500, -5500], y: [-10400, -9800] },
-  rock: { x: [-5760, -5550], y: [-10070, -9940] },
+  moon: { x: [-6550, -5450], y: [-10450, -9750] },
+  rock: { x: [-5765, -5545], y: [-10075, -9940] },
 };
 
-// clamp helper
+const mapDimensions = {
+  moon: { width: 3507, height: 2232 },
+  rock: { width: 3507, height: 2220 },
+};
+
 const clamp = (n: number, min: number, max: number) =>
   Math.min(Math.max(n, min), max);
 
@@ -96,13 +100,13 @@ export default function Map({
         </div>
       </div>
 
-      <div className="flex-1 flex items-center justify-center p-2">
-        <div className="relative h-full w-full rounded-sm">
+      <div className="flex-1 flex items-center justify-center">
+        <div className="relative h-full w-full">
           <Image
             src={`/maps/${activeMap}.tiff`}
             alt={activeMap === "moon" ? "Moon surface" : "Rock yard"}
-            fill
-            className="object-contain rounded-sm"
+            width={mapDimensions[activeMap].width}
+            height={mapDimensions[activeMap].height}
           />
 
           {roverPos && visibleLayers.pr && (
@@ -193,10 +197,11 @@ export default function Map({
 
             // loop through and check if layer is visible
             const isVisible =
-              //(el.type === "eva" && visibleLayers.eva) ||
               (el.type === "pin" && visibleLayers.pin) ||
               (el.type === "poi" && visibleLayers.poi);
             if (!isVisible) return null;
+
+            console.log("element, position:", el, pos);
 
             return (
               <div
@@ -206,6 +211,8 @@ export default function Map({
                   left: `${pos.left}%`,
                   top: `${pos.top}%`,
                   transform: "translate(-50%, -50%)",
+                  // conditionally show the icon based on if top/left is an axtreme like 0 or 100
+                  opacity: pos.left === 0 || pos.left === 100 ? 0 : 1,
                 }}
                 className={`absolute w-5 h-5 ${color} rounded-full border-2 border-white z-20`}
               />

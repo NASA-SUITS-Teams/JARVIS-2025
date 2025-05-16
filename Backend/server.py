@@ -43,8 +43,8 @@ def get_data():
     # Placeholder
     map_data = [
         { "name": "poi-1", "status": "active", "type": "poi", "position": [-5766.5, -10200.1] },
-        { "name": "poi-2", "status": "active", "type": "poi", "position": [-5666.5, -10100.1] },
-        { "name": "pin-1", "status": "active", "type": "pin", "position": [-5766.5, -10400.1] },
+        { "name": "poi-2", "status": "active", "type": "poi", "position": [-6366.5, -10100.1] },
+        { "name": "pin-1", "status": "active", "type": "pin", "position": [-5766.5, -10140.1] },
         { "name": "pin-2", "status": "active", "type": "pin", "position": [-5966.5, -10300.1] },
     ]
 

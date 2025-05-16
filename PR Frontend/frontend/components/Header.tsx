@@ -40,6 +40,19 @@ export default function Header({
           ></div>
           <span>SYSTEMS {error ? "FAILURE" : "NORMAL"}</span>
         </div>
+        <div
+          className={`flex items-center space-x-2 ${
+            error ? "text-red-500" : "text-green-500"
+          }`}
+        >
+          <div
+            className={`w-3 h-3 rounded-full ${
+              error ? "bg-red-500" : "bg-green-500"
+            } animate-pulse`}
+          ></div>
+          <span>LunarLink {error ? "FAILURE" : "NORMAL"}</span>{" "}
+          {/* @TODO change this to actually use lunarlink status */}
+        </div>
         <div className="text-blue-300">
           Mission Timer: {convertTimeToString(time)} (
           {calculateTimePercentage(time).toFixed(0)}%)
@@ -66,4 +79,4 @@ const calculateTimePercentage = (time: number) => {
   const percentage = (time / totalTime) * 100;
 
   return percentage;
-}
+};
