@@ -32,19 +32,20 @@ const roverLayout: Layout[] = [
   { i: "cameraFeeds", x: 0, y: 5, w: 2, h: 2 },
   { i: "resourceConsumption", x: 2, y: 4, w: 2, h: 2 },
   { i: "roverControls", x: 0, y: 4, w: 2, h: 2 },
-  { i: "timer", x: 0, y: 4, w: 2, h: 2 },
+  { i: "timer", x: 2, y: 5, w: 2, h: 2 },
 ];
 
 const evaLayout: Layout[] = [
   { i: "map", x: 0, y: 0, w: 3, h: 3 },
   { i: "taskQueue", x: 3, y: 0, w: 1, h: 3 },
   { i: "scanData", x: 4, y: 0, w: 1, h: 3 },
-  { i: "resourceConsumption", x: 3, y: 3, w: 2, h: 2 },
+  { i: "timer", x: 3, y: 3, w: 2, h: 2 },
   { i: "mapToggles", x: 2, y: 3, w: 1, h: 2 },
   { i: "cameraFeeds", x: 0, y: 3, w: 2, h: 2 },
   { i: "llm", x: 0, y: 4, w: 2, h: 2 },
-  { i: "procedures", x: 2, y: 4, w: 2, h: 2 },
-  { i: "timer", x: 0, y: 5, w: 2, h: 2 },
+  { i: "procedures", x: 0, y: 5, w: 2, h: 2 },
+  { i: "roverControls", x: 0, y: 4, w: 2, h: 2 },
+  { i: "resourceConsumption", x: 2, y: 4, w: 2, h: 2 },
 ];
 
 export default function Home() {
@@ -83,7 +84,8 @@ export default function Home() {
     }
   };
 
-  if (loading) {
+  // only show the loading screen if we are loading and there is no data (first load)
+  if (!specData && loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-900 text-blue-100 font-mono">
         <span className="text-lg">Loading...</span>

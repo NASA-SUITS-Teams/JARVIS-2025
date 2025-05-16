@@ -1,25 +1,8 @@
 "use client";
 
 import React from "react";
-import { Clock, Play, Pause, CheckCircle } from "lucide-react";
+import { Clock } from "lucide-react";
 import { TSSData } from "@/types/tss";
-
-interface SubTimer {
-  started: boolean;
-  completed: boolean;
-  time: number; // seconds
-}
-
-interface EvaData {
-  started: boolean;
-  paused: boolean;
-  completed: boolean;
-  total_time: number; // seconds
-  uia: SubTimer;
-  dcu: SubTimer;
-  rover: SubTimer;
-  spec: SubTimer;
-}
 
 function formatTime(seconds: number) {
   const m = Math.floor(seconds / 60);
@@ -28,15 +11,41 @@ function formatTime(seconds: number) {
 }
 
 export default function Timer({ tssData }: { tssData: TSSData }) {
-  const data: EvaData = tssData.EVA.eva;
-  const sections: [
-    keyof Omit<EvaData, "started" | "paused" | "completed" | "total_time">,
-    SubTimer
-  ][] = [
-    ["uia", data.uia],
-    ["dcu", data.dcu],
-    ["rover", data.rover],
-    ["spec", data.spec],
+  const data = tssData.EVA.eva;
+
+  const statusText = data.started
+    ? data.completed
+      ? "Completed"
+      : data.paused
+      ? "Paused"
+      : "In Progress"
+    : "Not Started";
+
+  const statusColor = data.completed
+    ? "text-green-500"
+    : data.paused
+    ? "text-yellow-500"
+    : data.started
+    ? "text-orange-500"
+    : "text-gray-500";
+
+  const timers = [
+    {
+      name: "UIA",
+      ...data.uia,
+    },
+    {
+      name: "DCU",
+      ...data.dcu,
+    },
+    {
+      name: "Rover",
+      ...data.rover,
+    },
+    {
+      name: "Spec",
+      ...data.spec,
+    },
   ];
 
   return (
@@ -46,36 +55,40 @@ export default function Timer({ tssData }: { tssData: TSSData }) {
           <Clock size={18} className="text-blue-400" />
           <span className="font-bold">EVA Timer</span>
         </div>
-        <div className="text-xs text-gray-400">
-          Total: {formatTime(data.total_time)}
+        <div className={`flex items-center space-x-6 text-xs text-gray-400`}>
+          <div>
+            Status: <span className={statusColor}>{statusText}</span>
+          </div>
         </div>
       </div>
 
-      <div className="flex-1 p-4 grid grid-cols-2 gap-4">
-        {sections.map(([name, timer]) => (
-          <div
-            key={name}
-            className="bg-gray-700 rounded-lg border border-blue-600 p-3 flex items-center justify-between"
-          >
-            <div className="flex items-center space-x-2">
-              <Clock size={16} className="text-purple-300" />
-              <span className="capitalize text-sm">{name}</span>
+      <div className="flex-1 items-center justify-center">
+        <div className="grid grid-cols-2 gap-2 p-2 w-full h-full">
+          {timers.map((timer, index) => (
+            <div
+              key={index}
+              className={`${
+                timer.completed
+                  ? "bg-green-700/30"
+                  : timer.started
+                  ? "bg-orange-700/30"
+                  : "bg-gray-700"
+              } rounded-lg border ${
+                timer.completed
+                  ? "border-green-500"
+                  : timer.started
+                  ? "border-orange-500"
+                  : "border-blue-600"
+              } px-3 py-7 flex items-center justify-center`}
+            >
+              <div className="flex items-center">
+                <span className="text-sm">
+                  {timer.name}: {formatTime(timer.time)}
+                </span>
+              </div>
             </div>
-
-            <div className="flex items-center space-x-2">
-              <span className="text-base font-mono">
-                {formatTime(timer.time)}
-              </span>
-              {timer.completed ? (
-                <CheckCircle size={16} className="text-green-400" />
-              ) : timer.started ? (
-                <Pause size={16} className="text-yellow-400" />
-              ) : (
-                <Play size={16} className="text-blue-400" />
-              )}
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
