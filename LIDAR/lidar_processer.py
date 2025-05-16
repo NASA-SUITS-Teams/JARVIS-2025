@@ -19,6 +19,10 @@ def process_lidar(floats, position):
     pitch = position[4] # cmd 132
     roll = position[5] # cmd 133
 
+    if len(floats) != 13 or len(position) != 6:
+        print("Error: Bad data")
+        return None
+
     if floats is None or any(v is None for v in (posx, posy, posz, yaw, pitch, roll)):
         print("Error: Bad data")
         return None
@@ -48,7 +52,7 @@ def process_lidar(floats, position):
     return process_lidar_readings(floats, rover_position, tuple(rover_angle))
 
 if __name__ == '__main__':
-    floats = [1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8, 9.9, -1.0, -1.0, -1.0 -1.0]
+    floats = [1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8, 9.9, -1.0, -1.0, -1.0 -1.0, -1.0]
     position  = [0, 0, 0, 0, 0, 0]
     print(floats, position)
     print(process_lidar(floats, position))
