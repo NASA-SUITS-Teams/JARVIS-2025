@@ -13,14 +13,12 @@ export default function ResourceConsumption({
 }) {
   const [estimateTime, setEstimateTime] = useState(0);
 
-  // Update estimate time with remaining time to 45 minutes
-  useEffect(() => {
+  const calculateEndTime = () => {
     if (!currentData.ROVER_TELEMETRY?.pr_telemetry) return;
-    
     const remainingTime =
       45 - currentData.ROVER_TELEMETRY?.pr_telemetry.mission_elapsed_time / 60;
     setEstimateTime(remainingTime);
-  }, [currentData]);
+  }
 
   const predictions = useMemo(() => {
     if (estimateTime <= 0) return {};
@@ -44,6 +42,12 @@ export default function ResourceConsumption({
             value={estimateTime}
             onChange={(e) => setEstimateTime(parseInt(e.target.value, 10) || 0)}
           />
+          <button
+            className="bg-blue-600 py-1 px-2 text-sm text-white rounded hover:bg-blue-700"
+            onClick={() => calculateEndTime()}
+          >
+            Calc End
+          </button>
         </div>
         <div className="flex-1 overflow-auto text-xs">
           {estimateTime > 0 ? (

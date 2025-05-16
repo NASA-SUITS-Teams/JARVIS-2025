@@ -17,6 +17,7 @@ import { useAPI } from "@/hooks/useAPI";
 import { APIResponseData } from "@/types/api";
 import RoverControls from "@/components/widgets/RoverControls";
 import ResourceConsumption from "@/components/widgets/ResourceConsumption";
+import Procedures from "@/components/widgets/Procedures";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 const defaultLayout: Layout[] = [
@@ -27,7 +28,8 @@ const defaultLayout: Layout[] = [
   { i: "mapToggles", x: 2, y: 3, w: 1, h: 2 },
   { i: "llm", x: 0, y: 3, w: 2, h: 2 },
   { i: "cameraFeeds", x: 0, y: 3, w: 2, h: 2 },
-  { i: "roverControls", x: 2, y: 4, w: 2, h: 2 },
+  { i: "procedures", x: 2, y: 4, w: 2, h: 2 },
+  { i: "roverControls", x: 0, y: 4, w: 2, h: 2 },
 ];
 
 export default function Home() {
@@ -108,8 +110,14 @@ export default function Home() {
             <div key="cameraFeeds">
               <CameraFeeds />
             </div>
+            <div key="procedures">
+              <Procedures />
+            </div>
             <div key="resourceConsumption">
-              <ResourceConsumption currentData={tssData} historicalData={historicalData} />
+              <ResourceConsumption
+                currentData={tssData}
+                historicalData={historicalData}
+              />
             </div>
           </ResponsiveGridLayout>
         </div>
