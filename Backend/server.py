@@ -1,14 +1,17 @@
+import json
 import sys
 import os
 import threading
 import socket
 import time
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response, stream_with_context
 from flask_cors import CORS
+import requests
 
 # Add root path for other modules like TPQ, LunarLink, etc
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
+from LLM.utils.ChatBot import ChatBot
 from TPQ import task_priority_queue as TPQ
 from Backend.tss import fetch_tss_json_data
 from Backend.lunarlink import fetch_lunarlink_json_data, send_lunarlink_data
@@ -74,7 +77,21 @@ def add_task():
 
 
 
+chatbot = ChatBot(model="qwen3:4b-q8_0", use_rag=False, use_tools=False)
 # @TODO add routes for LLM
+@app.route('/llm_response_stream', methods=['POST'])
+def stream_response():
+    data = request.get_json()
+    prompt = data.get("transcript")
+
+    def generate():
+        try:
+            for chunk in chatbot.get_response_stream(prompt, just_print=False):
+                yield f"data: {json.dumps({'response': chunk})}\n\n"
+        except Exception as e:
+            yield f"data: {json.dumps({'error': str(e)})}\n\n"
+
+    return Response(stream_with_context(generate()), mimetype="text/event-stream")
 
 
 # Update all TSS data every 10 seconds

@@ -1,3 +1,4 @@
+import ollama from 'ollama/browser';
 import React, { useState } from "react";
 import SpeechRecognition, {
   useSpeechRecognition,
@@ -37,10 +38,44 @@ export default function LLMWidget() {
     SpeechRecognition.stopListening();
   };
 
-  const handleSend = () => {
+  const handleSend = async () => {
     // @TODO: implement the LLM API call here - Peter
+    //setResponse(`LLM Response to: "${editableTranscript}"`);
 
-    setResponse(`LLM Response to: "${editableTranscript}"`);
+    setResponse(""); // Clear previous response
+
+    const res = await fetch("http://localhost:8282/llm_response_stream", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ transcript: editableTranscript }),
+    });
+
+    const reader = res.body?.getReader();
+    const decoder = new TextDecoder();
+
+    if (!reader) return;
+
+    let done = false;
+    while (!done) {
+      const { value, done: readerDone } = await reader.read();
+      done = readerDone;
+
+      const chunk = decoder.decode(value, { stream: true });
+
+      // Parse "data: {json}" lines from server-sent events
+      for (const line of chunk.split("\n")) {
+        if (line.startsWith("data:")) {
+          try {
+            const parsed = JSON.parse(line.replace("data: ", ""));
+            setResponse((prev) => prev + parsed.response);
+          } catch (err) {
+            console.error("JSON parse error", err);
+          }
+        }
+      }
+    }
   };
 
   return (
