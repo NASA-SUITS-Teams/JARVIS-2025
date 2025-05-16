@@ -5,7 +5,7 @@ import { TSSData } from "@/types/tss";
 /**
  * Estimate future usage for selected rover metrics by linear extrapolation
  * assuming each historical entry is spaced by 10 seconds.
- * 
+ *
  * @param history array of past APIResponseData entries (ordered oldest to newest)
  * @param current current TSSData entry
  * @param delta number of minutes into the future to project
@@ -20,7 +20,7 @@ export function estimateFutureUsage(
 
   // filter out entries without rover telemetry
   const entries = history.filter(
-    (e) => e.tssData?.ROVER_TELEMETRY?.pr_telemetry
+    (e) => e.tssData?.ROVER_TELEMETRY.pr_telemetry
   );
 
   if (entries.length < 2) {
@@ -32,14 +32,15 @@ export function estimateFutureUsage(
   const dtHist = intervalCount * 10; // total seconds between first and last
 
   const earliest = entries[0].tssData.ROVER_TELEMETRY.pr_telemetry;
-  const latest  = entries[entries.length - 1].tssData.ROVER_TELEMETRY.pr_telemetry;
+  const latest =
+    entries[entries.length - 1].tssData.ROVER_TELEMETRY.pr_telemetry;
 
   // list of keys to project
   const keys: (keyof PRTelemetry)[] = [
     "battery_level",
     "oxygen_tank",
     "oxygen_levels",
-    "oxygen_pressure"
+    "oxygen_pressure",
     // @TODO add more keys as needed
   ];
 

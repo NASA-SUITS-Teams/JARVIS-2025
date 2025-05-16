@@ -18,6 +18,7 @@ import { APIResponseData } from "@/types/api";
 import RoverControls from "@/components/widgets/RoverControls";
 import ResourceConsumption from "@/components/widgets/ResourceConsumption";
 import Procedures from "@/components/widgets/Procedures";
+import Timer from "@/components/widgets/Timer";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -31,6 +32,7 @@ const roverLayout: Layout[] = [
   { i: "cameraFeeds", x: 0, y: 5, w: 2, h: 2 },
   { i: "resourceConsumption", x: 2, y: 4, w: 2, h: 2 },
   { i: "roverControls", x: 0, y: 4, w: 2, h: 2 },
+  { i: "timer", x: 0, y: 4, w: 2, h: 2 },
 ];
 
 const evaLayout: Layout[] = [
@@ -42,11 +44,11 @@ const evaLayout: Layout[] = [
   { i: "cameraFeeds", x: 0, y: 3, w: 2, h: 2 },
   { i: "llm", x: 0, y: 4, w: 2, h: 2 },
   { i: "procedures", x: 2, y: 4, w: 2, h: 2 },
-  { i: "roverControls", x: 0, y: 5, w: 2, h: 2 },
+  { i: "timer", x: 0, y: 5, w: 2, h: 2 },
 ];
 
 export default function Home() {
-  const { data, error, historicalData } = useAPI();
+  const { data, error, historicalData, loading } = useAPI();
 
   const backendData: APIResponseData = data;
   const tssData = backendData.tssData;
@@ -73,18 +75,26 @@ export default function Home() {
     if (addPointRef.current) addPointRef.current();
   };
 
-  const changeLayout = (type: 'rover' | 'eva') => {
-    if (type === 'rover') {
+  const changeLayout = (type: "rover" | "eva") => {
+    if (type === "rover") {
       setLayout(roverLayout);
     } else {
       setLayout(evaLayout);
     }
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-900 text-blue-100 font-mono">
+        <span className="text-lg">Loading...</span>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col h-screen bg-gray-900 text-blue-100 font-mono">
       <Header
-        elapsedTime={tssData.ROVER_TELEMETRY?.pr_telemetry.mission_elapsed_time}
+        elapsedTime={tssData.ROVER_TELEMETRY.pr_telemetry.mission_elapsed_time}
         error={error}
       />
       <div className="flex flex-1 overflow-auto">
@@ -139,6 +149,9 @@ export default function Home() {
                 currentData={tssData}
                 historicalData={historicalData}
               />
+            </div>
+            <div key="timer">
+              <Timer tssData={tssData} />
             </div>
           </ResponsiveGridLayout>
         </div>

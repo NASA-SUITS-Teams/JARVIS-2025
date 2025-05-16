@@ -14,11 +14,11 @@ export default function ResourceConsumption({
   const [estimateTime, setEstimateTime] = useState(0);
 
   const calculateEndTime = () => {
-    if (!currentData.ROVER_TELEMETRY?.pr_telemetry) return;
+    if (!currentData.ROVER_TELEMETRY.pr_telemetry) return;
     const remainingTime =
-      45 - currentData.ROVER_TELEMETRY?.pr_telemetry.mission_elapsed_time / 60;
+      45 - currentData.ROVER_TELEMETRY.pr_telemetry.mission_elapsed_time / 60;
     setEstimateTime(remainingTime);
-  }
+  };
 
   const predictions = useMemo(() => {
     if (estimateTime <= 0) return {};
@@ -33,9 +33,7 @@ export default function ResourceConsumption({
       </div>
       <div className="p-3 flex flex-col space-y-3">
         <div className="flex items-center space-x-2">
-          <label className="text-sm text-gray-300">
-            Estimate in (mins):
-          </label>
+          <label className="text-sm text-gray-300">Estimate in (mins):</label>
           <input
             type="number"
             className="w-20 p-1 rounded bg-gray-700 text-gray-200 text-sm"

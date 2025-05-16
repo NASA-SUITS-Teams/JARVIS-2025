@@ -10,8 +10,8 @@ export default function Alerts({ tssData }: { tssData: TSSData }) {
 
   useEffect(() => {
     // pull out the rover and eva telemetry and run the threshold checker
-    const pr = tssData.ROVER_TELEMETRY?.pr_telemetry;
-    const evas = tssData.TELEMETRY?.telemetry;
+    const pr = tssData.ROVER_TELEMETRY.pr_telemetry;
+    const evas = tssData.TELEMETRY.telemetry;
 
     if (!pr || !evas) return;
 
@@ -30,7 +30,11 @@ export default function Alerts({ tssData }: { tssData: TSSData }) {
           {alertData.map((alert, idx) => (
             <div
               key={idx}
-              className={`p-2 rounded-md border ${(alert.type == 'ROVER') ? 'border-red-500 bg-red-900/30' : 'border-orange-500 bg-orange-900/30'} text-xs`}
+              className={`p-2 rounded-md border ${
+                alert.type == "ROVER"
+                  ? "border-red-500 bg-red-900/30"
+                  : "border-orange-500 bg-orange-900/30"
+              } text-xs`}
             >
               <div className="flex justify-between">
                 <span className="font-bold text-blue-200">{alert.name}</span>

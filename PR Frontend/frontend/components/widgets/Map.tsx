@@ -51,7 +51,7 @@ export default function Map({
   const [activeMap, setActiveMap] = useState<"moon" | "rock">("moon");
 
   // calculate rover position from tssData
-  const rover = tssData.ROVER?.rover;
+  const rover = tssData.ROVER.rover;
   const roverPos = rover
     ? percentPosition([rover.posx, rover.posy], activeMap)
     : null;
@@ -71,7 +71,7 @@ export default function Map({
         [rover.poi_1_x, rover.poi_1_y],
         [rover.poi_2_x, rover.poi_2_y],
         [rover.poi_3_x, rover.poi_3_y],
-      ].filter(([x, y]) => (x != null && x != 0 && y != null && y != 0))
+      ].filter(([x, y]) => x != null && x != 0 && y != null && y != 0)
     : []; // only keep the ones where both coords are not null/undefined
 
   // @TODO handle adding points to the map
@@ -87,8 +87,8 @@ export default function Map({
           <span className="font-bold">MAP</span>
           <span className="text-xs text-gray-400">
             {" "}
-            (X:{rover?.posx?.toFixed(1) || "N/A"} Y:
-            {rover?.posy?.toFixed(1) || "N/A"})
+            (X:{rover.posx.toFixed(1)} Y:
+            {rover.posy.toFixed(1)})
           </span>
         </div>
         <div className="flex space-x-2">
@@ -124,7 +124,7 @@ export default function Map({
                 left: `${roverPos.left}%`,
                 top: `${roverPos.top}%`,
                 transform: `translate(-50%, -50%) rotate(${
-                  tssData.ROVER_TELEMETRY?.pr_telemetry.heading || 0
+                  tssData.ROVER_TELEMETRY.pr_telemetry.heading || 0
                 }deg)`,
               }}
             >

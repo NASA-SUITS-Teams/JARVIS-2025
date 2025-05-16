@@ -8,7 +8,7 @@ type RoverControlsProps = {
 };
 
 export default function RoverControls({ tssData }: RoverControlsProps) {
-  const prTelemetry = tssData.ROVER_TELEMETRY?.pr_telemetry || {};
+  const prTelemetry = tssData.ROVER_TELEMETRY.pr_telemetry || {};
 
   const controls: { key: string; label: string; value: boolean }[] = [
     {

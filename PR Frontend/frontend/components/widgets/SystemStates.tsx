@@ -8,7 +8,7 @@ export default function SystemStates({
   tssData,
   changeLayout,
 }: {
-  tssData: TSSData & { eva?: EVAState }; // assume `eva` is your state payload
+  tssData: TSSData & { eva: EVAState }; // assume `eva` is your state payload
 }) {
   const tabs = ["ROVER", "EVA #1", "EVA #2"] as const;
   const [activeIndex, setActiveIndex] = useState(0);
@@ -16,7 +16,7 @@ export default function SystemStates({
   const systemData = useMemo<
     (Partial<PRTelemetry> & EVATelemetry & Partial<EVAState>)[]
   >(() => {
-    const roverTelemetry = tssData.ROVER_TELEMETRY?.pr_telemetry;
+    const roverTelemetry = tssData.ROVER_TELEMETRY.pr_telemetry;
     let roverData: Partial<PRTelemetry> = {};
 
     // destructure to remove all the telemtry data values that we don't need
@@ -54,8 +54,8 @@ export default function SystemStates({
     }
 
     // @TODO integrate EVA data from lunarlink fist and thn use the tss data as a backup
-    const eva1Telemetry = tssData.TELEMETRY?.telemetry?.eva1 ?? {};
-    const eva2Telemetry = tssData.TELEMETRY?.telemetry?.eva2 ?? {};
+    const eva1Telemetry = tssData.TELEMETRY.telemetry.eva1 ?? {};
+    const eva2Telemetry = tssData.TELEMETRY.telemetry.eva2 ?? {};
 
     return [roverData, eva1Telemetry, eva2Telemetry];
   }, [tssData]);
