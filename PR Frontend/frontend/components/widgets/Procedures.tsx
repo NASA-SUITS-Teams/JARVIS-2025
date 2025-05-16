@@ -71,7 +71,7 @@ export default function Procedures() {
                 type="checkbox"
                 checked={!!done[id]}
                 onChange={() => toggle(id)}
-                className="form-checkbox h-4 w-4 text-green-400 bg-gray-700 border-gray-600 rounded focus:ring-0"
+                className="form-checkbox h-4 w-4 text-green-400 bg-gray-700 border-gray-600 rounded focus:ring-0 hover:cursor-pointer"
               />
               <span
                 className={`ml-2 text-sm ${

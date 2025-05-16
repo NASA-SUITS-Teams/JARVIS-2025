@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { EVATelemetry, TSSData } from "@/types/tss";
 import { PRTelemetry } from "@/types/api";
 import { EVAState } from "@/types/EVAStateTypes"; // the interface you generated
@@ -12,15 +12,6 @@ export default function SystemStates({
 }) {
   const tabs = ["ROVER", "EVA #1", "EVA #2"] as const;
   const [activeIndex, setActiveIndex] = useState(0);
-
-  // Edit the layout of the entire UI when selecting either the EVA or the rover tabs
-  useEffect(() => {
-    if (activeIndex === 0) {
-      changeLayout("rover");
-    } else {
-      changeLayout("eva");
-    }
-  }, [activeIndex, changeLayout]);
 
   const systemData = useMemo<
     (Partial<PRTelemetry> & EVATelemetry & Partial<EVAState>)[]
@@ -80,7 +71,16 @@ export default function SystemStates({
         {tabs.map((label, idx) => (
           <button
             key={label}
-            onClick={() => setActiveIndex(idx)}
+            onClick={() => {
+              // Edit the layout of the entire UI when selecting either the EVA or the rover tabs
+              if (idx === 0) {
+                changeLayout("rover");
+              } else {
+                changeLayout("eva");
+              }
+
+              setActiveIndex(idx);
+            }}
             className={`px-2 py-1 rounded-md text-xs ${
               idx === activeIndex
                 ? "bg-blue-600 hover:bg-blue-500"

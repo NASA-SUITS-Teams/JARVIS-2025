@@ -63,8 +63,6 @@ export default function Map({
     ? percentPosition([eva2.posx, eva2.posy], activeMap)
     : null;
 
-  // @TODO calculate EVA position from lunar link or TSS data
-
   // @TODO handle adding points to the map
 
   // @TODO offer option to store historical data pointa and draw a line from starting to end
@@ -76,6 +74,10 @@ export default function Map({
         <div className="flex items-center space-x-2 drag-handle hover:cursor-move">
           <MapIcon size={18} className="text-blue-400" />
           <span className="font-bold">MAP</span>
+          <span className="text-xs text-gray-400">
+            {" "}
+            (X:{rover?.posx.toFixed(1)} Y:{rover?.posy.toFixed(1)})
+          </span>
         </div>
         <div className="flex space-x-2">
           {(["moon", "rock"] as const).map((mode) => (
@@ -95,12 +97,12 @@ export default function Map({
       </div>
 
       <div className="flex-1 flex items-center justify-center p-2">
-        <div className="relative w-full aspect-[9/7] overflow-hidden rounded-sm">
+        <div className="relative h-full w-full rounded-sm">
           <Image
             src={`/maps/${activeMap}.tiff`}
             alt={activeMap === "moon" ? "Moon surface" : "Rock yard"}
             fill
-            className="object-cover"
+            className="object-contain rounded-sm"
           />
 
           {roverPos && visibleLayers.pr && (
@@ -171,10 +173,6 @@ export default function Map({
               </svg>
             </div>
           )}
-
-          <div className="absolute top-2 right-2 bg-gray-800/80 text-xs text-blue-300 p-1 rounded">
-            X {rover?.posx.toFixed(1)} Y {rover?.posy.toFixed(1)}
-          </div>
 
           {mapData.map((el) => {
             const [x, y] = el.position;

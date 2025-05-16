@@ -34,7 +34,7 @@ export default function ResourceConsumption({
       <div className="p-3 flex flex-col space-y-3">
         <div className="flex items-center space-x-2">
           <label className="text-sm text-gray-300">
-            Estimate in (minutes):
+            Estimate in (mins):
           </label>
           <input
             type="number"
