@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
@@ -76,6 +76,16 @@ export default function LLMWidget() {
   };
 
 
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
+    }
+    setEditableTranscript(e.target.value);
+  };
+
   return (
     <div className="w-full h-full bg-gray-800 rounded-lg border border-blue-600 shadow-lg shadow-blue-500/10 overflow-hidden flex flex-col">
       <div className="bg-gray-700 p-2 border-b border-blue-600 flex items-center space-x-2 drag-handle hover:cursor-move">
@@ -83,11 +93,38 @@ export default function LLMWidget() {
         <span className="font-bold">LLM INTERFACE</span>
       </div>
 
-      <div className="flex-1 p-2 flex flex-col space-y-2">
+      {/* Main content area (chat history + input) */}
+      <div className="flex-1 p-2 flex flex-col overflow-hidden space-y-2">
+        {/* Chat history scrollable area */}
+        <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+          {/* Example chat message blocks (can be dynamically rendered) */}
+          {/* Replace these with mapped chat messages later */}
+          <div className="p-2 rounded-md bg-gray-700 text-white w-fit self-start max-w-[80%] text-sm">
+            User
+          </div>
+          <div className="p-2 rounded-md bg-blue-600 text-white w-fit self-end max-w-[80%] text-sm">
+            Assistant
+          </div>
+          {/* Empty at first */}
+        </div>
+      </div>
+
+      {/* Input Textbox */}
+      <textarea
+        ref={textareaRef}
+        value={editableTranscript}
+        onChange={handleChange}
+        placeholder="Your voice transcript will appear here."
+        className="p-2 rounded-md border border-blue-600 bg-gray-900 text-gray-200 text-sm resize-none overflow-y-auto max-h-48"
+      />
+
+      {/* Buttons row */}
+      <div className="flex space-x-2">
+        {/* Audio Button */}
         {!listening ? (
           <button
             onClick={startListening}
-            className="flex items-center px-3 py-2 rounded-md border border-blue-400 bg-blue-900/50 text-sm text-blue-100 font-medium hover:bg-blue-800"
+            className="flex-1 flex items-center justify-center px-3 py-2 rounded-md border border-blue-400 bg-blue-900/50 text-sm text-blue-100 font-medium hover:bg-blue-800"
           >
             <Music4Icon size={16} className="mr-2" />
             Start Listening
@@ -95,36 +132,22 @@ export default function LLMWidget() {
         ) : (
           <button
             onClick={stopListening}
-            className="flex items-center px-3 py-2 rounded-md border border-red-400 bg-red-900/50 text-sm text-red-100 font-medium hover:bg-red-800"
+            className="flex-1 flex items-center justify-center px-3 py-2 rounded-md border border-red-400 bg-red-900/50 text-sm text-red-100 font-medium hover:bg-red-800"
           >
             <Music4Icon size={16} className="mr-2 animate-pulse text-red-400" />
             Stop Listening
           </button>
         )}
 
-        <textarea
-          value={editableTranscript}
-          onChange={(e) => setEditableTranscript(e.target.value)}
-          placeholder="Your voice transcript will appear here."
-          className="flex-1 p-2 rounded-md border border-blue-600 bg-gray-900 text-gray-200 overflow-auto text-sm resize-none"
-        />
-
+        {/* Send Button */}
         <button
           onClick={handleSend}
           disabled={!editableTranscript.trim()}
-          className="flex items-center justify-center p-2 rounded-md border border-blue-400 bg-blue-600 text-sm text-white font-medium hover:bg-blue-500 disabled:opacity-50"
+          className="flex-1 flex items-center justify-center px-3 py-2 rounded-md border border-blue-400 bg-blue-600 text-sm text-white font-medium hover:bg-blue-500 disabled:opacity-50"
         >
           <Send size={16} className="mr-2" />
           Send to LLM
         </button>
-
-        <div className="p-2 rounded-md border border-blue-600 bg-gray-900 text-gray-200 overflow-auto text-sm">
-          {response || (
-            <span className="text-gray-500">
-              LLM response will appear here.
-            </span>
-          )}
-        </div>
       </div>
     </div>
   );

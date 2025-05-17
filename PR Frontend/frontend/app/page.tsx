@@ -28,7 +28,7 @@ const roverLayout: Layout[] = [
   { i: "scanData", x: 4, y: 4, w: 1, h: 3 },
   { i: "procedures", x: 3, y: 3, w: 2, h: 2 },
   { i: "mapToggles", x: 2, y: 3, w: 1, h: 2 },
-  { i: "llm", x: 0, y: 3, w: 2, h: 2 },
+  { i: "llm", x: 0, y: 3, w: 2, h: 4 },
   { i: "videoFeeds", x: 0, y: 5, w: 2, h: 2 },
   { i: "resourceConsumption", x: 2, y: 4, w: 2, h: 2 },
   { i: "roverControls", x: 0, y: 4, w: 2, h: 2 },
