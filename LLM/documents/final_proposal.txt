@@ -1,0 +1,320 @@
+JARVIS: Just A Rather Vital Interface System
+
+Purdue University 
+
+Contents
+1 Note to the Reviewers	6
+1.1 Acronyms	7
+2 Technical Section	8
+2.1 Abstract	8
+2.2 Software and Hardware Design Description	8
+2.2.1.1: GeoPin System	8
+2.2.1.2: Maximum Range Predictor	8
+2.2.2 Spacesuit Display	9
+2.2.2.1: UI Display & Wrist Mount Peripheral	9
+2.2.2.2: AI-Driven Task Lists	10
+2.2.2.3: Minimap	11
+2.2.2.4: Navigation	11
+2.2.2.5: EV LLM Assistant	12
+2.2.2.6: Alert System	12
+2.2.2.7: Edge Computing	12
+2.2.3 Pressurized Rover	12
+2.2.3.1: Minimap and UI Display	12
+2.2.3.2: Mission Timers	13
+2.2.3.3: Pathfinding	13
+2.2.3.4: Obstacle Detection	13
+2.2.3.5: Resource Consumption Predictive Analysis	14
+2.2.3.6: ML-Driven Task Queue	14
+2.2.3 LunarLink	15
+2.3 Concept of Operations	15
+2.3.1 Persistent Operations	15
+2.3.2 Pressurized Rover Navigation	15
+2.3.3 Egress	16
+2.3.4 EV Navigation	16
+2.3.5 Geological Sampling	17
+2.3.6 Ingress	17
+2.4 Human-in-the-Loop (HITL) Testing	17
+2.4.1 Spacesuit Display Testing Schedule	18
+2.4.2 Pressurized Rover Testing Schedule	19
+2.5 Project Management	20
+2.5.1 Development Schedule	20
+2.5.2 Team Divisions	20
+2.6 Technical References	20
+3 Outreach Section	21
+3.1: Driving Principles	21
+3.2 Event 1: Project Demo and Coding Challenge at Indiana State VEX Robotics Tournament	21
+3.3 Event 2: Lunar Lift-Off: Engineering for the Future	22
+3.4 Event 3: Sustenance in Space: Satisfying Astronauts’ Appetites	23
+3.5 Event 4: Hour of Code: SKAO Data Analysis	23
+3.6 Press, Advertisement, and Marketing	24
+4 Admin Section	25
+4.1 Institutional Letter of Endorsement	25
+4.2 Statement of Supervising Faculty	26
+4.3 Statement of Rights of Use	28
+4.4 Funding and Budget Statement	28
+4.5 HoloLens 2 Loan Program	29
+4.6 Approval of Demo at Indiana State VEX Robotics Tournament	30
+6 Bibliography	31
+7 Appendix	31
+
+
+
+
+1 Note to the Reviewers
+
+Dear NASA SUITS Committee, 
+
+Thank you so much for your time and consideration in reviewing our proposal. We would like to mention a few things regarding the structure of our proposal. Firstly, in order to remain within the 12-page limit on the Technical Section (Section 2) of this proposal, we have placed many of our diagrams, control flows, and flowcharts in the Appendix Section. 
+Secondly, we have included two separate subsections in the Software and Hardware Design Descriptions and HITL Testing, once each for the Spacesuit Display and Pressurized Rover sections. If we are selected to move on, it will be important for us to know the specific features we will be building, what that development schedule will look like and the context behind building them this way. 
+Thirdly, we use many acronyms within our proposal, and we understand that seeing many new, unique terms at the same time as reading through new ideas can be quite disorienting, so we have defined a few of the major ones in the section below. 
+Lastly, we have included some extra sections that play key roles in our proposal structure and designs, most notably letters of approval from select institutions and technical references, as we have referred to a few sources in our Outreach Events. These inclusions notwithstanding, we have made sure to follow the original proposal structure as defined in the NASA SUITS Proposal Guidelines. 
+Once again, our team greatly appreciates the time and effort you all are taking to review our proposal, and we are all thoroughly excited by the chance to develop software for this challenge under the mentorship and guidance of hardworking NASA Engineers. Please feel free to contact us if you have any questions or concerns about our designs, outreach, or anything else! Thank you to both EHP and OSTEM for partnering up and making it possible for us to compete in this challenge! 
+
+Best Regards,
+Team JARVIS at Purdue University
+
+
+1.1 Acronyms
+EVA = Extra Vehicular Activity, and in the context of NASA SUITS, usually refers to the astronauts on spacewalks, who are called EVs
+HMD = Head Mounted Display which is the Augmented Reality passthrough headset used for largely non-critical functionality
+LunarLink is named for our interoperable system that allows for critical data transfer between the PR and the SDs of the two EVs
+PR = Pressurized Rover and is the primary method of transportation on the Moon, as well as where the astronauts will be monitored from
+SD = Spacesuit Display, which is what the astronauts or design evaluators will be interacting with when on those spacewalks
+TSS = Telemetry Stream Server, which is how NASA provides data for the PR and SD
+
+
+2 Technical Section
+2.1 Abstract 
+While pushing the bounds of modern technology is the motivation behind every engineering project, the main priority for us is safety. In a place as inhospitable as the Lunar South Pole, dependability, redundancy, and safety are a must to protect the crew and the Lunar assets they depend on. These three adjectives are the driving factors behind every subsystem outlined in this proposal. Interoperability was a large focus during planning. We developed the LunarLink protocol to achieve this. The LunarLink ensures that the EV and PR can communicate seamlessly, efficiently transfer data, and remain interoperable for the duration of all EVAs. We included a wrist mount to prevent the display from affecting the astronaut’s ability to complete tasks and efficiency. We incorporated an earpiece to record the astronaut’s speech-to-text for the Large Language Model (LLM) which will take the text, retrieve relevant information, and output an appropriate response. Our program uses cutting-edge AI algorithms to use the powerful impact data has on the capability of our code. We developed an easy-to-use tablet and headset system with the goal of safety and decreased cognitive load for the astronaut. We have further elaborated on all of our steps and guiding methodologies in the Concept of Operations, and how we plan to achieve our lofty goals in the Human-In-The-Loop (HITL) Testing Section. 
+
+2.2 Software and Hardware Design Description 
+2.2.1.1: GeoPin System
+A GeoPin is a marker of a scientific point of interest. Each pin will include data such as the geographic 3D location of the point of interest, the temperature, pressure, pin creation time, a short description of what is at the site, and the initial small certitude spectroscopy data expected at the pin. In order to standardize the system of marking locations of interest among both the EVs and the PR, all systems will have access to a modular GeoPin dropping system. The data from the TSS will be applied to a pin object. Anytime a GeoPin is created, it will be shared over LunarLink with the other components of the system, including the SD and PR. CRUD operations on the pin system/minimap via the rover will also apply to the SD and vice versa. We will also include the distances to each pin using the pathfinding algorithms to find the shortest routes. Sending the location data via LunarLink to the PR helps the ML-driven Task System best create an efficient queue for the astronauts. 
+
+2.2.1.2: Maximum Range Predictor
+After performing a predictive analysis in Sections 2.2.2.4 and 2.2.3.1 to determine the remaining distance the EV or PR or an EV is able to travel, the maximum distance the DE can travel safely can be determined to identify “turnaround points”, where they must return to ensure they do not run out of resources. Using a mathematical model in addition to our navigation system in Section 2.2.2.4, the region in which the DE can safely travel can be determined. The mathematical model uses the locations of the DE and return location of the base for the PR, and PR for the EVs, as well as the predicted max distance the DE can travel to draw an ellipse with the two locations at the foci. This encloses the region in which the DE can travel to any point and have enough resources remaining to return to safety. In order to provide a conservative estimate to ensure the safety of the crew, the maximum distance used in the calculation will be scaled by a “terrain factor” from zero to one, correlating to the ratio between the straight path distance between two points and the actual distance covered when traveling between two points. This boundary defines a conservative estimate for the region the DE can travel to while being able to return to safety. 
+	Once the DE’s potential boundary of the region is determined, our navigation system can calculate the distance the rover would need to travel to reach a node within the region and return to base by adding the shortest distance from the rover to the node and node to home base. By repeating this process for nodes near the boundary first and closing in, a region of the map the PR can safely travel to can be drawn to prioritize the safety of the crew. In the case where predictions of the maximum distance remaining for the DE to travel fluctuate and the region the DE can travel to is poorly defined, an ML model can determine a conservative long-term estimation to be used in defining where the rover can travel by calculating the lower bound of the remaining distance the DE can travel in the event of sudden changes is available resources or the terrain. By having two concurrent predictions in the range the DE can navigate and use the one that provides the most stable prediction. We can build redundancy into the system that will ensure there are no sudden changes for the DE to consider, reducing the cognitive load when determining the safest path.
+
+2.2.2 Spacesuit Display
+
+2.2.2.1: UI Display & Wrist Mount Peripheral
+The navigation tab of the wrist-mounted display will feature a 2D map with pins, breadcrumbs, and EVA locations. There will be a pin creation mode where pins can be placed and saved pins will be sent using LunarLink. Navigation will also feature a breadcrumb system for the EV to backtrack to the airlock. Breadcrumbs will be toggleable to prevent screen clutter. There will be a recommended path back created by the best path algorithm. The navigation system implemented for the rover will also apply similarly on the display as an ellipse of the predicted range around the EV.
+Biomedicals will display data fetched from the TSS for EV and accompanying EV, and biomedical features can be switched on and off. Significant off-nominal data will still be shown, even if switched off. The completed analysis from rock samples will be accessible through the Data Reports tab. The astronaut will be prompted to select further data points on the sample, including soil type, texture, etc. 
+A quick alert will display on the tablet, letting the astronaut know that a sample is being scanned. Another alert will display on the screen of the astronaut, letting the astronaut know that a sample is being analyzed, and then another one will display the astronaut the spectroscopy analysis of a sample when it is scanned. A quick alert will display on the screen of the astronaut letting the astronaut know that a sample analysis is complete. The astronaut will be able to close the pop-up with a button or click a separate button to be redirected to the Date Reports tab to view the data. An alert will display on the screen letting the astronaut know that they are now able to proceed to the next scan of a sample. Astronauts will not be able to scan another object until the alert is acknowledged and closed. After sampling, the astronaut will receive a prompt to enter further information on a sample, they could either close this for a later point or enter it right away. This information could range from the type of soil the sample was found in: rock samples, the GPS coordinates, and potentially any other observational notes by the astronaut.
+The spacesuit display will be centered around a wrist-mounted tablet. The wrist mount prevents the display from affecting the astronaut’s ability to complete tasks. The wrist-mounted device will be of similar dimensions to an Amazon Fire High Definition (HD) 10 tablet (9.7” by 6.5”), to allow for a sizable interface for a suited astronaut to interact with while remaining accessible on the wrist. The brightness will be adjusted to account for the moon's albedo. The tablet will have a user interface outlined in Figure 1 with customization options to accommodate the EV’s preference. The wrist mount is shown in Figure 2.
+
+
+Figure 1: UI display that will be on the astronaut’s wrist-mounted tablet.
+
+2.2.2.2: AI-Driven Task Lists
+	To improve astronaut independence and control during each station of the EVA, we plan to push all tasks from the Pressurized Rover before the beginning of the mission. This will allow tasks to be manipulated based on the progression of the procedures. We will determine when to push the next task to the wrist-mounted tablet using the current biomedical data of the astronaut and the percentage of completion of the previous tasks. This is outlined in Figure 3. 
+Along with manual manipulation of tasks, we also plan to use Artificial Intelligence (AI) for managing procedures. A classifier neural network that utilizes categorical and numerical data such as task type, complexity, urgency, employee task performance history, and historical completion rates will predict labels corresponding to astronauts best suited for the task. As tasks are distributed and completed it will continue learning and adapting as the mission progresses. While the classifier neural network will distribute the tasks, a topological sorting algorithm will account for dependencies. Tasks on the same topological level will be ordered by priority/urgency, and in a manner that minimizes factors such as distance traveled from one task to the other and resource consumption. Task urgencies will be continually updated and the order re-sorted to account for dynamic changes in the urgencies of various tasks.
+
+2.2.2.3: Minimap  
+During the EVA, a minimap will be available on the SD to assist with navigation on the worksite. By default, the minimap will be centered on the EV’s location and display the local surrounding area, with the option to drag the map to view different areas and pinch to zoom in or out at any location. The map will always display the maximum distance the EV is able to travel before having to return to the PR. The map will display all the geographical pins within the visible location, with a drop-down menu to view all pins. Tapping on a GeoPin will display some relevant information on the context and relevance of the pin. Using the minimap, the EV will be able to request the shortest path from their current location to a location in the worksite, which will be displayed for them to see. At any point during the EVA, the EV will be able to toggle the map's "breadcrumb” feature, allowing them to view a dotted line of the path they have traveled since departing the PR.
+To create a pin, the minimap will have a “pin” mode. In this mode, the EV will be able to place a geographical pin on the map at a location of interest and enter related information on the context and relevance of the pin. We will have a live updating pin displaying the live locations across devices. For more information about updating locations, see the pin system described in Section 2.2.1.1.
+To implement a 3D map, we plan to include an optional augmented reality 3D map on the HMD, which will project over the 2D map on the SD when viewed through the HMD. This 3D map will feature improved functionality over the 2D map on the SD, including the ability to zoom and rotate in a 3D space and better visualize the local terrain. This projected map can be toggled on or off at the discretion of the EV.
+
+2.2.2.4: Navigation
+While the EVAs are walking, the path taken by both will be stored locally and can be toggled on or off on the minimap screen. On the minimap portion of the space suit display, there will be a button to toggle this function to prevent an overabundance of breadcrumbs from cluttering the display. It will display arrows of where the user has walked showing them the path taken. Utilizing the best path navigation feature, the SD will allow the astronaut to select (and pin) points of interest and the UI will then display the best path as an ‘aid’ for the astronaut to travel to that point. Additionally, there will be an ever-updating ellipse on the map, with the PR and EV as the two foci that will determine the maximum distance the EV can travel before they hit a turnaround point, as described in Section 2.2.1.2. Refer to Figure 7.
+
+2.2.2.5: EV LLM Assistant  
+A local LLM can provide aural aid for the EV. Speech recognition and synthesis will be performed on either end of the LLM using separate systems to convert audio into text and back. The LLM will be enhanced with a Retrieval-Augmented Generation (RAG) pipeline that will continually supply it with data on the mission including data from the TSS and data outputted by our systems and other models. Evaluation along with computation considerations will be conducted on multiple available local models to ensure an appropriate model is selected. Refer to Figure 4.
+
+2.2.2.6: Alert System
+The SD will display the biomedical data of the astronaut, as well as any other accompanying EV. The SD will let the astronaut know when their biomedical data is deemed to be at the ‘critical’ point, by having a red warning flag pop up and a “buzz” indication on the SD. For critical errors, such as the EV reaching a critical level of oxygen or nearing a turnaround point, the red warning flag would show up on both the SD, and a red warning triangle with a yellow exclamation point would show up on the HMD. This alert system also utilizes LunarLink to receive notifications that the EV2 or PR are having issues and to display the same warning signs in purple to distinguish themselves. We will implement a contextual awareness system, featuring softer pitches for minor errors and louder pitches for system-damaging errors.  
+
+2.2.2.7: Edge Computing 
+To process the data we use the idea of edge computing by processing the data directly on the tablet. The tablet will store data such as the pin location, task information, and other data read from the TSS. The predictive models and data analysis will be done directly on the tablet. This limits the amount of data that will need to be transferred around while also increasing reliability. The combination of processing lots of data and Texas heat could combine to cause a thermal shutdown. To prevent this we will use the built-in thermal class of the tablet so that we can throttle in a way that ensures reliability and prevents a thermal shutdown interrupt.
+
+2.2.3 Pressurized Rover 
+
+2.2.3.1: Minimap and UI Display
+We intend to build a minimap that can be used for keeping track of all mission points of interest and important equipment. The minimap will fetch geographic data based on GeoPins describing points of importance in the mission. The distance will be dependent on activities and the length of the EVA. Upon rendering, any predefined locations (i.e. base, navigation targets, or the rover) will be displayed on the map with distinctive colors for easy recognition. During PR navigation, the minimap will display the maximum range the rover can travel before needing to return to base and can display the shortest path to navigate to a location of interest.
+Once the PR reaches the worksite, the minimap will change functionality from assisting with PR navigation to functioning as a map for the mobile LMCC. The map will track the two EVs’ locations during EVAs and the location of the LTV using LunarLink. It will also display the breadcrumbs of both EV and LTV and will use pathfinding and predictive analysis described later in order to draw the predicted path. The minimap module will check for changes in the geographic position of the Spacesuit Display, and if a change greater than 1 meter – the approximate resolution of the given GeoJSON data – is detected, the map will request new geographic data to fill the minimap. This way, both the PR & Spacesuit Display can use the same module to render the minimap, as this process is also device-independent. Additionally, in order to show depth, the minimap will incorporate a scale given by contour lines to indicate the depth of craters/height of boulders, which will allow us to build a 3D map on a 2D screen, and allow the PR team to better assist the EVs in the field. 
+
+2.2.3.2: Mission Timers
+	The PR will keep timers for the mission. They will start by storing the timestamp at the beginning of egress and end by storing the timestamp at the end of ingress and will subtract the beginning timestamp from the ending timestamp to determine the overall mission length. These timers will be broadcast to other systems in JSON format using LunarLink. The timers will also be compared to the TSS timer to ensure synchronization.
+
+2.2.3.3: Pathfinding
+	Given the DUST environment, we can use the A* algorithm to find the shortest path minimizing elevation change as well. This algorithm also estimates the cost of the path taken which we can use to find not only the shortest but the most resource-efficient path by adding in factors to track fuel and resource use.
+	A* is an Informed search algorithm, meaning it includes a heuristic function to estimate the cost to reach the goal from each node. The heuristic function h(n) gives A* an estimate of the minimum cost from any node n to the goal. In this case, h(n) will refer to fuel consumed and elevation change. The A* algorithm prioritizes different paths of node exploration, determined by the total sum cost to reach the node, as well as the heuristic estimate of the remaining cost to reach the goal. A good heuristic is essential to performance. 
+	Using geographic information provided by DUST we can determine elevation changes between vertices of the graph and set elevation cost between the absolute difference in elevation between vertices. This will allow the algorithm to account for vertical and horizontal distance in determining the shortest path. The rover can handle larger elevation changes for longer horizontal distances traveled since elevation change will occur at a lower gradient. If the elevation change exceeds a certain threshold, indicating an obstacle such as a crater or boulder, we can eliminate this path as a possible option for the rover to take. 
+
+2.2.3.4: Obstacle Detection
+	We will incorporate obstacle detection into our pathfinding by predetermining the location of obstacles by extracting information from the DUST environment to the PR. Specifically, the map of the overall terrain provided. By utilizing this map, we can detect obstacles by looking for sharp changes in elevation in a small area which would represent either a boulder or a ditch. We can use these changes to initially map the region covered by the obstacle and allow the algorithm to recalibrate a path to avoid it.
+	We will also pull data from the DUST environment and know the basic terrain that the pressurized rover must traverse. In real-life situations, this would be the equivalent of using LiDAR or other technologies to detect and build the basic environment of the rover. We will fetch data from DUST where we will acquire all the information about the terrain, such as the exact elevation and location of each crater or rock, the distribution of them, and their respective surface textures. All of these go into a grid map, where we can then use an algorithm such as (terrain height > robot height) to detect if any obstacle is deemed as “unpassable”. 
+	We can incorporate the following obstacle information gathered into the A* algorithm by adjusting the cost to visit that node to make it an undesirable path, and then we will mark the grid that the terrain is sitting on with anything that is easily recognizable (such as the color red), so the rover can easily tell which part is not accessible and use the A* algorithm to determine the best path. 
+
+2.2.3.5: Resource Consumption Predictive Analysis
+	As the rover is in operation data on the limited resources available to the crew and rover (oxygen, battery, etc.) will be collected to analyze rates of resource consumption as a function of time, distance traveled, and acceleration. A sequence-to-sequence model will be trained on the data collection to perform predictive analysis and predict the time remaining for the crew to complete the mission and the remaining distance the rover can travel given its current resources. The AI, a sequence-to-sequence model (an LSTM or LLM decoder), will predict data on variables for future timesteps. Our model will be trained on simulations in the DUST environment, using instances of multiple variables to perform time series forecasting. The model will also train on live data to improve its predictions and adapt to the patterns in the dataset. 
+We will account for the resources needed to get back to base in our calculations to determine if the rover will be able to complete the trip. If the resources required are greater than the resources currently available, we can stop the rover and alert the EVs.
+
+2.2.3.6: ML-Driven Task Queue
+The task system will be using a predefined queue, with tasks that will be considered before the mission to consider task priority and resource usage. The Pressurized Rover will have a list of tasks (their location signified by GeoPins) ready, listed based on priority and the ML task manager will predict how much oxygen will be used based on the distance and type of task. After considering battery consumption and time for completion of that task, will assign weights to each of the considerations, with the highest on the priority and oxygen requirements, followed by distance, time to complete the task, and battery consumption. Then, it will create an order for the EV to complete the tasks. After the ordered list has been created, a queue will be used to prioritize the order the astronaut must complete those mission objectives and will be sent over to the EV through LunarLink. After completing the task, the EV can press a button labeled “Done” to take that task off the queue and move on to the next task. 
+	
+2.2.3 LunarLink
+We will be using a system we call “LunarLink” to ensure that the EV and PR are able to communicate seamlessly, efficiently transfer data, and remain interoperable for the duration of all EVAs. LunarLink consists of a list of data points including locations of points of interest, EV biomedical data, alerts, and other relevant information to share between the EV and PR. These values are stored in a JSON file that updates these values based on TSS parameters passed to both EVs and the PR separately, and is sent to both the EV and PR on a regular cadence of 10 seconds. Using this format will allow both our team and our partner team to easily access and use the data in the PR and EV settings, and for the efficient powering of the shared systems described in Sections 2.2.1. 
+
+2.3 Concept of Operations
+Refer to Figure 6.
+2.3.1 Persistent Operations
+	During the mission, several essential background operations will be used to ensure the crew’s safety. One constant operation will be the live tracking of location data of the pressurized rover (PR) and astronauts (EVs). During the mission, the PR and EVs will broadcast their position data over 10-second intervals, so all systems are aware of the others’ location. The monitoring of EV locations will enable a “breadcrumb” feature. Similarly, each EV’s biomedical data will be broadcast, prioritizing the crew’s safety by alerting them of potential biomedical risks.
+	Another constant operation will be the monitoring and analysis of limited resources required to conduct the mission, such as oxygen and energy levels of the PR and EVs. An LSTM or LLM decoder model will perform a predictive analysis to forecast the amount of resources. To ensure redundancy and account for possible unexpected and erroneous model behavior, resources will also be estimated separately using simple equations consisting of the rates of change of the resources. If the resources are exhausted before the completion of an EVA or a specified timestamp, all crew members will be alerted and the mission tasks will be updated. Each system can perform an analysis of its remaining resources locally and broadcast any necessary status updates.
+
+2.3.2 Pressurized Rover Navigation
+Upon beginning the mission, the PR will be tasked with navigating to a designated worksite. The terrain and position data of the rover will be fetched through the PR-specific TSS and utilized by the navigation system to determine the best path for the rover to navigate. During this process, local terrain data around the PR will be analyzed by the hazard avoidance system and appropriately alert the EVs of any nearby hazards. 
+As the EVs navigate to the worksite, the PR’s resource data will be analyzed. The persistent resource predictive analysis will predict the remaining time and distance the PR can travel to determine turnaround points. In the case where the remaining resources available to the rover drop below a certain threshold, the PR will broadcast a signal to each crewmember notifying them that the PR must return to base.
+
+2.3.3 Egress
+Before the start of egress, the team inside the PR creates an unordered list of the tasks they need the EVs to accomplish. These tasks are ranked based on the priority provided an AI model will be used to sort the tasks based on their characteristics, before sending them to the EVs through LunarLink. Egress procedures will be pushed to the top of the queue before the EV begins egress, and Ingress procedures will be added to the end. At the start of egress, EV task data will be retrieved from the PR through the LunarLink. After the EV presses the “Task” button on the SD, the EV tasks will be displayed on the right side of the SD. This list will present a series of subtasks that will have previously been added to the queue. 
+While the EV looks at the UIA, the camera feed will be taken from the camera on the Head Mounted Display, and be displayed on the HMD as well. Highlighting the relevant components to complete a task in easily distinguishable colors as the EV goes through the tasks lessens the cognitive load. Refer to Figure 5.
+An example of this procedure is the task “Close Supply”. When the task is at the top of the list, the supply switch will be highlighted in a bright green box on the HMD, and the task listed on the SD will be highlighted in green too, indicating that the task is active. When the supply switch is flipped to ‘Close,’ the EV-specific TSS will verify that given the boolean (true/false) values for the UIA. Once this has been verified, the task is completed, and is no longer active, so the “Close Supply” task disappears on the SD, and turns to red on the HMD, signifying that the task is complete. In its place, a new task will be highlighted in green on both the SD and HMD until the Egress Procedure is complete. For each task the EV begins, a timer script will run, and once the EV’s task concludes, the script ends and sends the completion time and the time difference between the end and start of the task to the PR via LunarLink.
+
+2.3.4 EV Navigation
+	After completing all egress tasks, the EVs will be directed to locations of interest through the navigation system, providing the EV with the shortest path to their destination. A minimap showing the locations of other EVs, locations of interest, and any other relevant geographic pins will be displayed on each EV’s spacesuit display, centered on their location. Different recognizable symbols such as pins and triangles will be used to allow each element displayed on the minimap to be easily identifiable. Within the mobile LMCC, a map displaying all relevant information within the entire worksite will be displayed  If the mission necessitates a new task to be completed, the mobile LMCC can mark the task site with a geographic pin and update the minimap of the EV in addition to pushing the task data to their display.
+	As the EV navigates through the work site, the navigation system will work in conjunction with the persistent resource predictive analysis to determine how far the EV will be able to travel. In the case where the EV’s resources drop below a certain threshold, they will be alerted that they must return to the PR to ensure their safety. In the occurrence that an EV is alerted to return, they will broadcast that information, alerting other crew members.
+
+2.3.5 Geological Sampling
+	Once the EV reaches the site of interest at the worksite or identifies a sample of interest, the EV will use the spacesuit display device to record an image or photograph of the site to be available to be sent to the mobile LMCC and evaluated. If the EV identifies a sample of interest to be collected with the XRF spectrometer they can begin the process at the location if appropriate, upon which both the spacesuit display and mobile LMCC will notify crewmembers that a sample is being recorded.
+Upon completion of  XRF spectroscopy, both the spacesuit display and mobile LMCC will notify the crew that the sample has been successfully collected. The geological data will then be shortly displayed on the mobile LMCC for confirmation, and saved to the system.
+
+2.3.6 Ingress
+As tasks will be considered before the EVA begins to consider resource usage, all EVAs will by default have an Egress Procedure moved to the front of the task queue, and an Ingress Procedure added to the back of the task queue. After the astronaut completes their mission objectives, they can press the Navigation button on their SD, and press “Breadcrumb Toggle” to render a breadcrumbs path that will lead the EV back to the PR. As we want to prioritize edge computing and astronaut autonomy, this path data will have been saved and retrieved from the SD’s cache. Location data of the PR will be sent to the EV-specific TSS, to verify that the PR has not moved from its original location, or if the PR does eventually need to move in the case of an EV emergency, pinging the PR’s location data would help the EV’s navigation system chart a course towards it. Visual markers on the HMD and task lists on the SD will be displayed and the Ingress subtasks will closely follow the Egress procedure described in Section 2.3.3.
+
+2.4 Human-in-the-Loop (HITL) Testing
+	We intend to start development on either the PR or SD in January 2025, using the remainder of the time until then to develop the technical skills of the project’s team members, especially in regards to Artificial Intelligence and App Development.
+In a testing environment like that of SUITS, given the interoperability requirements, it is infeasible to develop singular features over the course of a few months and expect seamless data transfer between the two teams. Therefore, we will be basing our HITL Testing schedule on the Scrum methodology, allowing our team to plan, develop, and test specific features and analyze progress and expectations, which will feed into planning for the next sprint cycle. With this, we can ensure that our team continually improves on our product while remaining adaptable to any changes in the process.
+	For the PR or SD, we will conduct a bi-weekly testing schedule, allowing our development progress to be faithfully tested in an appropriate environment at several stages of development. We intend to test interoperability features, which will require collaboration with the collaborating team, which we will do every two weeks. For the majority of these tests, we intend to conduct them during our intended testing schedule using software developed by both teams. We plan to maintain a flexible schedule when developing and testing interoperability features to allow for a smoother and more productive collaborative development process.
+We have written a HITL Test schedule for both the PR and the SD to prepare for either. Scheduling a set meeting time with the other team will help both of us avoid potential setbacks that may arise when trying to integrate both systems down the line.
+
+2.4.1 Spacesuit Display Testing Schedule
+HITL Test 1: January 26th, 2025: We will test our software’s ability to retrieve relevant data from the Spacesuit Display TSS stream, and store the data such that it can be easily processed, displayed, and sent to our other systems. We will also begin developing the framework to develop a tablet application to serve as our Spacesuit Display.
+	HITL Test 2: February 9th, 2024: We will test the ability to render all the relevant software on the Space Suit Display, including any information panels, tasks, and minimap with live location tracking. We also intend to begin the development of interoperability features, developing the gateway in conjunction with our partner team to send TSS stream data and task data between the Pressurized Rover and Spacesuit Display to collect data relevant to our persistent operations, such as the EV’s location and biomedical data.
+	HITL Test 3: February 23rd, 2025: We will test the navigation system to ensure the shortest path between two points given some topographical data can be determined and displayed to the Spacesuit Display for easy navigation. We will also develop task data representative of the Egress and Ingress procedures to test the Spacesuit Display’s ability to properly display the immediate task/.
+	HITL Test 4: March 9th, 2025: We will test the Spacesuit Display’s ability to properly collect and display incoming data from the EV TSS stream, including live position tracking and biomedical data displayed on information panels. We will also test our predictive analysis’ ability to make accurate predictions of the remaining time and distance the EV can navigate during the EV navigation and geological sampling stage. We will also test our hazard detection software, testing both computer vision and the possible implementation of LiDAR to account for SUITS testing occurring in low-light conditions. 
+	HITL Test 5: March 23rd, 2025: We will test the SD during the geological sampling stage to ensure it properly notifies the EV when a sample begins and finishes being collected, and sends all relevant data to the Pressurized Rover. We will also test our software’s ability to make accurate predictions when identifying turnaround points during the EV navigation stage.
+	HITL Test 6: April 6th, 2025: We will test our software's ability to properly receive and display data during the Ingress procedure, similarly to the Egress procedure. We will also conduct a comprehensive test of the SD during the navigation and geological sampling stage to ensure it can properly navigate around the worksite.
+	HITL Test 7-10: April 20th, May 4th, May 1st, 2025: During the remaining time until the testing date, we will perform comprehensive tests of every operation to ensure systems can work together. Additionally, we intend to conduct collaborative tests with our partner team to ensure we can complete all the mission tasks functioning as one team.
+
+2.4.2 Pressurized Rover Testing Schedule
+	HITL Test 1: January 26th, 2025: We will test our software’s ability to retrieve relevant data from the PR TSS stream, and store the data such that it can be easily processed, displayed, and sent to our other systems. We will also evaluate our team’s ability to develop software compatible with the DUST environment and develop a simulated rover.
+	HITL Test 2: February 9th, 2025: We will test the ability to render all the relevant software on the Rover display, including any information panels, tasks, and minimap with live location tracking. We also intend to begin the development of interoperability features, developing the gateway in conjunction with our partner team to send TSS stream data and task data between the PR and SD to collect data relevant to our persistent operations, such as the EV’s location and biomedical data. We will also begin testing any computer vision implementation using the Pressurized Rover camera.
+	HITL Test 3: February 23rd, 2025: We will test the navigation system to ensure the shortest path between two points in the DUST environment can be determined and displayed to the Pressurized Rover display for easy navigation. We will also develop task data representative of the Egress and Ingress procedures to be sent between the PR and SD and ensure it can be properly sent between the two systems during Egress.
+	HITL Test 4: March 9th, 2025: We will test the Rover’s ability to properly collect and display incoming data from the EV TSS stream, including live position tracking and biomedical data displayed on information panels. We will also test our predictive analysis’ ability to make accurate predictions of the remaining time and distance the rover can travel during the PR navigation stage. We will also test our hazard detection software, utilizing both computer vision and an analysis of the DUST environment appropriate to mission conditions. 
+	HITL Test 5: March 23rd, 2025: We will test the PR’s display during the geological sampling stage to ensure it properly notifies the crew when a sample begins and finishes being collected, and displays any relevant data. We will also test our software’s ability to make accurate predictions when identifying turnaround points during the navigation stage.
+	HITL Test 6: April 6th, 2025: We will test our software's ability to properly send data to the Spacesuit Display during the Ingress procedure, similarly to the Egress procedure. We will also conduct a comprehensive test of the PR during the navigation stage to ensure it can properly navigate from the starting location of the worksite.
+	HITL Test 7-10: April 20th, May 4th, May 11th, 2025: During the remaining time until the testing date, we will perform comprehensive tests of every operation to ensure systems can work together. Additionally, we intend to conduct collaborative tests with our partner team to ensure we can complete all the mission tasks functioning as one team. 
+
+2.5 Project Management 
+2.5.1 Development Schedule
+	Within the first two weeks, by January 26th, we intend to have our team largely work together to develop the foundation of the project. Once this foundation has been laid, we intend to develop features of the project in parallel to allow for a more efficient development process. Throughout the scrum-based development cycle, we intend to have group members continue to meet in person to collaborate on specific tasks, following a weekly sprint cycle.
+	In order to allow for a smoother collaborative development process with our partner team, we intend to work with them earlier to develop the framework through which we will send data received from the TSS stream between systems and standardize the identification of all data. As the project progresses, we intend to remain flexible when scheduling tests of interoperability between systems.
+
+2.5.2 Team Divisions
+	As seen in the list of group members each member has a listed role in development, which primarily group members into frontend or backend development. We intend to use this distinction to divide the early work of our project, laying the foundations for most of our features to be developed that encompass the scope of the whole project.
+	Once the development of features for either the PR or SD becomes more specific, members will divide instead into groups to develop individual features. Our group has a diverse range of experience in developing projects for both engineering and scientific applications, and we intend to allow students to tackle features that will best allow them to leverage their experience when possible.
+
+2.6 Technical References
+
+Ziv, S. (2016). A 3D printed wrist-mounted cell phone case. Dream the Impossible Dream. http://scottziv.com/a-3d-printed-wrist-mounted-cell-phone-case/
+Bai, J. H., & Oh, Y.-J. (2020). Global Path Planning of Lunar Rover Under Static and Dynamic Constraints. International Journal of Aeronautical and Space Sciences, 21(4), 1105–1113. https://doi.org/10.1007/s42405-020-00262-x 
+Horkin, C., & Tieto, V. (2022, April 12). Managing power and thermals. Microsoft Ignite. https://learn.microsoft.com/en-us/windows/mixed-reality/develop/unity/managing-power-and-thermals
+3 Outreach Section
+
+3.1: Driving Principles 
+	Our team designed our events around three core themes: experiential learning, accessibility in STEM and space education, and inspiring space exploration. Experiential learning allows students to interact directly with technology through hands-on activities, making the experience memorable and inspiring further learning. We are also dedicated to making STEM and space education accessible to all, creating inclusive environments where students from diverse backgrounds can engage with technology and tackle engineering challenges. By partnering with large-scale events, we aim to inspire the next generation of innovators from all walks of life. Lastly, we believe space exploration should be accessible to everyone. Ultimately, our goal is for the general public to enjoy the wonders of space and the following events have been designed to achieve this principle. This idea is best summed up in Ray Bradbury's quote about the Apollo missions when he says that space travel is “our modern version of cathedral building.”
+
+3.2 Event 1: Project Demo and Coding Challenge at Indiana State VEX Robotics Tournament
+STEM education is crucial for promoting children’s innovation, critical thinking, logical reasoning, and problem-solving skills. VEX Robotics is a program that does incredible work in STEM education. The Indiana State Robotics Tournament is the largest state VEX robotics tournament in the country. Historically the attendance at this tournament is on the order of magnitude of 10,000 people including 1,600 student competitors [1]. The tournament will be held on Saturday, March 22, 2025, at the Indiana State Fairgrounds. This tournament is hosted by TechPoint Foundation for Youth, which is committed to equal access to the VEX program throughout Indiana. 
+Our demonstration at this event will consist of SUITS technology developed by our team, to allow the tournament attendants to test the innovative technology while learning about the Artemis mission. In addition to the demonstration, there will be space-themed coding challenges in the programming environments similar to those in the VEX environment. Our demonstration will take place concurrently with the Indiana State Robotics Tournament. The audience will be composed of K-12 class or school groups, specifically VEX competitors and their families. We expect the most engagement to come from our targeted audience: the students competing in the tournament. Please refer to Section 4.6 for the letter of approval regarding the use of space during the tournament.  
+	Throughout the tournament, attendees can approach a table hosted by the team lead and other team members, with the occasional help from two members of our team who are frequent volunteers in the VEX community. The table will consist of two retractable banners, one with information about the Artemis mission and one about the JARVIS team and the SUITS competition. On the table, there will be peripherals used for our interface and a monitor set up to display the code challenges. The code challenges will be in Scratch to be comparable to VEXcode Block and C will be used for students who use VEXcode Text which is in C++. The challenge will be based on the classic computer science puzzle, Tower of Hanoi, with an interstellar theme. The student is operating an unmanned aerial vehicle to move modules of a lunar habitat but must keep the same order restrictions. There will be three modules, so the younger kids can hard code a solution. Some high school teams that use complex tracking algorithms might be able to solve a more general solution. When a guest approaches the table they will be greeted by a team member who will talk about the team and Artemis' mission before inviting them to try the code challenge or test our project. Team members will be assigned to the code and demonstration activities to help them from there. The table will be staffed throughout the event from 7:30 am to 4 pm EST. We have created a coding challenge writing the block code which is done and we are working on the C project for this event, but to follow the proposal guidelines, we have omitted the link. 
+
+3.3 Event 2: Lunar Lift-Off: Engineering for the Future 
+Lean manufacturing is important for increasing economic productivity and introducing innovative technologies. For manufacturers, optimizing the processes required to produce a product is a major competitive advantage because it reduces lead time and cost. Reducing manufacturing processes is a major study in the field of industrial engineering because it can allow new technologies to become more commercially feasible.  
+	This event will start with a short program about the Artemis Program’s manufacturing challenges. We will discuss cutting-edge technologies such as friction welding, tire design, and directed energy deposition additive manufacturing developed for space exploration. After discussing manufacturing we will explain its relevance to the SUITS challenge and similar NASA developments.
+	Next, the paper airplane competition will start, with the teams’ first challenge being to maximize flight distance. Who can make the airplane that goes the farthest? This will be an analogy to engineering next-generation technologies to push limits. The teams will have ten minutes to design and test their paper airplanes before they must demonstrate their final product. The second test is an analogy of limiting processes to meet manufacturing constants. Every team member can only make one fold before passing the airplane to the next person. This challenge will be scored on how many paper airplanes each team can make and throw over 15 feet. The winner will be decided based on combined rank; ties will be settled by doing the second challenge with a time limit of one minute. The winning team will be awarded a space-themed gift basket with wall and desk decorations. The budget for the gift basket is 200 dollars. The second and third-place teams will win stickers, pins, and other merchandise.  
+	This event is targeted at STEM majors. It will take place on January 21, 2025, and it will take place in a classroom in Delon and Elizabeth Hampton Hall of Civil Engineering. Around 50 people are expected to attend.  
+
+3.4 Event 3: Sustenance in Space: Satisfying Astronauts’ Appetites 
+	Countless innovative technologies have come out of NASA’s space program, many of which become repurposed into commercial products. One such technology is modern freeze-dried food. Freeze drying has been known for a long time but was not commercially viable or available until NASA developed an efficient method to create it. This discovery was made during space food research for the Apollo mission.
+	The plan for this event is to have a table on campus where students can come up and interact with the team. The team will be prepared with talking points related to everyday products that were created using technology developed for the space program. Such technologies would include but not be limited to phone cameras, Nike Airs, computer mice, and freeze-dried food. After that, the teammate would offer the student to try some freeze-dried Skittles from a local candy shop while talking about the food challenges Artemis faces.
+	This event will welcome an audience from a diverse range of majors. The target audience is non-STEM majors. Using free food to teach people about NASA who do not get to learn as much about the space program. The candies cost 9.50 dollars per 4 oz. We plan on buying 3 packages.  Each student will get four skittles. The event will happen on April 10, 2025, outside of the Wilmeth Active Learning Center. We expect to talk to around 100 students. 
+
+3.5 Event 4: Hour of Code: SKAO Data Analysis
+	The Square Kilometer Array Observatory (SKAO) is an ambitious project to create massive telescope arrays in Australia and South Africa. While construction is still being done on the actual array, the organization has published lots of tools to simulate the arrays in code. For this event, we will explain the purpose of the SKAO project and give an introduction to modern astronomy tools like NASA’s James Webb Space Telescope. Then, we will walk participants through the code needed to simulate the SKAO and the tools to analyze the data.  
+	For the coding portion, we will start by explaining how to use the tools in the  ska_ost_array_config and astroPy Python packages. These packages are cool projects with a ton of tools.  After we go through some of the modeling tools in astroPy we will have a code walkthrough to simulate observation from the SKAO telescope arrays. The simulations will be based on the SKAO’s libraries documentation found here: https://www.dropbox.com/scl/fi/w4xgz00uvfsbyky6l2ij3/SKAO-TEL-0002299_03_staged_delivery.pdf?rlkey=ajb92nxi4g7hdqjpoqw817qmr&e=1&st=g87zar7j&dl=0. Here, the code simulates a telescope array and a sky and then processes the data and plots the results. While going through the code we will explain the astronomy principles needed to understand the physical meaning of the code.
+	The outreach audience for this event is undergraduate engineering majors with an emphasis on aerospace engineers. The event will take place in a classroom inside the Neil Armstrong Hall of Engineering on Friday, May 2nd, 2025, from 7 PM to 8 PM EST. We expect about 50 people at this event.
+
+3.6 Press, Advertisement, and Marketing
+Our outreach events will be primarily advertised through the Instagram and Linkedin pages of our student organization– SEARCH of Purdue, so we can reach out to students with a vast array of majors and interests. Through this club, we have invited notable speakers who have worked at NASA JPL, such as Dr. Slava Turyshev, NASA Marshall Flight Center, such as John Dankanich, and SETI, such as Dr. Wael Farah. Student clubs at Purdue University can also utilize departmental mailing lists, which we will be utilizing to send emails to students in majors related to the subject matters we are discussing, such as aerospace engineering, industrial engineering, physics, computer science, and nutrition science, to name a few. In this same vein, we have previously reached out to professors in related subjects if we can advertise our events in their classes, and will do the same in the upcoming year to advertise these events. Additionally, we will design and hang flyers in various residence halls, dining halls, and other departmental buildings to advertise our events.
+	Regarding press at our events, TechPoint Foundation for Youth (the organization hosting the Indiana State VEX Robotics Tournament) will have photographers who publish the images two weeks after the competition. At the other events, we will take our own photos and will make posts on SEARCH of Purdue’s Instagram and Linkedin platforms. 
+
+4 Admin Section 
+4.1 Institutional Letter of Endorsement
+
+4.2 Statement of Supervising Faculty
+
+
+4.3 Statement of Rights of Use
+
+As a team member for a proposal entitled “JARVIS: Just a Rather Vital Interface System” proposed by a team of higher education students from Purdue University, I will and hereby do grant the U.S. Government a royalty-free, nonexclusive and irrevocable license to use, reproduce, distribute (including distribution by transmission) to the public, perform publicly, prepare derivative works, and display publicly, any technical data contained in this proposal in whole or in part and any manner for federal purposes and to have or permit others to do so for federal purposes only. Further, with respect to all computer software designated by NASA to be released as open-source which is first produced or delivered under this proposal and subsequent collaboration, if selected, shall be delivered with unlimited and unrestricted rights to permit further distribution as open source. For purposes of defining the rights in such computer software, “computer software” shall include source codes, object codes, executables, ancillary files, and any and all documentation related to any computer program or similar set of instructions delivered in association with this collaboration. As a team member for a proposal entitled “JARVIS: Just a Rather Vital Interface System” proposed by a team of higher education students from Purdue University and Indiana State University, I will and hereby do grant the U.S. Government a nonexclusive, nontransferable, irrevocable, paid-up license to practice or have practiced for or on behalf of the United States Government any invention described or made part of this proposal throughout the world. 
+
+4.4 Funding and Budget Statement 
+
+Items
+Costs
+Details
+Outreach Costs
+$1,400
+Cost of 1-4 outreach events
+Hotels
+$1200
+Cost for 2 hotel rooms
+Daily Allowance
+$800
+Assumes $25 per day per person for 4 days
+Flights to Houston
+$4800
+$600 per person
+Total Funds
+$8200
+
+
+
+
+	Team JARVIS is participating in the NASA SUITS Challenge through the Space & Earth Analogs Research Chapter (SEARCH) of Purdue, the student organization of which our team are members. Last year, SEARCH received about $12,000 in funding for Team JARVIS from the Computer Science Department, which we will be working with again this year. However, should the Computer Science Department not be able to fund NASA SUITS fully year SEARCH has been awarded a plethora of grants from the Student Fee Advisory Board, the Indiana Space Grant Consortium, and the Aeronautics and Astronautics Department that we can also count on for this project. Additionally, SEARCH will hold fundraising events such as Purdue’s College of Engineering Crowdfunding campaign to help raise money for our events and travel to Houston.
+
+4.5 HoloLens 2 Loan Program
+We have a device but would still like you to consider us for a loan to aid in our development.
+4.6 Approval of Demo at Indiana State VEX Robotics Tournament
+
+
+5 Bibliography
+
+Sridhar, Sarrvesh Seethapuram, 2024, SKAO staged delivery, array assemblies and layouts, 
+Telescopes | SKAO. (n.d.). Www.skao.int. https://www.skao.int/en/explore/telescopes
+
+
+
+6 Appendix
+
+
+
+Figure 2: This is an example of a 3D-printed Wrist-Mounted tablet that will hold our Spacesuit Display and ensure the EV will be able to conduct their EVA hands-free. 
+
+
+Figure 3: Example of AI sorting the tasks to create the most ‘optimal’ task order to complete given task priority, oxygen consumption, estimated time to completion, and battery consumption, as well as the EV’s current location. 
+
+
+Figure 4: On activation, the earpiece will record the astronaut’s speech-to-text for the Large Language Model (LLM). The LLM will take that text, retrieve relevant chunks from its vector database, and output a response. The output will then be translated into a coherent sentence using a text-to-speech converter.
+
+	
+Figure 5: This figure shows an example of our CV-based UIA Component Detection, which will take camera input from the Head Mounted Display as well as TSS input to highlight the switches that the astronaut needs to switch. 
+
+
+Figure 6: Flowchart including Operations, Features, and Persistent Features for the full CONOPS procedure. This procedure starts with the Pressurized Rover (PR) navigating a certain direction and distance. When it reaches its destination both EVs begin Egress, Navigation, and conducting tasks such as Geological Sampling. Then the EVs navigate back to the PR before ending with Ingress. Features found in the PR and SD are listed, and features that are employed by both systems (Persistent Features) are also mentioned. 
+
+
+Figure 7: This is an example of how our mathematical model will calculate the turnaround points using an ellipse with the foci being the PR and the EV. As the EV spends more time doing tasks, the ellipse shrinks, representing the decrease in resources such as oxygen and power available, as well as a decrease in the maximum turnaround point over time. 
+https://drive.google.com/file/d/1c2QpkZjfoDx9J10G2C52B5x3cSRPqNsr/view?usp=sharing 

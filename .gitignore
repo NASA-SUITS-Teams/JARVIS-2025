@@ -2,7 +2,6 @@
 .venv/
 __pycache__/
 vectorstore/
-LLM/documents/
 LLM/models/
 LLM/metrics/results/
 
