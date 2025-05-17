@@ -1,5 +1,8 @@
-# main.py
-from lidar_utils import process_lidar_readings
+# set root path to parent folder to access other modules
+import sys
+sys.path.append("..")
+
+from LIDAR.lidar_utils import process_lidar_readings
 
 import numpy as np
 import math
@@ -35,9 +38,10 @@ def process_lidar(floats, position):
         print("Error: LiDAR data contains NaN.")
         return None
     
-    if any(x < 0 for x in position):
-        print("Error: Invalid position data")
-        return None
+    # Note by Conor: I had to comment this out because the rover position is always negative based on the coordinates provided
+    #if any(x < 0 for x in position):
+        #print("Error: Invalid position data")
+        #return None
 
     rover_angle = (
         math.radians(roll),
@@ -52,7 +56,7 @@ def process_lidar(floats, position):
     return process_lidar_readings(floats, rover_position, tuple(rover_angle))
 
 if __name__ == '__main__':
-    floats = [1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8, 9.9, -1.0, -1.0, -1.0 -1.0, -1.0]
+    floats = [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0 -1.0, -1.0]
     position  = [0, 0, 0, 0, 0, 0]
     print(floats, position)
     print(process_lidar(floats, position))

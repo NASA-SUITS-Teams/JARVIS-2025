@@ -1,14 +1,16 @@
 import sys
 import socket
+import time
 import numpy as np
 import matplotlib.pyplot as plt
-import pathfinding
 from matplotlib.animation import FuncAnimation
 
-# input lidar directory
-lidar_dir = "./LIDAR"
-sys.path.insert(0, lidar_dir)
-import lidar_processer
+# set root path to parent folder to access other modules
+import sys
+sys.path.append("..")
+
+from Backend.tss import convert_tss_for_lidar
+from LIDAR import lidar_processer
 
 # socket
 clientSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -17,6 +19,7 @@ clientSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 xmin, xmax = -6550, -5450
 ymin, ymax = -10450, -9750
 z_sum = np.zeros((xmax - xmin, ymax - ymin))    # sum of all collected z values
+z_avg = 0
 count = np.zeros((xmax - xmin, ymax - ymin))    # 
 terrain = np.zeros((xmax - xmin, ymax - ymin))
 
@@ -51,8 +54,8 @@ def animate(_):
     img.set_clim(vmin=0, vmax=np.max(avg_grid))  # dynamic color scaling
     return [img]
 
-# initialization
-initial_points = lidar_processer.process_lidar(clientSocket)
+# initialization to set up the grid, using default LIDAR and telemtry values
+initial_points = lidar_processer.process_lidar([-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0 -1.0, -1.0], [0, 0, 0, 0, 0, 0])
 for point in initial_points:
     z_avg += point[2]
 
@@ -60,8 +63,9 @@ z_avg /= len(initial_points)
 
 # loop
 while True:
-    # collect points
-    points = lidar_processer.process_lidar(clientSocket)
+    lidar, position = convert_tss_for_lidar()
+
+    points = lidar_processer.process_lidar(lidar, position)
     print(points)
     
     # update terrain
@@ -71,6 +75,8 @@ while True:
     
     # write terrain to terrain.txt
     np.savetxt("terrain.txt", terrain, fmt="%f", delimiter=",")
+
+    time.sleep(5)  # Process new lidar data every 5 seconds
 
     """
     ani = FuncAnimation(fig, animate, interval=500)  # update every 0.5 seconds
