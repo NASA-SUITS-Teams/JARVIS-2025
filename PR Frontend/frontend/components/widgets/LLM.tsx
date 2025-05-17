@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
-import { Terminal, Music4Icon, Send, Trash2 } from "lucide-react";
+import { Terminal, Music4Icon, Send, Trash2, Pencil } from "lucide-react";
 import { askLLM, syncFromBackend, syncToBackend } from "@/hooks/useLLM";
 
 export default function LLMWidget() {
@@ -130,6 +130,20 @@ export default function LLMWidget() {
     setMessages([]);
   }
 
+  const handleEdit = (index: number) => {
+    const edited = prompt('Edit the message:', messages[index].content);
+    if (edited !== null) {
+      const newMessages = [...messages];
+      newMessages[index].content = edited.trim();
+      setMessages(newMessages);
+    }
+  };
+
+  const handleDelete = (index: number) => {
+    const newMessages = messages.filter((_, i) => i !== index);
+    setMessages(newMessages);
+  };
+
 
   const containerRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -160,7 +174,7 @@ export default function LLMWidget() {
 
       <div className="ml-auto flex items-center space-x-2">
         <button
-          onClick={clearMessages}
+          onDoubleClick={clearMessages}
           className="text-red-400 hover:text-red-500 p-1 rounded hover:bg-gray-800
           flex-1 flex items-center justify-center px-3 py-2 rounded-md border text-sm text-white font-medium disabled:opacity-50"
           title="Clear Messages"
@@ -174,11 +188,24 @@ export default function LLMWidget() {
         {messages.map((msg, index) => (
           <div
             key={index}
-            className={`p-2 rounded-md max-w-[80%] text-sm ${msg.role === 'user'
-                ? 'bg-gray-700 text-white ml-auto'
-                : 'bg-blue-600 text-white mr-auto'
+            className={`group relative p-2 rounded-md max-w-[80%] text-sm ${msg.role === 'user'
+              ? 'bg-gray-700 text-white ml-auto'
+              : 'bg-blue-600 text-white mr-auto'
               }`}
           >
+
+            {/* Action buttons */}
+            <div className="absolute top-1 right-1 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              <button onDoubleClick={() => handleEdit(index)} className="text-gray-300 hover:text-yellow-300 p-1 rounded hover:bg-black/10" title="Edit message">
+                <Pencil size={14} />
+              </button>
+              <button onDoubleClick={() => handleDelete(index)} className="text-gray-300 hover:text-red-400 p-1 rounded hover:bg-black/10" title="Delete message">
+                <Trash2 size={14} />
+              </button>
+            </div>
+
+
+            {/* Message content */}
             <span className="font-bold">
               {msg.role === 'user' ? 'User: ' : 'Jarvis: '}
             </span>
@@ -189,6 +216,8 @@ export default function LLMWidget() {
         ))}
         <div ref={bottomRef} />
       </div>
+
+
 
       {/* Input Textbox */}
       <textarea
