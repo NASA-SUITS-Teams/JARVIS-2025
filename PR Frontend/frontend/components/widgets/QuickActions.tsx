@@ -19,7 +19,7 @@ export default function QuickActions({ setAddPinClicked, addPinClicked }) {
               : "bg-blue-900/50 hover:bg-blue-800/50 border border-blue-600"
           } rounded-md flex flex-col items-center`}
           onClick={() => {
-            setAddPinClicked(true);
+            setAddPinClicked(!addPinClicked);
           }}
         >
           <AlertCircle size={16} className="mb-1" />
