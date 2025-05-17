@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
@@ -38,8 +38,16 @@ export default function LLMWidget() {
     SpeechRecognition.stopListening();
   };
 
+  const [messages, setMessages] = useState<{ sender: 'user' | 'assistant'; content: string }[]>([]);
+
+
   const handleSend = async () => {
-    setResponse("");
+    const userMessage = editableTranscript.trim();
+    if (!userMessage) return;
+
+    setEditableTranscript("");
+
+    setMessages((prev) => [...prev, { sender: 'user', content: userMessage }]);
 
     const request: LLMRequest = {
       input: editableTranscript,
@@ -48,30 +56,52 @@ export default function LLMWidget() {
       enable_tools: false,
     };
 
+    setMessages((prev) => [...prev, { sender: 'assistant', content: "" }]);
+
+    console.log("made request")
     try {
       await askLLM(request, (chunk) => {
         try {
           const partial: Partial<LLMResponse> = JSON.parse(chunk);
-          if (partial.is_thinking) {
-            setResponse("Thinking...")
-          } else{
-            setResponse((prev) => {
-              const response = partial.response ?? "";
+          const text = partial.response ?? "";
 
-              if (prev === "Thinking...") {
-                return response;
+          setMessages((prevMessages) => {
+            const messages = [...prevMessages];
+            const lastIndex = messages.length - 1;
+            const lastMessage = messages[lastIndex];
+
+            let updatedMessage;
+
+            if (partial.is_thinking) {
+              updatedMessage = {
+                ...lastMessage,
+                content: "Thinking..."
+              };
+            } else {
+              if (lastMessage.content === "Thinking...") {
+                lastMessage.content = "";
               }
 
-              return prev + response;
-            });
-          }
+              updatedMessage = {
+                ...lastMessage,
+                content: lastMessage.content + text,
+              };
+            }
+            messages[lastIndex] = updatedMessage;
+
+            return messages;
+          });
+
         } catch (err) {
-          console.warn("Non-JSON chunk or incomplete JSON:", chunk);
+          console.warn("Invalid JSON chunk:", chunk);
         }
       });
     } catch (error) {
       console.error("LLM error:", error);
-      setResponse("There was an error processing your request.");
+      setMessages((prev) => [
+        ...prev,
+        { sender: 'assistant', content: "There was an error processing your request." },
+      ]);
     }
   };
 
@@ -93,20 +123,19 @@ export default function LLMWidget() {
         <span className="font-bold">LLM INTERFACE</span>
       </div>
 
-      {/* Main content area (chat history + input) */}
-      <div className="flex-1 p-2 flex flex-col overflow-hidden space-y-2">
-        {/* Chat history scrollable area */}
-        <div className="flex-1 overflow-y-auto space-y-3 pr-1">
-          {/* Example chat message blocks (can be dynamically rendered) */}
-          {/* Replace these with mapped chat messages later */}
-          <div className="p-2 rounded-md bg-gray-700 text-white w-fit self-start max-w-[80%] text-sm">
-            User
+      <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+        {messages.map((msg, index) => (
+          <div
+            key={index}
+            className={`p-2 rounded-md max-w-[80%] text-sm ${
+              msg.sender === 'user'
+                ? 'bg-gray-700 text-white self-start'
+                : 'bg-blue-600 text-white self-end'
+            }`}
+          >
+            {msg.content}
           </div>
-          <div className="p-2 rounded-md bg-blue-600 text-white w-fit self-end max-w-[80%] text-sm">
-            Assistant
-          </div>
-          {/* Empty at first */}
-        </div>
+        ))}
       </div>
 
       {/* Input Textbox */}
