@@ -86,8 +86,25 @@ chatbot = ChatBot(model="qwen3:4b-q8_0", use_rag=False, use_tools=False)
 # @TODO add routes for LLM
 @app.route('/llm_response_stream', methods=['POST'])
 def stream_response():
-    data = request.get_json()
-    prompt = data.get("transcript")
+    data = request.get_json()["request"]
+    prompt = data.get("input")
+
+#    return jsonify({
+#        "is_thinking": False,
+#        "is_done": True,
+#        "response": chatbot.get_response_stream(prompt, just_print=False),
+#    }), 200
+
+    def generate():
+        for chunk in chatbot.get_response_stream(prompt, just_print=False):
+            yield json.dumps({
+                "is_thinking": False,
+                "is_done": False,
+                "response": chunk
+            }) + "\n"
+            time.sleep(0.1)
+
+    return Response(stream_with_context(generate()))
 
     def generate():
         try:
@@ -96,7 +113,7 @@ def stream_response():
         except Exception as e:
             yield f"data: {json.dumps({'error': str(e)})}\n\n"
 
-    return Response(stream_with_context(generate()), mimetype="text/event-stream")
+    return Response(stream_with_context(generate()))
 
 
 # Update all TSS data every 10 seconds
