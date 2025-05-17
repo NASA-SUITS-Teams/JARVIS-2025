@@ -106,6 +106,16 @@ export default function LLMWidget() {
   };
 
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (containerRef.current && bottomRef.current) {
+      containerRef.current.scrollTop = bottomRef.current.offsetTop;
+    }
+  }, [messages]);
+
+
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -123,19 +133,22 @@ export default function LLMWidget() {
         <span className="font-bold">LLM INTERFACE</span>
       </div>
 
-      <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+      <div className="flex-1 overflow-y-auto space-y-3 pr-1" ref={containerRef}>
         {messages.map((msg, index) => (
           <div
             key={index}
-            className={`p-2 rounded-md max-w-[80%] text-sm ${
-              msg.sender === 'user'
-                ? 'bg-gray-700 text-white self-start'
-                : 'bg-blue-600 text-white self-end'
-            }`}
+            className={`p-2 rounded-md max-w-[80%] text-sm ${msg.sender === 'user'
+                ? 'bg-gray-700 text-white ml-auto'
+                : 'bg-blue-600 text-white mr-auto'
+              }`}
           >
+            <span className="font-bold">
+              {msg.sender === 'user' ? 'User: ' : 'Jarvis: '}
+            </span>
             {msg.content}
           </div>
         ))}
+        <div ref={bottomRef} />
       </div>
 
       {/* Input Textbox */}
