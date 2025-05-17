@@ -1,12 +1,10 @@
 import { PRTelemetry, EVATelemetry, Alert } from "@/types/api";
 
-const STORAGE_KEY = "alertStartTimes";
-
 // Load any persisted timestamps
 function loadStartTimes(): Record<string, number> {
   if (typeof window === "undefined") return {};
   try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+    return JSON.parse(localStorage.getItem("alertStartTimes") || "{}");
   } catch {
     return {};
   }
@@ -16,7 +14,7 @@ function loadStartTimes(): Record<string, number> {
 function saveStartTimes(times: Record<string, number>) {
   if (typeof window === "undefined") return;
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(times));
+    localStorage.setItem("alertStartTimes", JSON.stringify(times));
   } catch {
     // ignore for now
   }
@@ -72,7 +70,8 @@ const alertStartTimes: Record<string, number> = loadStartTimes();
 function computeAlerts(
   telemetry: Record<string, any>,
   thresholds: Record<string, [number, number]>,
-  label: string
+  label: string,
+  elapsedTime: number
 ): Alert[] {
   const now = Date.now();
   const out: Alert[] = [];
@@ -87,7 +86,7 @@ function computeAlerts(
     const uniqueKey = `${label}:${key}`;
 
     // start timer if first seen
-    if (!(uniqueKey in alertStartTimes)) {
+    if (!(uniqueKey in alertStartTimes) || elapsedTime < 10) {
       alertStartTimes[uniqueKey] = now;
       saveStartTimes(alertStartTimes);
     }
@@ -128,20 +127,21 @@ function computeAlerts(
 }
 
 export function getAlerts(
-  prTelemetry: Partial<PRTelemetry>,
+  prTelemetry: PRTelemetry,
   evaTelemetryList: {
     eva1: EVATelemetry;
     eva2: EVATelemetry;
   }
 ): Alert[] {
   const all: Alert[] = [];
-  
+  const elapsedTime: number = prTelemetry.mission_elapsed_time || 0;
+
   // Rover
-  all.push(...computeAlerts(prTelemetry, ROVER_THRESHOLDS, "ROVER"));
+  all.push(...computeAlerts(prTelemetry, ROVER_THRESHOLDS, "ROVER", elapsedTime));
 
   // EVA1 and EVA2
-  all.push(...computeAlerts(evaTelemetryList.eva1, EVA_THRESHOLDS, "EVA1"));
-  all.push(...computeAlerts(evaTelemetryList.eva2, EVA_THRESHOLDS, "EVA2"));
+  all.push(...computeAlerts(evaTelemetryList.eva1, EVA_THRESHOLDS, "EVA1", elapsedTime));
+  all.push(...computeAlerts(evaTelemetryList.eva2, EVA_THRESHOLDS, "EVA2", elapsedTime));
 
   return all;
 }

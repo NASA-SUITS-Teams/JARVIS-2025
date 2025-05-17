@@ -1,4 +1,3 @@
-// components/Alerts.tsx
 import React, { useEffect, useState } from "react";
 import { Bell } from "lucide-react";
 import { getAlerts } from "@/utils/alerts";

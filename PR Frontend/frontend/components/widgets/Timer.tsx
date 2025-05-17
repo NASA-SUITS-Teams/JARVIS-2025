@@ -51,7 +51,7 @@ export default function Timer({ tssData }: { tssData: TSSData }) {
   return (
     <div className="flex flex-col h-full w-full bg-gray-800 rounded-lg border border-blue-600 shadow-lg overflow-hidden">
       <div className="flex items-center justify-between px-4 py-2 bg-gray-700 border-b border-blue-600">
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 drag-handle hover:cursor-move">
           <Clock size={18} className="text-blue-400" />
           <span className="font-bold">EVA Timer</span>
         </div>
