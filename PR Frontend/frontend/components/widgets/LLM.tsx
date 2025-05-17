@@ -3,7 +3,7 @@ import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
 import { Terminal, Music4Icon, Send } from "lucide-react";
-import { askLLM } from "@/hooks/useLLM";
+import { askLLM, syncFromBackend, syncToBackend } from "@/hooks/useLLM";
 
 export default function LLMWidget() {
   const [response, setResponse] = useState("");
@@ -38,16 +38,17 @@ export default function LLMWidget() {
     SpeechRecognition.stopListening();
   };
 
-  const [messages, setMessages] = useState<{ sender: 'user' | 'assistant'; content: string }[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
 
+  useEffect(() => {
+    syncFromBackend().then(setMessages);
+  }, []);
 
   const handleSend = async () => {
     const userMessage = editableTranscript.trim();
     if (!userMessage) return;
 
     setEditableTranscript("");
-
-    setMessages((prev) => [...prev, { sender: 'user', content: userMessage }]);
 
     const request: LLMRequest = {
       input: editableTranscript,
@@ -56,40 +57,39 @@ export default function LLMWidget() {
       enable_tools: false,
     };
 
-    setMessages((prev) => [...prev, { sender: 'assistant', content: "" }]);
+    setMessages((prev) => [...prev, { role: 'assistant', content: "" }]);
+    const updatedMessages = [
+      ...messages,
+      { role: 'user', content: userMessage },
+      { role: 'assistant', content: '' }
+    ];
 
-    console.log("made request")
+    setMessages(updatedMessages);
+
+    let assistantContent = "";
+
     try {
       await askLLM(request, (chunk) => {
         try {
           const partial: Partial<LLMResponse> = JSON.parse(chunk);
           const text = partial.response ?? "";
 
-          setMessages((prevMessages) => {
-            const messages = [...prevMessages];
-            const lastIndex = messages.length - 1;
-            const lastMessage = messages[lastIndex];
-
-            let updatedMessage;
-
-            if (partial.is_thinking) {
-              updatedMessage = {
-                ...lastMessage,
-                content: "Thinking..."
-              };
-            } else {
-              if (lastMessage.content === "Thinking...") {
-                lastMessage.content = "";
-              }
-
-              updatedMessage = {
-                ...lastMessage,
-                content: lastMessage.content + text,
-              };
+          if (partial.is_thinking) {
+            assistantContent = "Thinking...";
+          } else {
+            if (assistantContent === "Thinking...") {
+              assistantContent = "";
             }
-            messages[lastIndex] = updatedMessage;
+            assistantContent += text;
+          }
 
-            return messages;
+          setMessages((prev) => {
+            const updated = [...prev];
+            updated[updated.length - 1] = {
+              ...updated[updated.length - 1],
+              content: assistantContent
+            };
+            return updated;
           });
 
         } catch (err) {
@@ -98,11 +98,25 @@ export default function LLMWidget() {
       });
     } catch (error) {
       console.error("LLM error:", error);
-      setMessages((prev) => [
-        ...prev,
-        { sender: 'assistant', content: "There was an error processing your request." },
-      ]);
+      assistantContent = "Error: There was an error processing your request.";
+      setMessages((prev) => {
+        const updated = [...prev];
+        updated[updated.length - 1] = {
+          ...updated[updated.length - 1],
+          content: assistantContent
+        };
+        return updated;
+      });
     }
+
+    const finalMessages = [
+      ...messages,
+      { role: 'user', content: userMessage },
+      { role: 'assistant', content: assistantContent }
+    ];
+
+    syncToBackend(finalMessages);
+    //setMessages(finalMessages);
   };
 
 
@@ -137,13 +151,13 @@ export default function LLMWidget() {
         {messages.map((msg, index) => (
           <div
             key={index}
-            className={`p-2 rounded-md max-w-[80%] text-sm ${msg.sender === 'user'
+            className={`p-2 rounded-md max-w-[80%] text-sm ${msg.role === 'user'
                 ? 'bg-gray-700 text-white ml-auto'
                 : 'bg-blue-600 text-white mr-auto'
               }`}
           >
             <span className="font-bold">
-              {msg.sender === 'user' ? 'User: ' : 'Jarvis: '}
+              {msg.role === 'user' ? 'User: ' : 'Jarvis: '}
             </span>
             {msg.content}
           </div>

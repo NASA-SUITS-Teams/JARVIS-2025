@@ -195,10 +195,14 @@ class ChatBot:
         except requests.exceptions.ConnectionError:
             error_msg = "Error: Could not connect to Ollama. Make sure it is running with 'ollama serve'"
             print(error_msg)
+            if self.FLASK:
+                yield False, error_msg
             return error_msg
         except Exception as e:
             error_msg = f"Error: {str(e)}"
             print(error_msg)
+            if self.FLASK:
+                yield False, error_msg
             return error_msg
 
     def get_rag_info(self, prompt, k, ignore_ids=[]):

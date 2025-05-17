@@ -25,3 +25,17 @@ export const askLLM = async (
         onChunk(chunk);
     }
 };
+
+export const syncToBackend = async (chatHistory: ChatMessage[]) => {
+  await fetch("http://localhost:8282/save_chat_history", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ chat_history: chatHistory }),
+  });
+};
+
+export const syncFromBackend = async (): Promise<ChatMessage[]> => {
+  const res = await fetch("http://localhost:8282/load_chat_history");
+  const data = await res.json();
+  return data.chat_history ?? [];
+};

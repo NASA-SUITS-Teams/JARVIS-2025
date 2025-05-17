@@ -13,3 +13,9 @@ type LLMRequest = {
     enable_rag: boolean;
     enable_tools: boolean;
 };
+
+
+type ChatMessage = {
+  role: string;
+  content: string;
+};
