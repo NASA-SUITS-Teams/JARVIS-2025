@@ -115,7 +115,8 @@ def xy_to_index(coord):
     return (i,j)
 
 def index_to_xy(index):
-    x = index[0] - xmin
-    y = index[1] - ymin
-    return x,y
+    x_world = index[0] + xmin
+    y_world = index[1] + ymin
+    return (x_world, y_world)
+
     
