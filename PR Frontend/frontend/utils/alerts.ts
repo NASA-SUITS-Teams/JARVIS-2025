@@ -86,7 +86,7 @@ function computeAlerts(
     const uniqueKey = `${label}:${key}`;
 
     // start timer if first seen
-    if (!(uniqueKey in alertStartTimes) || elapsedTime < 10) {
+    if (!(uniqueKey in alertStartTimes) || elapsedTime < 15) {
       alertStartTimes[uniqueKey] = now;
       saveStartTimes(alertStartTimes);
     }
@@ -132,7 +132,8 @@ export function getAlerts(
     eva1: EVATelemetry;
     eva2: EVATelemetry;
   },
-  evaStarted: boolean
+  evaStarted: boolean,
+  evaElapsedTime: number
 ): Alert[] {
   const all: Alert[] = [];
   const elapsedTime: number = prTelemetry.mission_elapsed_time || 0;
@@ -150,7 +151,7 @@ export function getAlerts(
         evaTelemetryList.eva1,
         EVA_THRESHOLDS,
         "EVA1",
-        elapsedTime
+        evaElapsedTime
       )
     );
     all.push(
@@ -158,7 +159,7 @@ export function getAlerts(
         evaTelemetryList.eva2,
         EVA_THRESHOLDS,
         "EVA2",
-        elapsedTime
+        evaElapsedTime
       )
     );
   }

@@ -1,4 +1,3 @@
-// components/RoverControls.tsx
 import React from "react";
 import { TSSData } from "@/types/tss";
 import { TowerControl } from "lucide-react";

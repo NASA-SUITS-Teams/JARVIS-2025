@@ -1,8 +1,9 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { APIResponseData } from "@/types/api";
 import { estimateFutureUsage } from "@/utils/resourceConsumption";
-import { Terminal } from "lucide-react";
+import { RefreshCcw, Terminal } from "lucide-react";
 import { TSSData } from "@/types/tss";
+import { useAPI } from "@/hooks/useAPI";
 
 export default function ResourceConsumption({
   historicalData,
@@ -12,6 +13,7 @@ export default function ResourceConsumption({
   currentData: TSSData;
 }) {
   const [estimateTime, setEstimateTime] = useState(0);
+  const { resetHistory } = useAPI();
 
   const calculateEndTime = () => {
     if (!currentData.ROVER_TELEMETRY.pr_telemetry) return;
@@ -27,9 +29,18 @@ export default function ResourceConsumption({
 
   return (
     <div className="w-full h-full bg-gray-800 rounded-lg border border-blue-600 shadow-lg shadow-blue-500/10 flex flex-col overflow-hidden">
-      <div className="bg-gray-700 p-2 border-b border-blue-600 flex items-center space-x-2 drag-handle hover:cursor-move">
-        <Terminal size={18} className="text-blue-400" />
-        <span className="font-bold">RESOURCE CONSUMPTION</span>
+      <div className="bg-gray-700 p-2 border-b border-blue-600 flex items-center space-x-2">
+        <div className="flex items-center space-x-2 drag-handle hover:cursor-move">
+          <Terminal size={18} className="text-blue-400" />
+          <span className="font-bold">RESOURCE CONSUMPTION</span>
+        </div>
+        <button
+          onClick={resetHistory}
+          className="flex items-center space-x-1 text-xs text-gray-400 hover:text-gray-200 ml-auto"
+        >
+          <RefreshCcw size={16} />
+          <span>Reset</span>
+        </button>
       </div>
       <div className="p-3 flex flex-col space-y-3">
         <div className="flex items-center space-x-2">
