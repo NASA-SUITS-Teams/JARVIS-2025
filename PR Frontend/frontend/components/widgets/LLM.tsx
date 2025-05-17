@@ -52,8 +52,18 @@ export default function LLMWidget() {
       await askLLM(request, (chunk) => {
         try {
           const partial: Partial<LLMResponse> = JSON.parse(chunk);
-          if (partial.response) {
-            setResponse((prev) => prev + partial.response);
+          if (partial.is_thinking) {
+            setResponse("Thinking...")
+          } else{
+            setResponse((prev) => {
+              const response = partial.response ?? "";
+
+              if (prev === "Thinking...") {
+                return response;
+              }
+
+              return prev + response;
+            });
           }
         } catch (err) {
           console.warn("Non-JSON chunk or incomplete JSON:", chunk);

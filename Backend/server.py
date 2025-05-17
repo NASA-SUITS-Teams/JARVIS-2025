@@ -82,7 +82,7 @@ def reset_pins():
     pin_data = []
     return jsonify({"status": "All pins reset"}), 200
 
-chatbot = ChatBot(model="qwen3:4b-q8_0", use_rag=False, use_tools=False)
+chatbot = ChatBot(model="qwen3:4b-q8_0", use_rag=False, use_tools=False, THINKING=True, FLASK=True)
 # @TODO add routes for LLM
 @app.route('/llm_response_stream', methods=['POST'])
 def stream_response():
@@ -96,13 +96,12 @@ def stream_response():
 #    }), 200
 
     def generate():
-        for chunk in chatbot.get_response_stream(prompt, just_print=False):
+        for is_thinking, content in chatbot.get_response_stream(prompt, just_print=False):
             yield json.dumps({
-                "is_thinking": False,
+                "is_thinking": is_thinking,
                 "is_done": False,
-                "response": chunk
+                "response": content
             }) + "\n"
-            time.sleep(0.1)
 
     return Response(stream_with_context(generate()))
 
