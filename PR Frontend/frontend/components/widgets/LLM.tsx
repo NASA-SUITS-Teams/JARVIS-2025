@@ -1,9 +1,9 @@
-import ollama from 'ollama/browser';
 import React, { useState } from "react";
 import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
 import { Terminal, Music4Icon, Send } from "lucide-react";
+import { askLLM } from "@/hooks/useLLM";
 
 export default function LLMWidget() {
   const [response, setResponse] = useState("");
@@ -39,44 +39,42 @@ export default function LLMWidget() {
   };
 
   const handleSend = async () => {
-    // @TODO: implement the LLM API call here - Peter
-    //setResponse(`LLM Response to: "${editableTranscript}"`);
+    setResponse("");
 
-    setResponse(""); // Clear previous response
+    const request: LLMRequest = {
+      input: editableTranscript,
+      enable_thinking: false,
+      enable_rag: false,
+      enable_tools: false,
+    };
 
-    const res = await fetch("http://localhost:8282/llm_response_stream", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ transcript: editableTranscript }),
-    });
+    try {
+      await askLLM(request, (chunk) => {
+        try {
+          const partial: Partial<LLMResponse> = JSON.parse(chunk);
+          if (partial.is_thinking) {
+            setResponse("Thinking...")
+          } else{
+            setResponse((prev) => {
+              const response = partial.response ?? "";
 
-    const reader = res.body?.getReader();
-    const decoder = new TextDecoder();
+              if (prev === "Thinking...") {
+                return response;
+              }
 
-    if (!reader) return;
-
-    let done = false;
-    while (!done) {
-      const { value, done: readerDone } = await reader.read();
-      done = readerDone;
-
-      const chunk = decoder.decode(value, { stream: true });
-
-      // Parse "data: {json}" lines from server-sent events
-      for (const line of chunk.split("\n")) {
-        if (line.startsWith("data:")) {
-          try {
-            const parsed = JSON.parse(line.replace("data: ", ""));
-            setResponse((prev) => prev + parsed.response);
-          } catch (err) {
-            console.error("JSON parse error", err);
+              return prev + response;
+            });
           }
+        } catch (err) {
+          console.warn("Non-JSON chunk or incomplete JSON:", chunk);
         }
-      }
+      });
+    } catch (error) {
+      console.error("LLM error:", error);
+      setResponse("There was an error processing your request.");
     }
   };
+
 
   return (
     <div className="w-full h-full bg-gray-800 rounded-lg border border-blue-600 shadow-lg shadow-blue-500/10 overflow-hidden flex flex-col">

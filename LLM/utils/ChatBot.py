@@ -23,7 +23,7 @@ Do not use any formatting. Communicate clearly and naturally using only plain pu
 
 class ChatBot:
     def __init__(
-        self, model, use_rag=False, use_tools=False, THINKING=True, TESTING=False
+        self, model, use_rag=False, use_tools=False, THINKING=True, TESTING=False, FLASK=False
     ):
         """Initialize ChatBot with OpenAI-type API"""
         self.base_url = "http://localhost:11434"
@@ -31,6 +31,7 @@ class ChatBot:
         self.messages = []
         self.THINKING = THINKING
         self.TESTING = TESTING
+        self.FLASK = FLASK
 
         self.use_rag = use_rag
         if self.use_rag:
@@ -125,6 +126,7 @@ class ChatBot:
 
         full_response = ""
 
+        is_thinking = False
         try:
             # Process the streaming response line by line
             with requests.post(url, json=payload, stream=True) as response:
@@ -142,8 +144,17 @@ class ChatBot:
                             content = message["content"]
                             full_response += content
 
+                            if content == "<think>":
+                                is_thinking = True
+
                             if just_print:
                                 print(content, end="", flush=True)
+
+                            if self.FLASK:
+                                yield is_thinking, content
+
+                            if content == "</think>":
+                                is_thinking = False
 
                         if "done" in chunk and chunk["done"]:
                             break

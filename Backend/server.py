@@ -77,12 +77,28 @@ def reset_pins():
     pin_data = []
     return jsonify({"status": "All pins reset"}), 200
 
-chatbot = ChatBot(model="qwen3:4b-q8_0", use_rag=False, use_tools=False)
+chatbot = ChatBot(model="qwen3:4b-q8_0", use_rag=False, use_tools=False, THINKING=True, FLASK=True)
 # @TODO add routes for LLM
 @app.route('/llm_response_stream', methods=['POST'])
 def stream_response():
-    data = request.get_json()
-    prompt = data.get("transcript")
+    data = request.get_json()["request"]
+    prompt = data.get("input")
+
+#    return jsonify({
+#        "is_thinking": False,
+#        "is_done": True,
+#        "response": chatbot.get_response_stream(prompt, just_print=False),
+#    }), 200
+
+    def generate():
+        for is_thinking, content in chatbot.get_response_stream(prompt, just_print=False):
+            yield json.dumps({
+                "is_thinking": is_thinking,
+                "is_done": False,
+                "response": content
+            }) + "\n"
+
+    return Response(stream_with_context(generate()))
 
     def generate():
         try:
@@ -91,7 +107,7 @@ def stream_response():
         except Exception as e:
             yield f"data: {json.dumps({'error': str(e)})}\n\n"
 
-    return Response(stream_with_context(generate()), mimetype="text/event-stream")
+    return Response(stream_with_context(generate()))
 
 
 # Update all TSS data every 10 seconds
