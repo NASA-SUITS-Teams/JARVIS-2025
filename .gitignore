@@ -7,3 +7,4 @@ LLM/models/
 LLM/metrics/results/
 
 .DS_Store
+Pathfinding/terrain.txt

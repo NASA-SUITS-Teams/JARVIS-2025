@@ -2,6 +2,7 @@
 from math import sqrt
 import numpy as np
 import heapq
+import os
 
 """
 Global Constants
@@ -26,7 +27,13 @@ Return:
     'path' - list of coordinates representing the shortest path
 """
 def find_path(start, goal):
-    matrix = np.loadtxt("terrain.txt", delimiter=",")
+    # load terrain data, note from Conor: this is a crappy way to do this, python kinda sucks, or I suck at python... probably both
+    THIS_DIR    = os.path.dirname(os.path.abspath(__file__))
+    PROJECT_ROOT = os.path.abspath(os.path.join(THIS_DIR, os.pardir))
+    TERRAIN_FILE = os.path.join(PROJECT_ROOT, "Pathfinding", "terrain.txt")
+
+    # later, load like this:
+    matrix = np.loadtxt(TERRAIN_FILE, delimiter=",")
     start = xy_to_index(start)
     goal = xy_to_index(goal)
 
@@ -101,12 +108,13 @@ def path_dist(matrix, path):
 Change x, y coordinates to matrix indices i, j and vice versa
 """
 def xy_to_index(coord):
-    i = coord[0] + xmin
-    j = coord[1] + ymin
+    i = int(round(coord[0] - xmin))
+    j = int(round(coord[1] - ymin))
     return (i,j)
 
 def index_to_xy(index):
-    x = index[0] - xmin
-    y = index[1] - ymin
-    return x,y
+    x_world = index[0] + xmin
+    y_world = index[1] + ymin
+    return (x_world, y_world)
+
     

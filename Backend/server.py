@@ -1,18 +1,14 @@
 import json
 import sys
-import os
 import threading
-import socket
 import time
 from flask import Flask, request, jsonify, Response, stream_with_context
 from flask_cors import CORS
-import requests
 
-# Add root path for other modules like TPQ, LunarLink, etc
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+# set root path to parent folder to access other modules
+sys.path.append("..")
 
 from LLM.utils.ChatBot import ChatBot
-from TPQ import task_priority_queue as TPQ
 from Backend.tss import fetch_tss_json_data
 from Backend.lunarlink import fetch_lunarlink_json_data, send_lunarlink_data
 from Pathfinding.pathfinding import find_path
@@ -32,22 +28,21 @@ def santiy():
 
 # Fetch all TSS data and other related information from subteams
 @app.route('/get_data', methods=['GET'])
-def get_data():    
-    # Placeholder
-    tpq_data = [
-        { "name": "Oxygen level maintenance", "priority": 5, "timestamp": "00:01:30"},
-        { "name": "Sample #2 scan incomplete", "priority": 5, "timestamp": "00:01:30"},
-        { "name": "Oxygen level maintenance", "priority": 5, "timestamp": "00:01:30"},
-        { "name": "Oxygen level maintenance", "priority": 5, "timestamp": "00:01:30"},
-    ]
+def get_data():
+    # calculate the best path using the current rover position and the goal position
+    current_position = (tss_data['ROVER']['rover']['posx'], tss_data['ROVER']['rover']['posy'])
+    if len(pin_data) == 0:
+        path = []
+    else: # Note: goal position is currently calculated based on the most previous pin position
+        # get the lastest pin position and calculate the path
+        lastest_pin = pin_data[-1]['position']
+        path = find_path(current_position, lastest_pin)    
 
-    #path = find_path((-5766.5, -10200.1), (-5966.5, -10300.1))
-    #print("Calculated path:", path)
-    
     return jsonify({
         "tssData": tss_data,
         "pinData": pin_data,
-        "lunarlinkData": lunarlink_data
+        "lunarlinkData": lunarlink_data,
+        "pathData": path
     })
 
 # Send rover data to AetherNet (LunarLink)
