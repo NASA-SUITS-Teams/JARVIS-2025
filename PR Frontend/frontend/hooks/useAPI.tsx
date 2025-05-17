@@ -1,7 +1,7 @@
 import { APIResponseData } from "@/types/api";
 import { useEffect, useState } from "react";
 
-const API_URL = "http://localhost:8282"; // replace with the python flask server URL
+const API_URL = "http://10.0.0.108:8282"; // replace with the python flask server URL
 
 export const useAPI = () => {
   const [data, setData] = useState<APIResponseData>({
@@ -31,6 +31,11 @@ export const useAPI = () => {
       localStorage.setItem("historicalData", JSON.stringify(next));
       return next;
     });
+  };
+
+  const resetHistory = () => {
+    setHistoricalData([]);
+    localStorage.removeItem("historicalData");
   };
 
   const fetchData = async () => {
@@ -73,7 +78,7 @@ export const useAPI = () => {
   }, [pollServerData]);
 
   const sendPin = async (newPin: [number, number]) => {
-    await fetch("http://localhost:8282" + "/add_pin", {
+    await fetch("http://10.0.0.108:8282" + "/add_pin", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -92,7 +97,7 @@ export const useAPI = () => {
   };
 
   const resetPins = async () => {
-    await fetch("http://localhost:8282" + "/reset_pins", {
+    await fetch("http://10.0.0.108:8282" + "/reset_pins", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -107,5 +112,5 @@ export const useAPI = () => {
       .catch((error) => alert("Error resetting pins: " + error));
   };
 
-  return { data, error, loading, historicalData, sendPin, setPollServerData, resetPins };
+  return { data, error, loading, historicalData, sendPin, setPollServerData, resetPins, pollServerData, resetHistory };
 };

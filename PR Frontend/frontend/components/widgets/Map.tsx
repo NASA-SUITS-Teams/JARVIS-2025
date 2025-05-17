@@ -39,6 +39,7 @@ export default function Map({
   pathData,
   visibleLayers,
   addPinClicked,
+  historicalData,
   setAddPinClicked,
 }: {
   tssData: TSSData;
@@ -50,6 +51,7 @@ export default function Map({
     pin: boolean;
     poi: boolean;
     path: boolean;
+    historicalPath: boolean;
   };
   addPinClicked: boolean;
   setAddPinClicked: (val: boolean) => void;
@@ -80,6 +82,16 @@ export default function Map({
         [rover.poi_2_x, rover.poi_2_y],
         [rover.poi_3_x, rover.poi_3_y],
       ].filter(([x, y]) => x != null && x !== 0 && y != null && y !== 0)
+    : [];
+
+  // Construct a path data type from the historical data
+  const pathDataHistorical = historicalData
+    ? historicalData.map((data) => {
+        const rover = data.tssData.ROVER.rover;
+        if (!rover) return null;
+        const pos = [rover.posx, rover.posy];
+        return pos;
+      })
     : [];
 
   // Handle clicks for adding pins
@@ -176,6 +188,28 @@ export default function Map({
             </svg>
           )}
 
+          {pathDataHistorical && visibleLayers.historicalPath && (
+            <svg
+              className="absolute top-0 left-0 w-full h-full pointer-events-none z-10"
+              viewBox={`0 0 ${mapDimensions[activeMap].width} ${mapDimensions[activeMap].height}`}
+              preserveAspectRatio="none"
+            >
+              <polyline
+                fill="none"
+                stroke="#42A5F5"
+                strokeWidth={8}
+                points={pathDataHistorical
+                  .map(([x, y]) => {
+                    const { left, top } = percentPosition([x, y], activeMap);
+                    const px = (left / 100) * mapDimensions[activeMap].width;
+                    const py = (top / 100) * mapDimensions[activeMap].height;
+                    return `${px},${py}`;
+                  })
+                  .join(" ")}
+              />
+            </svg>
+          )}
+
           {roverPos && visibleLayers.pr && (
             <div
               className="absolute z-20"
@@ -199,7 +233,7 @@ export default function Map({
             </div>
           )}
 
-          {eva1Pos && visibleLayers.eva && (
+          {eva1Pos && visibleLayers.eva && tssData.EVA.eva.started && (
             <div
               className="absolute z-20"
               style={{
@@ -238,7 +272,7 @@ export default function Map({
             );
           })}
 
-          {eva2Pos && visibleLayers.eva && (
+          {eva2Pos && visibleLayers.eva && tssData.EVA.eva.started && (
             <div
               className="absolute z-20"
               style={{

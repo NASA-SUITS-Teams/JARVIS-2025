@@ -43,7 +43,7 @@ const evaLayout: Layout[] = [
   { i: "mapToggles", x: 2, y: 3, w: 1, h: 2 },
   { i: "videoFeeds", x: 0, y: 3, w: 2, h: 2 },
   { i: "llm", x: 0, y: 4, w: 2, h: 2 },
-  { i: "procedures", x: 0, y: 5, w: 2, h: 2 },
+  { i: "procedures", x: 2, y: 5, w: 2, h: 2 },
   { i: "roverControls", x: 0, y: 4, w: 2, h: 2 },
   { i: "resourceConsumption", x: 2, y: 4, w: 2, h: 2 },
 ];
@@ -66,7 +66,8 @@ export default function Home() {
     pr: true,
     poi: true,
     pin: true,
-    path: true
+    path: true,
+    historicalPath: true
   });
 
   // Adding a new point to the map
@@ -128,6 +129,7 @@ export default function Home() {
                 tssData={tssData}
                 pathData={pathData}
                 setAddPinClicked={setAddPinClicked}
+                historicalData={historicalData}
                 addPinClicked={addPinClicked}
               />
             </div>

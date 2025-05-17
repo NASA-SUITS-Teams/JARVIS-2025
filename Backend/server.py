@@ -36,7 +36,11 @@ def get_data():
     else: # Note: goal position is currently calculated based on the most previous pin position
         # get the lastest pin position and calculate the path
         lastest_pin = pin_data[-1]['position']
-        path = find_path(current_position, lastest_pin)    
+        try:
+            path = find_path(current_position, lastest_pin)    
+        except Exception as e:
+            print(f"Error finding path: {e}")
+            path = []
 
     return jsonify({
         "tssData": tss_data,
