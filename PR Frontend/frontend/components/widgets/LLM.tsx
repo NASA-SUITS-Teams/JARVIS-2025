@@ -2,11 +2,13 @@ import React, { useEffect, useRef, useState } from "react";
 import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
-import { Terminal, Music4Icon, Send } from "lucide-react";
+import { Terminal, Music4Icon, Send, Trash2 } from "lucide-react";
 import { askLLM, syncFromBackend, syncToBackend } from "@/hooks/useLLM";
 
 export default function LLMWidget() {
   const [response, setResponse] = useState("");
+  const [isSendEnabled, setIsSendEnabled] = useState(true);
+
   const {
     transcript,
     listening,
@@ -15,6 +17,7 @@ export default function LLMWidget() {
     browserSupportsContinuousListening,
   } = useSpeechRecognition();
   const [editableTranscript, setEditableTranscript] = useState("");
+
 
   // Keep editableTranscript in sync when SpeechRecognition updates
   React.useEffect(() => {
@@ -47,6 +50,9 @@ export default function LLMWidget() {
   const handleSend = async () => {
     const userMessage = editableTranscript.trim();
     if (!userMessage) return;
+
+    setIsSendEnabled(false);
+    syncToBackend(messages);
 
     setEditableTranscript("");
 
@@ -116,8 +122,13 @@ export default function LLMWidget() {
     ];
 
     syncToBackend(finalMessages);
-    //setMessages(finalMessages);
+
+    setIsSendEnabled(true);
   };
+
+  const clearMessages = () => {
+    setMessages([]);
+  }
 
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -147,6 +158,18 @@ export default function LLMWidget() {
         <span className="font-bold">LLM INTERFACE</span>
       </div>
 
+      <div className="ml-auto flex items-center space-x-2">
+        <button
+          onClick={clearMessages}
+          className="text-red-400 hover:text-red-500 p-1 rounded hover:bg-gray-800
+          flex-1 flex items-center justify-center px-3 py-2 rounded-md border text-sm text-white font-medium disabled:opacity-50"
+          title="Clear Messages"
+        >
+          <Trash2 size={16} className="mr-2" />
+          Clear Messages
+        </button>
+      </div>
+
       <div className="flex-1 overflow-y-auto space-y-3 pr-1" ref={containerRef}>
         {messages.map((msg, index) => (
           <div
@@ -159,7 +182,9 @@ export default function LLMWidget() {
             <span className="font-bold">
               {msg.role === 'user' ? 'User: ' : 'Jarvis: '}
             </span>
-            {msg.content}
+            <div className="whitespace-pre-wrap">
+              {msg.content.trim()}
+            </div>
           </div>
         ))}
         <div ref={bottomRef} />
@@ -198,7 +223,7 @@ export default function LLMWidget() {
         {/* Send Button */}
         <button
           onClick={handleSend}
-          disabled={!editableTranscript.trim()}
+          disabled={!editableTranscript.trim() || !isSendEnabled}
           className="flex-1 flex items-center justify-center px-3 py-2 rounded-md border border-blue-400 bg-blue-600 text-sm text-white font-medium hover:bg-blue-500 disabled:opacity-50"
         >
           <Send size={16} className="mr-2" />
