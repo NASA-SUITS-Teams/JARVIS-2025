@@ -5,6 +5,7 @@ import Image from "next/image";
 import { MapIcon } from "lucide-react";
 import { TSSData } from "@/types/tss";
 import { PinElement } from "@/types/api";
+import { useAPI } from "@/hooks/useAPI";
 
 // coordinate ranges for the maps as provided
 const coordinateRanges = {
@@ -38,6 +39,8 @@ export default function Map({
   tssData,
   pinData,
   visibleLayers,
+  addPinClicked,
+  setAddPinClicked,
 }: {
   tssData: TSSData;
   pinData: PinElement[];
@@ -48,6 +51,7 @@ export default function Map({
     poi: boolean;
   };
 }) {
+  const { sendPin } = useAPI();
   const [activeMap, setActiveMap] = useState<"moon" | "rock">("moon");
 
   // calculate rover position from tssData
@@ -74,13 +78,46 @@ export default function Map({
       ].filter(([x, y]) => x != null && x != 0 && y != null && y != 0)
     : []; // only keep the ones where both coords are not null/undefined
 
-  // @TODO handle adding points to the map
+  // Calculate corresponding coordinates for the map based on the click position
+  const handleMapClick = async (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!addPinClicked) return;
+
+    // basic math based on the map dimensions
+    const mapRect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - mapRect.left;
+    const y = e.clientY - mapRect.top;
+    const xPercent = (x / mapRect.width) * 100;
+    const yPercent = (y / mapRect.height) * 100;
+
+    // converting to the coordinate system of the map based on the coordinate ranges of the active map
+    const xCoord =
+      (xPercent / 100) *
+        (coordinateRanges[activeMap].x[1] - coordinateRanges[activeMap].x[0]) +
+      coordinateRanges[activeMap].x[0];
+    const yCoord =
+      (1 - yPercent / 100) *
+        (coordinateRanges[activeMap].y[1] - coordinateRanges[activeMap].y[0]) +
+      coordinateRanges[activeMap].y[0];
+
+    const newPin = [xCoord, yCoord];
+
+    // Send new pin to the backend
+    await sendPin(newPin);
+
+    // this is an optimistic update, while we wait the 0-10 seconds for us to fetch the updated pin data from the backend
+    pinData.push({
+      name: `Pin ${pinData.length + 1}`,
+      position: newPin,
+      timestamp: new Date().toISOString(),
+    });
+
+    setAddPinClicked(false);
+  };
 
   // @TODO offer option to store historical data pointa and draw a line from starting to end
 
   return (
     <div className="flex flex-col h-full w-full bg-gray-800 rounded-lg border border-blue-600 shadow-lg overflow-hidden">
-      {/* Header */}
       <div className="flex items-center justify-between px-4 py-2 bg-gray-700 border-b border-blue-600">
         <div className="flex items-center space-x-2 drag-handle hover:cursor-move">
           <MapIcon size={18} className="text-blue-400" />
@@ -109,7 +146,12 @@ export default function Map({
       </div>
 
       <div className="flex-1 flex items-center justify-center">
-        <div className="relative h-full w-full">
+        <div
+          onClick={handleMapClick}
+          className={`relative h-full w-full ${
+            addPinClicked ? "cursor-crosshair" : "cursor-default"
+          }`}
+        >
           <Image
             src={`/maps/${activeMap}.tiff`}
             alt={activeMap === "moon" ? "Moon surface" : "Rock yard"}
@@ -212,7 +254,7 @@ export default function Map({
 
             return (
               <div
-                key={el.name}
+                key={el.name + '-' + el.timestamp}
                 style={{
                   position: "absolute",
                   left: `${pos.left}%`,

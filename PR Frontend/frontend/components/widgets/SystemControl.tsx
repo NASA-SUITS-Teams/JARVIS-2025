@@ -4,9 +4,10 @@ import QuickActions from "@/components/widgets/QuickActions";
 import { TSSData } from "@/types/tss";
 
 export default function SystemControl({
-  handleAddPoint,
   tssData,
   changeLayout,
+  setAddPinClicked,
+  addPinClicked,
 }: {
   handleAddPoint: () => void;
   alertData: Alert[];
@@ -17,7 +18,10 @@ export default function SystemControl({
       <div className="bg-gray-700 p-2 border-b border-blue-600 flex items-center justify-center">
         <span className="font-bold">SYSTEM CONTROL</span>
       </div>
-      <QuickActions handleAddPoint={handleAddPoint} />
+      <QuickActions
+        setAddPinClicked={setAddPinClicked}
+        addPinClicked={addPinClicked}
+      />
       <SystemStates tssData={tssData} changeLayout={changeLayout} />
     </div>
   );

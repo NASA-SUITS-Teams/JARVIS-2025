@@ -21,7 +21,7 @@ def fetch_lunarlink_json_data():
     return data
 
 
-def send_lunarlink_data(tss_data):
+def send_lunarlink_data(tss_data, pin_data):
     rover_telemetry = tss_data.get("ROVER_TELEMETRY", {})
     rover_position = tss_data.get("ROVER")
 
@@ -31,14 +31,5 @@ def send_lunarlink_data(tss_data):
     return {
         "rover_telemetry": rover_telemetry,
         "rover_position": rover_position,
-        "pins": [{
-            "x": -5766.5,
-            "y": -10200.1,
-            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
-        },
-        {
-            "x": -5766.5,
-            "y": -10200.1,
-            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
-        }]
+        "pins": pin_data
     }

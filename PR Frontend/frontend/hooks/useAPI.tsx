@@ -10,6 +10,8 @@ export const useAPI = () => {
     pinData: [],
   });
   const [error, setError] = useState(null);
+  const [pollServerData, setPollServerData] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [historicalData, setHistoricalData] = useState<APIResponseData[]>(
     () => {
       if (typeof window === "undefined") {
@@ -30,8 +32,6 @@ export const useAPI = () => {
       return next;
     });
   };
-
-  const [loading, setLoading] = useState(true);
 
   const fetchData = async () => {
     try {
@@ -60,6 +60,8 @@ export const useAPI = () => {
 
   // Fetch new data every 5 seconds
   useEffect(() => {
+    if (!pollServerData) return;
+
     fetchData(); // fetch once on mount
 
     const interval = setInterval(() => {
@@ -68,11 +70,42 @@ export const useAPI = () => {
     }, 5000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [pollServerData]);
 
-  const sendPin = async (pin: { x: number; y: number }) => {};
+  const sendPin = async (newPin: [number, number]) => {
+    await fetch("http://localhost:8282" + "/add_pin", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        position: newPin,
+      }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          alert("Error adding pin: " + response.statusText);
+        }
+        return response.json();
+      })
+      .catch((error) => alert("Error adding pin: " + error));
+  };
 
-  const requestTerrainScan = async () => {};
+  const resetPins = async () => {
+    await fetch("http://localhost:8282" + "/reset_pins", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          alert("Error resetting pins: " + response.statusText);
+        }
+        return response.json();
+      })
+      .catch((error) => alert("Error resetting pins: " + error));
+  };
 
-  return { data, error, loading, historicalData };
+  return { data, error, loading, historicalData, sendPin, setPollServerData, resetPins };
 };

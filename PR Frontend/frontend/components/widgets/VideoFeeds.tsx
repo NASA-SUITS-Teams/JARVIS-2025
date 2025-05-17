@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Sliders } from "lucide-react";
 
-export default function CameraFeeds() {
+export default function VideoFeeds() {
   // Track which feed is selected: "eva1" or "eva2"
   const [selectedFeed, setSelectedFeed] = useState<"eva1" | "eva2">("eva1");
 
@@ -10,7 +10,7 @@ export default function CameraFeeds() {
       <div className="bg-gray-700 p-2 border-b border-blue-600 flex items-center justify-between">
         <div className="flex items-center space-x-2 drag-handle cursor-move">
           <Sliders size={18} className="text-blue-400" />
-          <span className="font-bold">CAM FEEDS</span>
+          <span className="font-bold">EVA VIDEO</span>
         </div>
         <div className="flex space-x-2">
           <button

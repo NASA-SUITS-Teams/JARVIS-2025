@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Responsive, WidthProvider, Layout } from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
@@ -10,7 +10,6 @@ import Map from "@/components/widgets/Map";
 import ScanData from "@/components/widgets/ScanData";
 import MapToggles from "@/components/widgets/MapToggles";
 import SystemControl from "@/components/widgets/SystemControl";
-import CameraFeeds from "@/components/widgets/CameraFeeds";
 import LLMWidget from "@/components/widgets/LLM";
 import Alerts from "@/components/widgets/Alerts";
 import { useAPI } from "@/hooks/useAPI";
@@ -19,6 +18,7 @@ import RoverControls from "@/components/widgets/RoverControls";
 import ResourceConsumption from "@/components/widgets/ResourceConsumption";
 import Procedures from "@/components/widgets/Procedures";
 import Timer from "@/components/widgets/Timer";
+import VideoFeeds from "@/components/widgets/VideoFeeds";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -29,7 +29,7 @@ const roverLayout: Layout[] = [
   { i: "procedures", x: 3, y: 3, w: 2, h: 2 },
   { i: "mapToggles", x: 2, y: 3, w: 1, h: 2 },
   { i: "llm", x: 0, y: 3, w: 2, h: 2 },
-  { i: "cameraFeeds", x: 0, y: 5, w: 2, h: 2 },
+  { i: "videoFeeds", x: 0, y: 5, w: 2, h: 2 },
   { i: "resourceConsumption", x: 2, y: 4, w: 2, h: 2 },
   { i: "roverControls", x: 0, y: 4, w: 2, h: 2 },
   { i: "timer", x: 2, y: 5, w: 2, h: 2 },
@@ -41,7 +41,7 @@ const evaLayout: Layout[] = [
   { i: "scanData", x: 4, y: 0, w: 1, h: 3 },
   { i: "timer", x: 3, y: 3, w: 2, h: 2 },
   { i: "mapToggles", x: 2, y: 3, w: 1, h: 2 },
-  { i: "cameraFeeds", x: 0, y: 3, w: 2, h: 2 },
+  { i: "videoFeeds", x: 0, y: 3, w: 2, h: 2 },
   { i: "llm", x: 0, y: 4, w: 2, h: 2 },
   { i: "procedures", x: 0, y: 5, w: 2, h: 2 },
   { i: "roverControls", x: 0, y: 4, w: 2, h: 2 },
@@ -49,7 +49,7 @@ const evaLayout: Layout[] = [
 ];
 
 export default function Home() {
-  const { data, error, historicalData, loading } = useAPI();
+  const { data, error, historicalData, loading, setPollServerData } = useAPI();
 
   const backendData: APIResponseData = data;
   const tssData = backendData.tssData;
@@ -66,14 +66,12 @@ export default function Home() {
     poi: true,
     pin: true,
   });
-  const addPointRef = useRef<() => void>(null);
+
+  // Adding a new point to the map
+  const [addPinClicked, setAddPinClicked] = useState(false);
 
   const toggleLayer = (layer: keyof typeof visibleLayers) => {
     setVisibleLayers((prev) => ({ ...prev, [layer]: !prev[layer] }));
-  };
-
-  const handleAddPoint = () => {
-    if (addPointRef.current) addPointRef.current();
   };
 
   const changeLayout = (type: "rover" | "eva") => {
@@ -84,8 +82,13 @@ export default function Home() {
     }
   };
 
+  // Start polling the server for data
+  useEffect(() => {
+    setPollServerData(true);
+  }, [setPollServerData]);
+
   // only show the loading screen if we are loading and there is no data (first load)
-  if ((!specData && loading)) {
+  if (!specData && loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-900 text-blue-100 font-mono">
         <span className="text-lg">Loading...</span>
@@ -117,9 +120,10 @@ export default function Home() {
             <div key="map">
               <Map
                 visibleLayers={visibleLayers}
-                handleAddPoint={addPointRef}
                 pinData={pinData}
                 tssData={tssData}
+                setAddPinClicked={setAddPinClicked}
+                addPinClicked={addPinClicked}
               />
             </div>
             <div key="alerts">
@@ -140,8 +144,8 @@ export default function Home() {
             <div key="llm">
               <LLMWidget />
             </div>
-            <div key="cameraFeeds">
-              <CameraFeeds />
+            <div key="videoFeeds">
+              <VideoFeeds />
             </div>
             <div key="procedures">
               <Procedures />
@@ -158,10 +162,11 @@ export default function Home() {
           </ResponsiveGridLayout>
         </div>
         <SystemControl
-          handleAddPoint={handleAddPoint}
           changeLayout={changeLayout}
           dataError={error}
           tssData={tssData}
+          setAddPinClicked={setAddPinClicked}
+          addPinClicked={addPinClicked}
         />
       </div>
     </div>

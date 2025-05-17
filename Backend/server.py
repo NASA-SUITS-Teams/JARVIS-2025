@@ -24,6 +24,7 @@ CORS(app)
 # Init global variables
 tss_data = {}
 lunarlink_data = {}
+pin_data = []
 
 @app.route('/', methods=['GET'])
 def santiy():
@@ -40,12 +41,6 @@ def get_data():
         { "name": "Oxygen level maintenance", "priority": 5, "timestamp": "00:01:30"},
     ]
 
-    # Placeholder
-    pin_data = [
-        { "name": "pin-1", "status": "active", "type": "pin", "position": [-5766.5, -10140.1] },
-        { "name": "pin-2", "status": "active", "type": "pin", "position": [-5966.5, -10300.1] },
-    ]
-
     #path = find_path((-5766.5, -10200.1), (-5966.5, -10300.1))
     #print("Calculated path:", path)
     
@@ -58,22 +53,34 @@ def get_data():
 # Send rover data to AetherNet (LunarLink)
 @app.route('/lunarlink', methods=['GET'])
 def lunarlink():
-  json_response = send_lunarlink_data(tss_data)
+  json_response = send_lunarlink_data(tss_data, pin_data)
   return jsonify(json_response)
 
 # Add a pin to the map
+@app.route('/add_pin', methods=['POST'])
+def add_pin():
+    global pin_data
+    data = request.get_json()
+    pin_position = data.get('position')
 
-# Add a command to the task priority queue
-@app.route('/add_task/', methods=['POST'])
-def add_task():
-    task_name = request.form.get('task_name')
-    priority = request.form.get('priority')
-    if task_name and priority is not None:
-        tpq.add_task(task_name, int(priority))
-        return jsonify({"status": "task added"}), 200
-    return jsonify({"error": "Missing task_name or priority"}), 400
+    if pin_position:
+        # add to pin_data
+        pin_data.append({
+            "name": "Default Pin Name",
+            "position": pin_position,
+            "timestamp": time.time()
+        })
 
+        return jsonify({"status": "Pin added"}), 200
+    
+    return jsonify({"error": "Missing name, position, or type"}), 400
 
+# Reset all pins on the map
+@app.route('/reset_pins', methods=['POST'])
+def reset_pins():
+    global pin_data
+    pin_data = []
+    return jsonify({"status": "All pins reset"}), 200
 
 chatbot = ChatBot(model="qwen3:4b-q8_0", use_rag=False, use_tools=False)
 # @TODO add routes for LLM
