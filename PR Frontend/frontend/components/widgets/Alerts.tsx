@@ -14,7 +14,7 @@ export default function Alerts({ tssData }: { tssData: TSSData }) {
 
     if (!pr || !evas) return;
 
-    setAlertData(getAlerts(pr, evas));
+    setAlertData(getAlerts(pr, evas, tssData.EVA.eva.started));
   }, [tssData]);
 
   return (

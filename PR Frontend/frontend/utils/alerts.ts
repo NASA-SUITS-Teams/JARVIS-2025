@@ -131,17 +131,36 @@ export function getAlerts(
   evaTelemetryList: {
     eva1: EVATelemetry;
     eva2: EVATelemetry;
-  }
+  },
+  evaStarted: boolean
 ): Alert[] {
   const all: Alert[] = [];
   const elapsedTime: number = prTelemetry.mission_elapsed_time || 0;
 
   // Rover
-  all.push(...computeAlerts(prTelemetry, ROVER_THRESHOLDS, "ROVER", elapsedTime));
+  all.push(
+    ...computeAlerts(prTelemetry, ROVER_THRESHOLDS, "ROVER", elapsedTime)
+  );
 
-  // EVA1 and EVA2
-  all.push(...computeAlerts(evaTelemetryList.eva1, EVA_THRESHOLDS, "EVA1", elapsedTime));
-  all.push(...computeAlerts(evaTelemetryList.eva2, EVA_THRESHOLDS, "EVA2", elapsedTime));
+  // EVA1 and EVA2 - only add EVA alerts if they are being actively used
 
+  if (evaStarted) {
+    all.push(
+      ...computeAlerts(
+        evaTelemetryList.eva1,
+        EVA_THRESHOLDS,
+        "EVA1",
+        elapsedTime
+      )
+    );
+    all.push(
+      ...computeAlerts(
+        evaTelemetryList.eva2,
+        EVA_THRESHOLDS,
+        "EVA2",
+        elapsedTime
+      )
+    );
+  }
   return all;
 }
