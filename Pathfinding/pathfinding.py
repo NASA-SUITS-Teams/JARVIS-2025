@@ -36,8 +36,6 @@ def find_path(start, goal):
     matrix = np.loadtxt(TERRAIN_FILE, delimiter=",")
     start = xy_to_index(start)
     goal = xy_to_index(goal)
-    print("Start:", start)
-    print("Goal:", goal)
 
     def weight(node1, node2):
         """Distance between both nodes"""

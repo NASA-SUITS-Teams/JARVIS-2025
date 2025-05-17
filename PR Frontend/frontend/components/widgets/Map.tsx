@@ -30,26 +30,29 @@ function percentPosition(pos: readonly [number, number], map: "moon" | "rock") {
   const ranges = coordinateRanges[map];
   const xPct = clamp(toPercent(pos[0], ranges.x), 0, 100);
   const yPct = clamp(toPercent(pos[1], ranges.y), 0, 100);
-
-  // note: we flip Y so 0% is at bottom of the image
   return { left: xPct, top: 100 - yPct };
 }
 
 export default function Map({
   tssData,
   pinData,
+  pathData,
   visibleLayers,
   addPinClicked,
   setAddPinClicked,
 }: {
   tssData: TSSData;
   pinData: PinElement[];
+  pathData?: [number, number][];
   visibleLayers: {
     eva: boolean;
     pr: boolean;
     pin: boolean;
     poi: boolean;
+    path: boolean;
   };
+  addPinClicked: boolean;
+  setAddPinClicked: (val: boolean) => void;
 }) {
   const { sendPin } = useAPI();
   const [activeMap, setActiveMap] = useState<"moon" | "rock">("moon");
@@ -60,7 +63,7 @@ export default function Map({
     ? percentPosition([rover.posx, rover.posy], activeMap)
     : null;
 
-  // calculate EVA position from tssData
+  // calculate EVA positions from tssData
   const eva1 = tssData.IMU?.imu.eva1;
   const eva2 = tssData.IMU?.imu.eva2;
   const eva1Pos = eva1
@@ -70,26 +73,24 @@ export default function Map({
     ? percentPosition([eva2.posx, eva2.posy], activeMap)
     : null;
 
+  // POI array
   const poiArray = rover
     ? [
         [rover.poi_1_x, rover.poi_1_y],
         [rover.poi_2_x, rover.poi_2_y],
         [rover.poi_3_x, rover.poi_3_y],
-      ].filter(([x, y]) => x != null && x != 0 && y != null && y != 0)
-    : []; // only keep the ones where both coords are not null/undefined
+      ].filter(([x, y]) => x != null && x !== 0 && y != null && y !== 0)
+    : [];
 
-  // Calculate corresponding coordinates for the map based on the click position
+  // Handle clicks for adding pins
   const handleMapClick = async (e: React.MouseEvent<HTMLDivElement>) => {
     if (!addPinClicked) return;
-
-    // basic math based on the map dimensions
     const mapRect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - mapRect.left;
     const y = e.clientY - mapRect.top;
     const xPercent = (x / mapRect.width) * 100;
     const yPercent = (y / mapRect.height) * 100;
 
-    // converting to the coordinate system of the map based on the coordinate ranges of the active map
     const xCoord =
       (xPercent / 100) *
         (coordinateRanges[activeMap].x[1] - coordinateRanges[activeMap].x[0]) +
@@ -99,22 +100,17 @@ export default function Map({
         (coordinateRanges[activeMap].y[1] - coordinateRanges[activeMap].y[0]) +
       coordinateRanges[activeMap].y[0];
 
-    const newPin = [xCoord, yCoord];
-
-    // Send new pin to the backend
+    const newPin: [number, number] = [xCoord, yCoord];
     await sendPin(newPin);
 
-    // this is an optimistic update, while we wait the 0-10 seconds for us to fetch the updated pin data from the backend
+    // optimistic update
     pinData.push({
       name: `Pin ${pinData.length + 1}`,
       position: newPin,
       timestamp: new Date().toISOString(),
     });
-
     setAddPinClicked(false);
   };
-
-  // @TODO offer option to store historical data pointa and draw a line from starting to end
 
   return (
     <div className="flex flex-col h-full w-full bg-gray-800 rounded-lg border border-blue-600 shadow-lg overflow-hidden">
@@ -124,8 +120,7 @@ export default function Map({
           <span className="font-bold">MAP</span>
           <span className="text-xs text-gray-400">
             {" "}
-            (X:{rover.posx.toFixed(1)} Y:
-            {rover.posy.toFixed(1)})
+            (X:{rover.posx.toFixed(1)} Y:{rover.posy.toFixed(1)})
           </span>
         </div>
         <div className="flex space-x-2">
@@ -158,6 +153,28 @@ export default function Map({
             width={mapDimensions[activeMap].width}
             height={mapDimensions[activeMap].height}
           />
+
+          {pathData && visibleLayers.path && (
+            <svg
+              className="absolute top-0 left-0 w-full h-full pointer-events-none z-10"
+              viewBox={`0 0 ${mapDimensions[activeMap].width} ${mapDimensions[activeMap].height}`}
+              preserveAspectRatio="none"
+            >
+              <polyline
+                fill="none"
+                stroke="#FF0000"
+                strokeWidth={8}
+                points={pathData
+                  .map(([x, y]) => {
+                    const { left, top } = percentPosition([x, y], activeMap);
+                    const px = (left / 100) * mapDimensions[activeMap].width;
+                    const py = (top / 100) * mapDimensions[activeMap].height;
+                    return `${px},${py}`;
+                  })
+                  .join(" ")}
+              />
+            </svg>
+          )}
 
           {roverPos && visibleLayers.pr && (
             <div
@@ -205,23 +222,21 @@ export default function Map({
             </div>
           )}
 
-          {poiArray.length > 0 &&
-            visibleLayers.poi &&
-            poiArray.map(([x, y], index) => {
-              const pos = percentPosition([x, y], activeMap);
-              return (
-                <div
-                  key={`poi-${index}`}
-                  style={{
-                    position: "absolute",
-                    left: `${pos.left}%`,
-                    top: `${pos.top}%`,
-                    transform: "translate(-50%, -50%)",
-                  }}
-                  className="absolute w-5 h-5 bg-yellow-500 rounded-full border-2 border-white z-20"
-                />
-              );
-            })}
+          {poiArray.map(([x, y], index) => {
+            const pos = percentPosition([x, y], activeMap);
+            return (
+              <div
+                key={`poi-${index}`}
+                style={{
+                  position: "absolute",
+                  left: `${pos.left}%`,
+                  top: `${pos.top}%`,
+                  transform: "translate(-50%, -50%)",
+                }}
+                className="w-5 h-5 bg-yellow-500 rounded-full border-2 border-white z-20"
+              />
+            );
+          })}
 
           {eva2Pos && visibleLayers.eva && (
             <div
@@ -230,7 +245,7 @@ export default function Map({
                 left: `${eva2Pos.left}%`,
                 top: `${eva2Pos.top}%`,
                 transform: `translate(-50%, -50%) rotate(${
-                  tssData.IMU.imu.eva1.heading || 0
+                  tssData.IMU.imu.eva2.heading || 0
                 }deg)`,
               }}
             >
@@ -254,16 +269,15 @@ export default function Map({
 
             return (
               <div
-                key={el.name + '-' + el.timestamp}
+                key={el.name + "-" + el.timestamp}
                 style={{
                   position: "absolute",
                   left: `${pos.left}%`,
                   top: `${pos.top}%`,
                   transform: "translate(-50%, -50%)",
-                  // conditionally show the icon based on if top/left is an axtreme like 0 or 100
                   opacity: pos.left === 0 || pos.left === 100 ? 0 : 1,
                 }}
-                className={`absolute w-5 h-5 bg-green-500 rounded-full border-2 border-white z-20`}
+                className="w-5 h-5 bg-green-500 rounded-full border-2 border-white z-20"
               />
             );
           })}

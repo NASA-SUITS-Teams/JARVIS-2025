@@ -9,7 +9,6 @@ from flask_cors import CORS
 sys.path.append("..")
 
 from LLM.utils.ChatBot import ChatBot
-from TPQ import task_priority_queue as TPQ
 from Backend.tss import fetch_tss_json_data
 from Backend.lunarlink import fetch_lunarlink_json_data, send_lunarlink_data
 from Pathfinding.pathfinding import find_path
@@ -29,14 +28,21 @@ def santiy():
 
 # Fetch all TSS data and other related information from subteams
 @app.route('/get_data', methods=['GET'])
-def get_data():    
-    path = find_path((-5766.5, -10200.1), (-5966.5, -10300.1))
-    print("Calculated path:", path)
-    
+def get_data():
+    # calculate the best path using the current rover position and the goal position
+    current_position = (tss_data['ROVER']['rover']['posx'], tss_data['ROVER']['rover']['posy'])
+    if len(pin_data) == 0:
+        path = []
+    else: # Note: goal position is currently calculated based on the most previous pin position
+        # get the lastest pin position and calculate the path
+        lastest_pin = pin_data[-1]['position']
+        path = find_path(current_position, lastest_pin)    
+
     return jsonify({
         "tssData": tss_data,
         "pinData": pin_data,
-        "lunarlinkData": lunarlink_data
+        "lunarlinkData": lunarlink_data,
+        "pathData": path
     })
 
 # Send rover data to AetherNet (LunarLink)

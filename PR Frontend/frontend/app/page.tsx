@@ -54,6 +54,7 @@ export default function Home() {
   const backendData: APIResponseData = data;
   const tssData = backendData.tssData;
   const pinData = backendData.pinData;
+  const pathData = backendData.pathData
   const specData = tssData.SPEC?.spec;
 
   // Draggable layout state
@@ -65,6 +66,7 @@ export default function Home() {
     pr: true,
     poi: true,
     pin: true,
+    path: true
   });
 
   // Adding a new point to the map
@@ -96,6 +98,8 @@ export default function Home() {
     );
   }
 
+  console.log('pathData', pathData);
+
   return (
     <div className="flex flex-col h-screen bg-gray-900 text-blue-100 font-mono">
       <Header
@@ -122,6 +126,7 @@ export default function Home() {
                 visibleLayers={visibleLayers}
                 pinData={pinData}
                 tssData={tssData}
+                pathData={pathData}
                 setAddPinClicked={setAddPinClicked}
                 addPinClicked={addPinClicked}
               />

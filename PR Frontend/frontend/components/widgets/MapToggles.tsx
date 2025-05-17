@@ -1,4 +1,4 @@
-import { AlertCircle, BarChart2, Layers, Pin, Satellite } from "lucide-react";
+import { AlertCircle, BarChart2, Layers, Pin, Satellite, Compass } from "lucide-react";
 
 export default function MapToggles({ visibleLayers, toggleLayer }) {
   return (
@@ -82,6 +82,25 @@ export default function MapToggles({ visibleLayers, toggleLayer }) {
               <div
                 className={`w-3 h-3 rounded-full bg-white absolute top-1 transition-all duration-200 ${
                   visibleLayers.pin ? "left-6" : "left-1"
+                }`}
+              ></div>
+            </button>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-1">
+              <Compass size={16} className="text-red-400" />
+              <span className="text-sm">Path</span>
+            </div>
+            <button
+              onClick={() => toggleLayer("path")}
+              className={`w-10 h-5 rounded-full p-1 ${
+                visibleLayers.path ? "bg-blue-600" : "bg-gray-600"
+              } transition-colors duration-200 relative`}
+            >
+              <div
+                className={`w-3 h-3 rounded-full bg-white absolute top-1 transition-all duration-200 ${
+                  visibleLayers.path ? "left-6" : "left-1"
                 }`}
               ></div>
             </button>
