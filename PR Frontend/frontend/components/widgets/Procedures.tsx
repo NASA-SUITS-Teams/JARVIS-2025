@@ -4,42 +4,82 @@ import React, { useState, useEffect } from "react";
 import { CheckSquare, RefreshCcw } from "lucide-react";
 
 const TASKS = [
+  // Pre-flight checklist
   { id: "battery", label: "Pilot verify battery level is > 95%" },
   { id: "o2-level", label: "Pilot verify O₂ levels are > 95%" },
   { id: "o2-pressure", label: "Verify O₂ pressure is > 2900 psi" },
   { id: "cabin-pressure", label: "Verify PR cabin pressure is > 3.95 psi" },
   { id: "headlights", label: "Toggle PR headlights ON then OFF" },
+
+  // Initial pin drop
   { id: "drop-pin-current", label: "Drop pin at current location" },
+
+  // Point A sequence
   { id: "select-point-a", label: "Determine “Point A” and drop pin" },
-  { id: "nav-point-a", label: "Navigate to Point A" },
+  { id: "nav-point-a", label: "Begin navigation to Point A" },
   { id: "stop-at-point-a", label: "Verify PR has come to a complete stop" },
   { id: "scan-point-a", label: "Begin terrain scan at Point A" },
   { id: "select-point-b", label: "Determine “Point B” and drop pin" },
+  { id: "verify-pnr-a", label: "Verify PNR for Point A" },
+  {
+    id: "note-consumables-a",
+    label: "Note anticipated remaining consumables at Point A",
+  },
   {
     id: "save-point-a-data",
     label: "Ensure terrain data for Point A is stored",
   },
-  { id: "nav-point-b", label: "Navigate to Point B" },
+
+  // Point B sequence
+  { id: "nav-point-b", label: "Begin navigation to Point B" },
   { id: "stop-at-point-b", label: "Verify PR has come to a complete stop" },
   { id: "scan-point-b", label: "Begin terrain scan at Point B" },
   { id: "select-point-c", label: "Determine “Point C” and drop pin" },
+  { id: "verify-pnr-b", label: "Verify PNR for Point B" },
+  {
+    id: "note-consumables-b",
+    label: "Note anticipated remaining consumables at Point B",
+  },
   {
     id: "save-point-b-data",
     label: "Ensure terrain data for Point B is stored",
   },
-  { id: "nav-point-c", label: "Navigate to Point C" },
+
+  // Point C sequence
+  { id: "nav-point-c", label: "Begin navigation to Point C" },
   { id: "stop-at-point-c", label: "Verify PR has come to a complete stop" },
+  {
+    id: "check-telemetry",
+    label: "Check telemetry data for off-nominal values",
+  },
   { id: "scan-point-c", label: "Begin terrain scan at Point C" },
   {
     id: "save-point-c-data",
     label: "Ensure terrain data for Point C is stored",
   },
+  { id: "verify-pnr-c", label: "Verify PNR for Point C" },
+  {
+    id: "note-consumables-c",
+    label: "Note anticipated remaining consumables at Point C",
+  },
+
+  // Return and egress preparations
   { id: "verify-home-path", label: "Verify path to home base is generated" },
   { id: "nav-home", label: "Begin navigation to home base" },
+
+  // EVA egress coordination
   { id: "verify-ping", label: "Verify ping received from LTV" },
   { id: "verify-pois", label: "Verify worksite POI locations provided by LTV" },
+  { id: "verify-ev1-pois", label: "Verify EV1 has received LTV POIs" },
+  {
+    id: "announce-pr-complete",
+    label: "Announce PR operations complete and begin monitoring EVA",
+  },
+
+  // Final airlock clearance
   { id: "unlock-airlock", label: "Unlock airlock & announce all-clear for EV" },
 ];
+
 
 export default function Procedures() {
   // Lazy-load from localStorage so state persists across refresh
@@ -72,6 +112,7 @@ export default function Procedures() {
         <div className="flex items-center space-x-2 drag-handle hover:cursor-move">
           <CheckSquare size={18} className="text-blue-400" />
           <span className="font-bold">ROVER PROCEDURES</span>
+           <span className="text-sm text-gray-400">- {((Object.values(done).filter(Boolean).length / TASKS.length) * 100).toFixed(0)}%</span>
         </div>
         <button
           onClick={resetAll}
