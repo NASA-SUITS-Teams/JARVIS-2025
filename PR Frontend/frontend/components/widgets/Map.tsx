@@ -256,7 +256,7 @@ export default function Map({
                 }deg)`,
               }}
             >
-              <svg width="24" height="24" viewBox="0 0 24 24">
+              <svg width="30" height="30" viewBox="0 0 24 24">
                 <polygon
                   points="12,2 4,20 12,15 20,20"
                   fill="#9333ea"
@@ -279,7 +279,7 @@ export default function Map({
                 }deg)`,
               }}
             >
-              <svg width="24" height="24" viewBox="0 0 24 24">
+              <svg width="30" height="30" viewBox="0 0 24 24">
                 <polygon
                   points="12,2 4,20 12,15 20,20"
                   fill="#ec4899"
@@ -302,7 +302,7 @@ export default function Map({
                 }deg)`,
               }}
             >
-              <svg width="24" height="24" viewBox="0 0 24 24">
+              <svg width="30" height="30" viewBox="0 0 24 24">
                 <polygon
                   points="12,2 4,20 12,15 20,20"
                   fill="#ec4899"

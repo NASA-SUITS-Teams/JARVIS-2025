@@ -10,3 +10,5 @@ Pathfinding/terrain.txt
 
 .venv
 Pathfinding/terrain.txt
+Backend/certificates/localhost.pem
+Backend/certificates/localhost-key.pem

@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
+    "dev-https": "next dev   --experimental-https   --experimental-https-key ./certificates/localhost-key.pem   --experimental-https-cert ./certificates/localhost.pem --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -16,7 +17,9 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-grid-layout": "^1.5.1",
-    "react-speech-recognition": "^4.0.1"
+    "react-speech-recognition": "^4.0.1",
+    "simple-peer": "^9.11.1",
+    "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
