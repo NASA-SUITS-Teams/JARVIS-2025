@@ -9,8 +9,9 @@ TOOL_MODEL = "qwen3:4b-q8_0"
 
 
 class ToolBot:
-    def __init__(self, model):
+    def __init__(self, model, FLASK=False):
         self.model = model
+        self.FLASK = FLASK
 
         if DEBUG:
             print(ALL_TOOLS_STRING)
@@ -34,6 +35,9 @@ class ToolBot:
             function_to_call = AVAILABLE_FUNCTIONS.get(function_name)
             output = ""
             if function_to_call:
+                if self.FLASK:
+                    yield True, (), (function_name, args)
+
                 output += f"{function_name} {args} "
                 try:
                     output += f"Function output: {function_to_call(**args)}"

@@ -91,17 +91,26 @@ def stream_response():
 
     def generate():
         try:
-            for is_thinking, content in chatbot.get_response_stream(prompt, just_print=False):
-                yield json.dumps({
-                    "is_thinking": is_thinking,
-                    "is_done": False,
-                    "response": content
-                }) + "\n"
+            for is_tool, message, tool in chatbot.get_response_stream(prompt, just_print=False):
+                if not is_tool:
+                    is_thinking, content = message
+                    yield json.dumps({
+                        "response": content,
+                        "is_thinking": is_thinking,
+                        "is_tool": False,
+                    }) + "\n"
+                else:
+                    function_name, args = tool
+                    yield json.dumps({
+                        "is_tool": True,
+                        "function_name": function_name,
+                        "args": args,
+                    }) + "\n"
         except Exception as e:
             yield json.dumps({
-                "is_thinking": False,
-                "is_done": True,
                 "response": f"Error: {str(e)}",
+                "is_thinking": False,
+                "is_tool": False,
             }) + "\n"
 
     return Response(stream_with_context(generate()))

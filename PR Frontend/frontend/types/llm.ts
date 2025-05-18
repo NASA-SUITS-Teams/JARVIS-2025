@@ -1,11 +1,10 @@
 type LLMResponse = {
-    is_thinking: boolean;
-    is_done: boolean;
     response: string;
+    is_thinking: boolean;
+    is_tool: boolean;
+    function_name: string;
+    args: Record<string, string>;
 };
-
-
-// type for functions
 
 type LLMRequest = {
     input: string
@@ -13,7 +12,6 @@ type LLMRequest = {
     enable_rag: boolean;
     enable_tools: boolean;
 };
-
 
 type ChatMessage = {
   role: string;

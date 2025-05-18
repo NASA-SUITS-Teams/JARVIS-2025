@@ -40,7 +40,7 @@ class ChatBot:
 
         self.use_tools = use_tools
         if self.use_tools:
-            self.toolbot = ToolBot(model=TOOL_MODEL)
+            self.toolbot = ToolBot(model=TOOL_MODEL, FLASK=FLASK)
             self.add_message("user", "Hello")
             self.add_message(
                 "assistant",
@@ -151,7 +151,7 @@ class ChatBot:
                                 print(content, end="", flush=True)
 
                             if self.FLASK:
-                                yield is_thinking, content
+                                yield False, (is_thinking, content), ()
 
                             if content == "</think>":
                                 is_thinking = False
@@ -171,13 +171,17 @@ class ChatBot:
                 if DEBUG:
                     print(f"CALLING FUNCTIONS: {function_calls}")
 
-                tool_response = self.toolbot.get_response_stream(
-                    f"/no_think Call these functions:\n{function_calls}"
-                )
-                if just_print:
-                    print(tool_response)
+                tool_prompt = f"/no_think Call these functions:\n{function_calls}"
 
-                self.add_message("system", tool_response)
+                if self.FLASK:
+                    yield from self.toolbot.get_response_stream(tool_prompt) 
+                else:
+                    tool_response = self.toolbot.get_response_stream(tool_prompt) 
+
+                    if just_print:
+                        print(tool_response)
+
+                    self.add_message("system", tool_response)
 
             full_response = re.sub(
                 r"<functions>(\n|.)*</functions>", "", full_response
@@ -196,13 +200,13 @@ class ChatBot:
             error_msg = "Error: Could not connect to Ollama. Make sure it is running with 'ollama serve'"
             print(error_msg)
             if self.FLASK:
-                yield False, error_msg
+                yield False, (False, error_msg), ()
             return error_msg
         except Exception as e:
             error_msg = f"Error: {str(e)}"
             print(error_msg)
             if self.FLASK:
-                yield False, error_msg
+                yield False, (False, error_msg), ()
             return error_msg
 
     def get_rag_info(self, prompt, k, ignore_ids=[]):

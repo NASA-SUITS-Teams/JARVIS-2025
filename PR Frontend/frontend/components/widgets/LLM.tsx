@@ -9,6 +9,12 @@ export default function LLMWidget() {
   const [response, setResponse] = useState("");
   const [isSendEnabled, setIsSendEnabled] = useState(true);
 
+  const [activeFunctionEdit, setActiveFunctionEdit] = useState<{
+    function_name: string;
+    args: Record<string, string>;
+  } | null>(null);
+  const [resolveCurrentEdit, setResolveCurrentEdit] = useState<((confirmed: boolean, updatedArgs?: Record<string, string>) => void) | null>(null);
+
   const {
     transcript,
     listening,
@@ -47,6 +53,9 @@ export default function LLMWidget() {
     syncFromBackend().then(setMessages);
   }, []);
 
+
+  const resolveCurrentEditRef = useRef<((confirmed: boolean, updatedArgs?: Record<string, string>) => void) | null>(null);
+
   const handleSend = async () => {
     const userMessage = editableTranscript.trim();
     if (!userMessage) return;
@@ -74,32 +83,47 @@ export default function LLMWidget() {
 
     let assistantContent = "";
 
+    const functionQueue: { function_name: string; args: Record<string, string> }[] = [];
+
     try {
       await askLLM(request, (chunk) => {
-        try {
-          const partial: Partial<LLMResponse> = JSON.parse(chunk);
-          const text = partial.response ?? "";
+        const lines = chunk.split("\n");
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          try {
+            const partial: Partial<LLMResponse> = JSON.parse(line);
+            const isTool = partial.is_tool ?? false;
 
-          if (partial.is_thinking) {
-            assistantContent = "Thinking...";
-          } else {
-            if (assistantContent === "Thinking...") {
-              assistantContent = "";
+            if (!isTool) {
+              const text = partial.response ?? "";
+
+              if (partial.is_thinking) {
+                assistantContent = "Thinking...";
+              } else {
+                if (assistantContent === "Thinking...") {
+                  assistantContent = "";
+                }
+                assistantContent += text;
+              }
+
+              setMessages((prev) => {
+                const updated = [...prev];
+                updated[updated.length - 1] = {
+                  ...updated[updated.length - 1],
+                  content: assistantContent
+                };
+                return updated;
+              });
+            } else {
+
+              functionQueue.push({
+                function_name: partial.function_name ?? "",
+                args: partial.args ?? {},
+              });
             }
-            assistantContent += text;
+          } catch (err) {
+            console.warn("Invalid JSON chunk:", line);
           }
-
-          setMessages((prev) => {
-            const updated = [...prev];
-            updated[updated.length - 1] = {
-              ...updated[updated.length - 1],
-              content: assistantContent
-            };
-            return updated;
-          });
-
-        } catch (err) {
-          console.warn("Invalid JSON chunk:", chunk);
         }
       });
     } catch (error) {
@@ -115,6 +139,17 @@ export default function LLMWidget() {
       });
     }
 
+    for (const fnCall of functionQueue) {
+      const { confirmed, args } = await waitForUserConfirmation(fnCall);
+
+      if (confirmed) {
+        console.log("User accepted", fnCall.function_name, args);
+        // Optional: call actual tool or handle args
+      } else {
+        console.log("User denied", fnCall.function_name);
+      }
+    }
+
     const finalMessages = [
       ...messages,
       { role: 'user', content: userMessage },
@@ -125,6 +160,21 @@ export default function LLMWidget() {
 
     setIsSendEnabled(true);
   };
+
+  const waitForUserConfirmation = (fnCall: {
+    function_name: string;
+    args: Record<string, string>;
+  }) => {
+    return new Promise<{ confirmed: boolean; args?: Record<string, string> }>((resolve) => {
+      setActiveFunctionEdit(fnCall);
+      resolveCurrentEditRef.current = (confirmed, updatedArgs) => {
+        setActiveFunctionEdit(null);
+        resolve({ confirmed, args: updatedArgs });
+      };
+    });
+  };
+
+
 
   const clearMessages = () => {
     setMessages([]);
@@ -143,6 +193,17 @@ export default function LLMWidget() {
     const newMessages = messages.filter((_, i) => i !== index);
     setMessages(newMessages);
   };
+
+
+  const dummyConfirm = (data: { function_name: string; args: Record<string, string> }) => {
+    console.log("Confirmed:", data);
+  };
+
+  const dummyCancel = () => {
+    console.log("Function call editing cancelled");
+  };
+
+
 
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -216,6 +277,79 @@ export default function LLMWidget() {
         ))}
         <div ref={bottomRef} />
       </div>
+
+
+      {activeFunctionEdit && (
+        <div className="bg-gray-900 p-4 border border-blue-600 rounded-md mb-2 space-y-2">
+          <div className="text-blue-300 font-semibold"></div>
+
+          <div className="text-white text-sm">
+            <label className="block mb-1 text-gray-400">Function Name</label>
+            <input
+              className="w-full p-2 rounded-md bg-gray-800 border border-blue-500 text-white"
+              value={activeFunctionEdit.function_name}
+              onChange={(e) =>
+                setActiveFunctionEdit({
+                  ...activeFunctionEdit,
+                  function_name: e.target.value,
+                })
+              }
+            />
+          </div>
+
+          <div className="space-y-2">
+            {Object.entries(activeFunctionEdit.args).map(([key, value]) => (
+              <div key={key} className="text-white text-sm">
+                <label className="block mb-1 text-gray-400">{key}</label>
+                <input
+                  className="w-full p-2 rounded-md bg-gray-800 border border-blue-500 text-white"
+                  value={value}
+                  onChange={(e) =>
+                    setActiveFunctionEdit((prev) =>
+                      prev
+                        ? {
+                          ...prev,
+                          args: { ...prev.args, [key]: e.target.value },
+                        }
+                        : prev
+                    )
+                  }
+                />
+              </div>
+            ))}
+          </div>
+
+          <div className="flex space-x-2 pt-2">
+            <button
+              className="flex-1 px-3 py-2 rounded-md bg-green-600 hover:bg-green-500 text-white font-medium text-sm"
+              onClick={() => {
+                if (resolveCurrentEditRef.current && activeFunctionEdit) {
+                  dummyConfirm(activeFunctionEdit);
+                  resolveCurrentEditRef.current(true, activeFunctionEdit.args);
+                  resolveCurrentEditRef.current = null;
+                }
+              }}
+            >
+              Confirm
+            </button>
+
+            <button
+              className="flex-1 px-3 py-2 rounded-md bg-red-600 hover:bg-red-500 text-white font-medium text-sm"
+              onClick={() => {
+                dummyCancel();
+                if (resolveCurrentEditRef.current) {
+                  resolveCurrentEditRef.current(false);
+                  resolveCurrentEditRef.current = null;
+                }
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+
 
 
 
