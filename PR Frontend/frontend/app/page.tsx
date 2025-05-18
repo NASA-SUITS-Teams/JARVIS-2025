@@ -12,13 +12,13 @@ import MapToggles from "@/components/widgets/MapToggles";
 import SystemControl from "@/components/widgets/SystemControl";
 import LLMWidget from "@/components/widgets/LLM";
 import Alerts from "@/components/widgets/Alerts";
-import { useAPI } from "@/hooks/useAPI";
 import { APIResponseData } from "@/types/api";
 import RoverControls from "@/components/widgets/RoverControls";
 import ResourceConsumption from "@/components/widgets/ResourceConsumption";
 import Procedures from "@/components/widgets/Procedures";
 import Timer from "@/components/widgets/Timer";
 import VideoFeeds from "@/components/widgets/VideoFeeds";
+import { useAPIContext } from "@/context/APIContext";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -49,7 +49,7 @@ const evaLayout: Layout[] = [
 ];
 
 export default function Home() {
-  const { data, error, historicalData, loading, setPollServerData } = useAPI();
+  const { data, error, historicalData, loading, setPollServerData } = useAPIContext();
 
   const backendData: APIResponseData = data;
   const tssData = backendData.tssData;

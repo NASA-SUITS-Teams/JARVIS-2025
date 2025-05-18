@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Bell } from "lucide-react";
 import { getAlerts } from "@/utils/alerts";
-import { TSSData } from "@/types/tss";
 import { Alert } from "@/types/api";
+import { useAPIContext } from "@/context/APIContext";
 
-export default function Alerts({ tssData }: { tssData: TSSData }) {
+export default function Alerts() {
+  const { data } = useAPIContext();
+  const tssData = data.tssData;
+
   const [alertData, setAlertData] = useState<Alert[]>([]);
 
   useEffect(() => {
@@ -14,7 +17,9 @@ export default function Alerts({ tssData }: { tssData: TSSData }) {
 
     if (!pr || !evas) return;
 
-    setAlertData(getAlerts(pr, evas, tssData.EVA.eva.started, tssData.EVA.eva.total_time));
+    setAlertData(
+      getAlerts(pr, evas, tssData.EVA.eva.started, tssData.EVA.eva.total_time)
+    );
   }, [tssData]);
 
   return (
