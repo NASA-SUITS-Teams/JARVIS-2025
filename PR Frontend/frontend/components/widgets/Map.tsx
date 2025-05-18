@@ -37,14 +37,15 @@ export default function Map({
   tssData,
   pinData,
   pathData,
+  historicalData,
   visibleLayers,
   addPinClicked,
-  historicalData,
   setAddPinClicked,
 }: {
   tssData: TSSData;
   pinData: PinElement[];
   pathData?: [number, number][];
+  historicalData?: { tssData: TSSData }[];
   visibleLayers: {
     eva: boolean;
     pr: boolean;
@@ -58,14 +59,24 @@ export default function Map({
 }) {
   const { sendPin } = useAPI();
   const [activeMap, setActiveMap] = useState<"moon" | "rock">("moon");
+  const [xInput, setXInput] = useState<string>("");
+  const [yInput, setYInput] = useState<string>("");
 
-  // calculate rover position from tssData
+  // derive historical path from stored data
+  const pathDataHistorical = historicalData
+    ? historicalData
+        .map((entry) => {
+          const rover = entry.tssData.ROVER.rover;
+          return rover ? ([rover.posx, rover.posy] as [number, number]) : null;
+        })
+        .filter((p): p is [number, number] => p !== null)
+    : [];
+
+  // live rover & EVA positions
   const rover = tssData.ROVER.rover;
   const roverPos = rover
     ? percentPosition([rover.posx, rover.posy], activeMap)
     : null;
-
-  // calculate EVA positions from tssData
   const eva1 = tssData.IMU?.imu.eva1;
   const eva2 = tssData.IMU?.imu.eva2;
   const eva1Pos = eva1
@@ -75,89 +86,110 @@ export default function Map({
     ? percentPosition([eva2.posx, eva2.posy], activeMap)
     : null;
 
-  // POI array
-  const poiArray = rover
-    ? [
-        [rover.poi_1_x, rover.poi_1_y],
-        [rover.poi_2_x, rover.poi_2_y],
-        [rover.poi_3_x, rover.poi_3_y],
-      ].filter(([x, y]) => x != null && x !== 0 && y != null && y !== 0)
-    : [];
-
-  // Construct a path data type from the historical data
-  const pathDataHistorical = historicalData
-    ? historicalData.map((data) => {
-        const rover = data.tssData.ROVER.rover;
-        if (!rover) return null;
-        const pos = [rover.posx, rover.posy];
-        return pos;
-      })
-    : [];
-
-  // Handle clicks for adding pins
+  // Click on map to add pin
   const handleMapClick = async (e: React.MouseEvent<HTMLDivElement>) => {
     if (!addPinClicked) return;
-    const mapRect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - mapRect.left;
-    const y = e.clientY - mapRect.top;
-    const xPercent = (x / mapRect.width) * 100;
-    const yPercent = (y / mapRect.height) * 100;
-
-    const xCoord =
-      (xPercent / 100) *
+    const rect = e.currentTarget.getBoundingClientRect();
+    const xPct = (e.clientX - rect.left) / rect.width;
+    const yPct = (e.clientY - rect.top) / rect.height;
+    const x =
+      xPct *
         (coordinateRanges[activeMap].x[1] - coordinateRanges[activeMap].x[0]) +
       coordinateRanges[activeMap].x[0];
-    const yCoord =
-      (1 - yPercent / 100) *
+    const y =
+      (1 - yPct) *
         (coordinateRanges[activeMap].y[1] - coordinateRanges[activeMap].y[0]) +
       coordinateRanges[activeMap].y[0];
 
-    const newPin: [number, number] = [xCoord, yCoord];
-    await sendPin(newPin);
+    await sendPin([x, y]);
 
-    // optimistic update
-    pinData.push({
-      name: `Pin ${pinData.length + 1}`,
-      position: newPin,
-      timestamp: new Date().toISOString(),
-    });
+    // add pin optimistically
+    pinData.push({ position: [x, y], id: Date.now() });
+
+    setAddPinClicked(false);
+  };
+
+  // Manual X/Y entry to add pin
+  const handleManualAdd = async () => {
+    const x = parseFloat(xInput);
+    const y = parseFloat(yInput);
+    if (isNaN(x) || isNaN(y)) return;
+
+    await sendPin([x, y]);
+
+    setXInput("");
+    setYInput("");
+
+    // Add pin optimistically
+    pinData.push({ position: [x, y], id: Date.now() });
+
     setAddPinClicked(false);
   };
 
   return (
     <div className="flex flex-col h-full w-full bg-gray-800 rounded-lg border border-blue-600 shadow-lg overflow-hidden">
+      {/* Header */}
       <div className="flex items-center justify-between px-4 py-2 bg-gray-700 border-b border-blue-600">
         <div className="flex items-center space-x-2 drag-handle hover:cursor-move">
           <MapIcon size={18} className="text-blue-400" />
           <span className="font-bold">MAP</span>
           <span className="text-xs text-gray-400">
-            {" "}
-            (X:{rover.posx.toFixed(1)} Y:{rover.posy.toFixed(1)})
+            {rover
+              ? ` (X:${rover.posx.toFixed(1)} Y:${rover.posy.toFixed(1)})`
+              : ""}
           </span>
         </div>
+
+        {/* Toggle or Manual Input */}
         <div className="flex space-x-2">
-          {(["moon", "rock"] as const).map((mode) => (
-            <button
-              key={mode}
-              onClick={() => setActiveMap(mode)}
-              className={`px-2 py-1 rounded text-xs ${
-                activeMap === mode
-                  ? "bg-blue-600"
-                  : "bg-gray-600 hover:bg-gray-500"
-              }`}
-            >
-              {mode === "moon" ? "MOON" : "ROCK YARD"}
-            </button>
-          ))}
+          {addPinClicked ? (
+            <>
+              <input
+                type="text"
+                placeholder="X coord"
+                value={xInput}
+                onChange={(e) => setXInput(e.target.value)}
+                className="w-20 px-2 py-1 text-xs rounded bg-gray-600 text-white"
+              />
+              <input
+                type="text"
+                placeholder="Y coord"
+                value={yInput}
+                onChange={(e) => setYInput(e.target.value)}
+                className="w-20 px-2 py-1 text-xs rounded bg-gray-600 text-white"
+              />
+              <button
+                onClick={handleManualAdd}
+                className="px-2 py-1 bg-blue-600 rounded text-xs hover:bg-blue-500"
+              >
+                Add Pin
+              </button>
+            </>
+          ) : (
+            (["moon", "rock"] as const).map((mode) => (
+              <button
+                key={mode}
+                onClick={() => setActiveMap(mode)}
+                className={`px-2 py-1 rounded text-xs ${
+                  activeMap === mode
+                    ? "bg-blue-600"
+                    : "bg-gray-600 hover:bg-gray-500"
+                }`}
+              >
+                {mode === "moon" ? "MOON" : "ROCK YARD"}
+              </button>
+            ))
+          )}
         </div>
       </div>
 
+      {/* Map & Overlays */}
       <div className="flex-1 flex items-center justify-center">
         <div
-          onClick={handleMapClick}
           className={`relative h-full w-full ${
             addPinClicked ? "cursor-crosshair" : "cursor-default"
           }`}
+          onClick={handleMapClick}
         >
           <Image
             src={`/maps/${activeMap}.tiff`}
@@ -166,6 +198,7 @@ export default function Map({
             height={mapDimensions[activeMap].height}
           />
 
+          {/* Current Path */}
           {pathData && visibleLayers.path && (
             <svg
               className="absolute top-0 left-0 w-full h-full pointer-events-none z-10"
@@ -175,20 +208,21 @@ export default function Map({
               <polyline
                 fill="none"
                 stroke="#FF0000"
-                strokeWidth={8}
+                strokeWidth={6}
                 points={pathData
                   .map(([x, y]) => {
                     const { left, top } = percentPosition([x, y], activeMap);
-                    const px = (left / 100) * mapDimensions[activeMap].width;
-                    const py = (top / 100) * mapDimensions[activeMap].height;
-                    return `${px},${py}`;
+                    return `${(left / 100) * mapDimensions[activeMap].width},${
+                      (top / 100) * mapDimensions[activeMap].height
+                    }`;
                   })
                   .join(" ")}
               />
             </svg>
           )}
 
-          {pathDataHistorical && visibleLayers.historicalPath && (
+          {/* Historical Path */}
+          {pathDataHistorical.length > 1 && visibleLayers.historicalPath && (
             <svg
               className="absolute top-0 left-0 w-full h-full pointer-events-none z-10"
               viewBox={`0 0 ${mapDimensions[activeMap].width} ${mapDimensions[activeMap].height}`}
@@ -197,19 +231,20 @@ export default function Map({
               <polyline
                 fill="none"
                 stroke="#42A5F5"
-                strokeWidth={8}
+                strokeWidth={6}
                 points={pathDataHistorical
                   .map(([x, y]) => {
                     const { left, top } = percentPosition([x, y], activeMap);
-                    const px = (left / 100) * mapDimensions[activeMap].width;
-                    const py = (top / 100) * mapDimensions[activeMap].height;
-                    return `${px},${py}`;
+                    return `${(left / 100) * mapDimensions[activeMap].width},${
+                      (top / 100) * mapDimensions[activeMap].height
+                    }`;
                   })
                   .join(" ")}
               />
             </svg>
           )}
 
+          {/* Rover Icon */}
           {roverPos && visibleLayers.pr && (
             <div
               className="absolute z-20"
@@ -221,18 +256,18 @@ export default function Map({
                 }deg)`,
               }}
             >
-              <svg width="30" height="30" viewBox="0 0 24 24">
+              <svg width="24" height="24" viewBox="0 0 24 24">
                 <polygon
                   points="12,2 4,20 12,15 20,20"
                   fill="#9333ea"
                   stroke="white"
-                  strokeWidth="2"
-                  className="drop-shadow-md"
+                  strokeWidth="1"
                 />
               </svg>
             </div>
           )}
 
+          {/* EVA #1 Icon */}
           {eva1Pos && visibleLayers.eva && tssData.EVA.eva.started && (
             <div
               className="absolute z-20"
@@ -244,34 +279,18 @@ export default function Map({
                 }deg)`,
               }}
             >
-              <svg width="30" height="30" viewBox="0 0 24 24">
+              <svg width="24" height="24" viewBox="0 0 24 24">
                 <polygon
                   points="12,2 4,20 12,15 20,20"
                   fill="#ec4899"
                   stroke="white"
-                  strokeWidth="2"
-                  className="drop-shadow-md"
+                  strokeWidth="1"
                 />
               </svg>
             </div>
           )}
 
-          {poiArray.map(([x, y], index) => {
-            const pos = percentPosition([x, y], activeMap);
-            return (
-              <div
-                key={`poi-${index}`}
-                style={{
-                  position: "absolute",
-                  left: `${pos.left}%`,
-                  top: `${pos.top}%`,
-                  transform: "translate(-50%, -50%)",
-                }}
-                className="w-5 h-5 bg-yellow-500 rounded-full border-2 border-white z-20"
-              />
-            );
-          })}
-
+          {/* EVA #2 Icon */}
           {eva2Pos && visibleLayers.eva && tssData.EVA.eva.started && (
             <div
               className="absolute z-20"
@@ -283,37 +302,55 @@ export default function Map({
                 }deg)`,
               }}
             >
-              <svg width="30" height="30" viewBox="0 0 24 24">
+              <svg width="24" height="24" viewBox="0 0 24 24">
                 <polygon
                   points="12,2 4,20 12,15 20,20"
                   fill="#ec4899"
                   stroke="white"
-                  strokeWidth="2"
-                  className="drop-shadow-md"
+                  strokeWidth="1"
                 />
               </svg>
             </div>
           )}
 
-          {pinData.map((el) => {
-            const [x, y] = el.position;
-            const pos = percentPosition([x, y], activeMap);
+          {/* POIs */}
+          {rover &&
+            visibleLayers.poi &&
+            [
+              [rover.poi_1_x, rover.poi_1_y],
+              [rover.poi_2_x, rover.poi_2_y],
+              [rover.poi_3_x, rover.poi_3_y],
+            ]
+              .filter(([x, y]) => x && y)
+              .map(([x, y], i) => {
+                const pos = percentPosition([x, y], activeMap);
+                return (
+                  <div
+                    key={i}
+                    className="absolute w-4 h-4 bg-yellow-400 rounded-full border-2 border-white z-20"
+                    style={{
+                      left: `${pos.left}%`,
+                      top: `${pos.top}%`,
+                      transform: "translate(-50%, -50%)",
+                    }}
+                  />
+                );
+              })}
 
-            if (!visibleLayers.pin) return null;
-
-            return (
+          {/* Pins */}
+          {pinData.map((pin, idx) => {
+            const pos = percentPosition(pin.position, activeMap);
+            return visibleLayers.pin ? (
               <div
-                key={el.name + "-" + el.timestamp}
+                key={idx}
+                className="absolute w-4 h-4 bg-green-500 rounded-full border-2 border-white z-20"
                 style={{
-                  position: "absolute",
                   left: `${pos.left}%`,
                   top: `${pos.top}%`,
                   transform: "translate(-50%, -50%)",
-                  opacity: pos.left === 0 || pos.left === 100 ? 0 : 1,
                 }}
-                className="w-5 h-5 bg-green-500 rounded-full border-2 border-white z-20"
               />
-            );
+            ) : null;
           })}
         </div>
       </div>
