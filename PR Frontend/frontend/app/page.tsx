@@ -18,7 +18,6 @@ import RoverControls from "@/components/widgets/RoverControls";
 import ResourceConsumption from "@/components/widgets/ResourceConsumption";
 import Procedures from "@/components/widgets/Procedures";
 import Timer from "@/components/widgets/Timer";
-import VideoFeeds from "@/components/widgets/VideoFeeds";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -29,7 +28,6 @@ const roverLayout: Layout[] = [
   { i: "procedures", x: 3, y: 3, w: 2, h: 2 },
   { i: "mapToggles", x: 2, y: 3, w: 1, h: 2 },
   { i: "llm", x: 0, y: 3, w: 2, h: 4 },
-  { i: "videoFeeds", x: 0, y: 5, w: 2, h: 2 },
   { i: "resourceConsumption", x: 2, y: 4, w: 2, h: 2 },
   { i: "roverControls", x: 0, y: 4, w: 2, h: 2 },
   { i: "timer", x: 2, y: 5, w: 2, h: 2 },
@@ -41,11 +39,10 @@ const evaLayout: Layout[] = [
   { i: "scanData", x: 4, y: 0, w: 1, h: 3 },
   { i: "timer", x: 3, y: 3, w: 2, h: 2 },
   { i: "mapToggles", x: 2, y: 3, w: 1, h: 2 },
-  { i: "videoFeeds", x: 0, y: 3, w: 2, h: 2 },
   { i: "llm", x: 0, y: 4, w: 2, h: 2 },
   { i: "procedures", x: 2, y: 5, w: 2, h: 2 },
-  { i: "roverControls", x: 0, y: 4, w: 2, h: 2 },
-  { i: "resourceConsumption", x: 2, y: 4, w: 2, h: 2 },
+  { i: "resourceConsumption", x: 0, y: 4, w: 2, h: 2 },
+  { i: "roverControls", x: 2, y: 4, w: 2, h: 2 },
 ];
 
 export default function Home() {
@@ -148,9 +145,6 @@ export default function Home() {
             </div>
             <div key="llm">
               <LLMWidget />
-            </div>
-            <div key="videoFeeds">
-              <VideoFeeds />
             </div>
             <div key="procedures">
               <Procedures />
