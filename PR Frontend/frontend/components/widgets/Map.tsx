@@ -6,6 +6,7 @@ import { MapIcon } from "lucide-react";
 import { TSSData } from "@/types/tss";
 import { PinElement } from "@/types/api";
 import { useAPI } from "@/hooks/useAPI";
+import { calculateRange } from "@/utils/resourceConsumption";
 
 // coordinate ranges for the maps as provided
 const coordinateRanges = {
@@ -52,7 +53,8 @@ export default function Map({
     pin: boolean;
     poi: boolean;
     path: boolean;
-    historicalPath: boolean;
+    historicalPath: boolean;  
+    range: boolean;
   };
   addPinClicked: boolean;
   setAddPinClicked: (val: boolean) => void;
@@ -186,7 +188,7 @@ export default function Map({
       {/* Map & Overlays */}
       <div className="flex-1 flex items-center justify-center">
         <div
-          className={`relative h-full w-full ${
+          className={`relative h-full w-full overflow-hidden ${
             addPinClicked ? "cursor-crosshair" : "cursor-default"
           }`}
           onClick={handleMapClick}
@@ -242,6 +244,22 @@ export default function Map({
                   .join(" ")}
               />
             </svg>
+          )}
+
+          {/* Range Indicator Circle */}
+          {calculateRange(historicalData, tssData) > 0 && visibleLayers.range && (
+            <div
+              className="absolute rounded-full border-2 border-green-500 bg-green-500/30 pointer-events-none z-10 overflow-hidden"
+              style={{
+                left: `${roverPos?.left || 0}%`,
+                top: `${roverPos?.top || 0}%`,
+                width: `${(calculateRange(historicalData, tssData) / 
+                  (coordinateRanges[activeMap].x[1] - coordinateRanges[activeMap].x[0])) * 100}%`,
+                height: `${(calculateRange(historicalData, tssData) / 
+                  (coordinateRanges[activeMap].y[1] - coordinateRanges[activeMap].y[0])) * 100}%`,
+                transform: 'translate(-50%, -50%)',
+              }}
+            />
           )}
 
           {/* Rover Icon */}

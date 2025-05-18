@@ -39,7 +39,7 @@ const evaLayout: Layout[] = [
   { i: "scanData", x: 4, y: 0, w: 1, h: 3 },
   { i: "timer", x: 3, y: 3, w: 2, h: 2 },
   { i: "mapToggles", x: 2, y: 3, w: 1, h: 2 },
-  { i: "llm", x: 0, y: 4, w: 2, h: 2 },
+  { i: "llm", x: 0, y: 4, w: 2, h: 4 },
   { i: "procedures", x: 2, y: 5, w: 2, h: 2 },
   { i: "resourceConsumption", x: 0, y: 4, w: 2, h: 2 },
   { i: "roverControls", x: 2, y: 4, w: 2, h: 2 },
@@ -64,7 +64,8 @@ export default function Home() {
     poi: true,
     pin: true,
     path: true,
-    historicalPath: true
+    historicalPath: true,
+    range: false
   });
 
   // Adding a new point to the map
