@@ -47,6 +47,17 @@ export default function LLMWidget() {
     SpeechRecognition.stopListening();
   };
 
+
+  const evtSource = new EventSource("http://127.0.0.1:8282/events");
+
+  evtSource.onmessage = function (event) {
+    console.log("Received:", event.data);
+  };
+
+
+
+
+
   const [messages, setMessages] = useState<ChatMessage[]>([]);
 
   useEffect(() => {

@@ -1,13 +1,19 @@
 import json
+import queue
+import signal
 import sys
 import threading
 import time
+from faster_whisper import WhisperModel
 from flask import Flask, request, jsonify, Response, stream_with_context
 from flask_cors import CORS
+import openwakeword
+
 
 # set root path to parent folder to access other modules
 sys.path.append("..")
 
+from LLM.utils.audio import Audio
 from LLM.utils.ChatBot import ChatBot
 from Backend.tss import fetch_tss_json_data
 from Backend.lunarlink import fetch_lunarlink_json_data, send_lunarlink_data
@@ -149,9 +155,74 @@ def update_lunarlink_loop():
         time.sleep(10)  # poll every 10 seconds
 
 
+
+event_queue = queue.Queue()
+
+stop_event = threading.Event()
+
+def signal_handler(sig, frame):
+    stop_event.set()
+    print("Stopping...")
+    sys.exit(1)
+
+signal.signal(signal.SIGINT, signal_handler)
+
+
+def listen():
+    model = WhisperModel("small", compute_type="float32")
+    openwakeword.utils.download_models()
+
+    owwModel = openwakeword.Model(
+        wakeword_models=["hey jarvis"],
+        enable_speex_noise_suppression=True,
+        inference_framework="onnx"
+    )
+
+    audio = Audio()
+
+    while not stop_event.is_set():
+        chunk = audio.pop_audio_q()
+        if chunk is None:
+            continue
+
+        prediction = owwModel.predict(chunk)
+
+        if prediction["hey jarvis"] > 0.5:
+            print("Hey Jarvis detected")
+            audio.stream.stop()
+
+            event_queue.put("Listening")
+
+            audio_data = audio.record_until_silence(2, 10)
+            text = audio.get_text_from_audio(audio_data, model)
+
+            event_queue.put(text)
+
+            audio.audio_q.clear()
+            owwModel.reset()
+
+        time.sleep(0.1)
+
+
+@app.route('/events')
+def event():
+    def event_stream():
+        while not stop_event.is_set():
+            try:
+                message = event_queue.get(timeout=1)
+                yield f"data: {message}\n\n"
+            except queue.Empty:
+                continue
+
+    return Response(stream_with_context(event_stream()), mimetype='text/event-stream')
+
+
+
 # Start threads and server
 if __name__ == "__main__":
     threading.Thread(target=update_tss_loop, daemon=True).start()
     #threading.Thread(target=update_lunarlink_loop, daemon=True).start()
+
+    threading.Thread(target=listen, daemon=True).start()
 
     app.run(debug=True, use_reloader=False, host="0.0.0.0", port=8282)
