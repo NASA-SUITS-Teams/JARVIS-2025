@@ -54,6 +54,12 @@ export const useAPI = () => {
       const result: APIResponseData = await response.json();
       if (!result.tssData) setError("No TSS data found"); // handle error if not recieving TSS data
 
+      // modify pitch and roll values to convert from radians to degrees
+      result.tssData.ROVER_TELEMETRY.pr_telemetry.pitch =
+        (result.tssData.ROVER_TELEMETRY.pr_telemetry.pitch * 180) / Math.PI;
+      result.tssData.ROVER_TELEMETRY.pr_telemetry.roll =
+        (result.tssData.ROVER_TELEMETRY.pr_telemetry.roll * 180) / Math.PI;
+
       setData(result);
       addToHistory(result);
     } catch (error) {
@@ -112,5 +118,15 @@ export const useAPI = () => {
       .catch((error) => alert("Error resetting pins: " + error));
   };
 
-  return { data, error, loading, historicalData, sendPin, setPollServerData, resetPins, pollServerData, resetHistory };
+  return {
+    data,
+    error,
+    loading,
+    historicalData,
+    sendPin,
+    setPollServerData,
+    resetPins,
+    pollServerData,
+    resetHistory,
+  };
 };
