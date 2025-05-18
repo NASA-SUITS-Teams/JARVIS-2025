@@ -99,8 +99,6 @@ export default function Home() {
     );
   }
 
-  console.log('pathData', pathData);
-
   return (
     <div className="flex flex-col h-screen bg-gray-900 text-blue-100 font-mono">
       <Header

@@ -21,6 +21,7 @@ export default function SystemControl({
       <QuickActions
         setAddPinClicked={setAddPinClicked}
         addPinClicked={addPinClicked}
+        tssData={tssData}
       />
       <SystemStates tssData={tssData} changeLayout={changeLayout} />
     </div>

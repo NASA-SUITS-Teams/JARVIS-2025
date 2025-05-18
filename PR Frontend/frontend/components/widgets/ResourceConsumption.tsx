@@ -1,9 +1,8 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { APIResponseData } from "@/types/api";
 import { estimateFutureUsage } from "@/utils/resourceConsumption";
-import { RefreshCcw, Terminal } from "lucide-react";
+import { Terminal } from "lucide-react";
 import { TSSData } from "@/types/tss";
-import { useAPI } from "@/hooks/useAPI";
 
 export default function ResourceConsumption({
   historicalData,
@@ -13,7 +12,6 @@ export default function ResourceConsumption({
   currentData: TSSData;
 }) {
   const [estimateTime, setEstimateTime] = useState(0);
-  const { resetHistory } = useAPI();
 
   const calculateEndTime = () => {
     if (!currentData.ROVER_TELEMETRY.pr_telemetry) return;
@@ -34,13 +32,6 @@ export default function ResourceConsumption({
           <Terminal size={18} className="text-blue-400" />
           <span className="font-bold">RESOURCE CONSUMPTION</span>
         </div>
-        <button
-          onClick={resetHistory}
-          className="flex items-center space-x-1 text-xs text-gray-400 hover:text-gray-200 ml-auto"
-        >
-          <RefreshCcw size={16} />
-          <span>Reset</span>
-        </button>
       </div>
       <div className="p-3 flex flex-col space-y-3">
         <div className="flex items-center space-x-2">

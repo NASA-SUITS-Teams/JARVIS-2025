@@ -6,8 +6,10 @@ from langchain_ollama import OllamaEmbeddings
 
 
 EMBEDDING_MODEL = "mxbai-embed-large"
-PERSIST_DIRECTORY = "LLM/vectorstore/"
-FOLDER_PATH = "LLM/documents/"
+PERSIST_DIRECTORY = "../LLM/vectorstore/"
+FOLDER_PATH = "../LLM/documents/"
+
+print("Path to folder path: ", os.path.abspath(FOLDER_PATH))
 
 
 def create_vectorstore():
