@@ -10,7 +10,8 @@ export default function SystemStates({
 }: {
   tssData: TSSData & { eva: EVAState }; // assume `eva` is your state payload
 }) {
-  const tabs = ["ROVER", "EVA #1", "EVA #2"] as const;
+  console.log(tssData);
+  const tabs = ["ROVER", "EVA #1", "EVA #2", "UIA"] as const;
   const [activeIndex, setActiveIndex] = useState(0);
 
   const systemData = useMemo<
@@ -53,11 +54,26 @@ export default function SystemStates({
       roverData = rest;
     }
 
-    // @TODO integrate EVA data from lunarlink fist and thn use the tss data as a backup
-    const eva1Telemetry = tssData.TELEMETRY.telemetry.eva1 ?? {};
-    const eva2Telemetry = tssData.TELEMETRY.telemetry.eva2 ?? {};
+    let eva1Telemetry = tssData.TELEMETRY.telemetry.eva1 ?? {};
+    let eva2Telemetry = tssData.TELEMETRY.telemetry.eva2 ?? {};
+    const dcuDataEva1 = tssData.DCU.dcu.eva1 ?? {};
+    const dcuDataEva2 = tssData.DCU.dcu.eva2 ?? {};
 
-    return [roverData, eva1Telemetry, eva2Telemetry];
+    // Add dcu data for each EVA
+    eva1Telemetry = {
+      ...eva1Telemetry,
+      ...dcuDataEva1
+    }
+
+    eva2Telemetry = {
+      ...eva2Telemetry,
+      ...dcuDataEva2,
+    };
+
+    const uiaData = tssData.UIA.uia ?? {};
+
+
+    return [roverData, eva1Telemetry, eva2Telemetry, uiaData];
   }, [tssData]);
 
   const active = systemData[activeIndex] || {};

@@ -26,6 +26,15 @@ export type TSSData = {
     // this is the data for the spectrometer, we should only fetch it here as a backup in case we can't communicate with the EVAs directly
     spec: SpecData;
   };
+  UIA: {
+    uia: UIAData;
+  },
+  DCU: {
+    dcu: {
+      eva1: DCUStates;
+      eva2: DCUStates;
+    };
+  };
 };
 
 // Position data from the IMU about the EVAs
@@ -175,7 +184,6 @@ export interface TaskState {
   time: number;
 }
 
-// Overall EVA session data
 export interface EVAData {
   started: boolean;
   paused: boolean;
@@ -185,4 +193,26 @@ export interface EVAData {
   dcu: TaskState;
   rover: TaskState;
   spec: TaskState;
+}
+
+export interface UIAStates {
+  eva1_power: boolean;
+  eva1_oxy: boolean;
+  eva1_water_supply: boolean;
+  eva1_water_waste: boolean;
+  eva2_power: boolean;
+  eva2_oxy: boolean;
+  eva2_water_supply: boolean;
+  eva2_water_waste: boolean;
+  oxy_vent: boolean;
+  depress: boolean;
+}
+
+export interface DCUStates {
+  batt: boolean;
+  oxy: boolean;
+  comm: boolean;
+  fan: boolean;
+  pump: boolean;
+  co2: boolean;
 }
