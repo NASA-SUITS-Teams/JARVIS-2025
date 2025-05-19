@@ -53,7 +53,7 @@ export default function Map({
     pin: boolean;
     poi: boolean;
     path: boolean;
-    historicalPath: boolean;  
+    historicalPath: boolean;
     range: boolean;
   };
   addPinClicked: boolean;
@@ -69,16 +69,22 @@ export default function Map({
     ? historicalData
         .map((entry) => {
           const rover = entry.tssData.ROVER_TELEMETRY.pr_telemetry;
-          return rover ? ([rover.current_pos_x, rover.current_pos_y] as [number, number]) : null;
+          return rover
+            ? ([rover.current_pos_x, rover.current_pos_y] as [number, number])
+            : null;
         })
         .filter((p): p is [number, number] => p !== null)
     : [];
 
-  // live rover & EVA positions
+  // live rover, ltv, & EVA positions
   const rover = tssData.ROVER_TELEMETRY.pr_telemetry;
   const roverPos = rover
     ? percentPosition([rover.current_pos_x, rover.current_pos_y], activeMap)
     : null;
+
+  const ltv = tssData.ROVER.rover;
+  const ltvPos = ltv ? percentPosition([ltv.posx, ltv.posy], activeMap) : null;
+
   const eva1 = tssData.IMU?.imu.eva1;
   const eva2 = tssData.IMU?.imu.eva2;
   const eva1Pos = eva1
@@ -274,14 +280,15 @@ export default function Map({
             )}
 
           {/* Rover Icon */}
-          {roverPos && visibleLayers.pr && (
+          {roverPos?.left != 100 && visibleLayers.pr && (
             <div
               className="absolute z-20"
               style={{
                 left: `${roverPos.left}%`,
                 top: `${roverPos.top}%`,
                 transform: `translate(-50%, -50%) rotate(${
-                 (tssData.ROVER_TELEMETRY.pr_telemetry.heading + 180) % 360 || 0
+                  (tssData.ROVER_TELEMETRY.pr_telemetry.heading + 180) % 360 ||
+                  0
                 }deg)`,
               }}
             >
@@ -296,8 +303,20 @@ export default function Map({
             </div>
           )}
 
+          {/* LTV Icon */}
+          {ltvPos?.left != 100 && visibleLayers.ltv && (
+            <div
+              className="absolute w-4 h-4 bg-teal-500 rounded-full border-2 border-white z-20"
+              style={{
+                left: `${ltvPos.left}%`,
+                top: `${ltvPos.top}%`,
+                transform: "translate(-50%, -50%)",
+              }}
+            />
+          )}
+
           {/* EVA #1 Icon */}
-          {eva1Pos && visibleLayers.eva && tssData.EVA.eva.started && (
+          {eva1Pos?.left != 100 && visibleLayers.eva && tssData.EVA.eva.started && (
             <div
               className="absolute z-20"
               style={{
@@ -320,7 +339,7 @@ export default function Map({
           )}
 
           {/* EVA #2 Icon */}
-          {eva2Pos && visibleLayers.eva && tssData.EVA.eva.started && (
+          {eva2Pos?.left != 100 && visibleLayers.eva && tssData.EVA.eva.started && (
             <div
               className="absolute z-20"
               style={{

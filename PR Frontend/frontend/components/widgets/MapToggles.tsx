@@ -1,8 +1,18 @@
-import { AlertCircle, BarChart2, Layers, Pin, Satellite, Compass, History, Ruler } from "lucide-react";
+import {
+  AlertCircle,
+  BarChart2,
+  Layers,
+  Pin,
+  Satellite,
+  Compass,
+  History,
+  Ruler,
+  TowerControl
+} from "lucide-react";
 
 export default function MapToggles({ visibleLayers, toggleLayer }) {
   return (
-    <div className="w-full h-full bg-gray-800 rounded-lg border border-blue-600 shadow-lg shadow-blue-500/10 overflow-hidden flex flex-col">
+    <div className="w-full h-full bg-gray-800 rounded-lg border border-blue-600 shadow-lg shadow-blue-500/10 flex flex-col overflow-scroll">
       <div className="bg-gray-700 p-2 border-b border-blue-600 flex items-center space-x-2 drag-handle hover:cursor-move">
         <Layers size={18} className="text-blue-400" />
         <span className="font-bold">MAP TOGGLES</span>
@@ -139,6 +149,25 @@ export default function MapToggles({ visibleLayers, toggleLayer }) {
               <div
                 className={`w-3 h-3 rounded-full bg-white absolute top-1 transition-all duration-200 ${
                   visibleLayers.range ? "left-6" : "left-1"
+                }`}
+              ></div>
+            </button>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-1">
+              <TowerControl size={16} className="text-teal-400" />
+              <span className="text-sm">LTV</span>
+            </div>
+            <button
+              onClick={() => toggleLayer("ltv")}
+              className={`w-10 h-5 rounded-full p-1 ${
+                visibleLayers.ltv ? "bg-blue-600" : "bg-gray-600"
+              } transition-colors duration-200 relative`}
+            >
+              <div
+                className={`w-3 h-3 rounded-full bg-white absolute top-1 transition-all duration-200 ${
+                  visibleLayers.ltv ? "left-6" : "left-1"
                 }`}
               ></div>
             </button>
