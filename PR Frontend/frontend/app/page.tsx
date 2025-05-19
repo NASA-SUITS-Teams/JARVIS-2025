@@ -68,7 +68,8 @@ export default function Home() {
     pin: true,
     path: true,
     historicalPath: true,
-    range: false
+    range: false,
+    ltv: true
   });
 
   // Adding a new point to the map

@@ -36,7 +36,8 @@ def terrain_scan(pos):
     local_terrain = np.array(temp2)
 
     # plot heatmap using matplotlib imshow()
-    plt.title("Terrain centered at " + str(x) + "," + str(y))
+    plt.clf()
+    plt.title("Terrain centered at " + str(pos[0]) + "," + str(pos[1]))
     plt.imshow(local_terrain, cmap="inferno")
     plt.colorbar(label="altitude")
     plt.xlabel("x")

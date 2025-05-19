@@ -22,6 +22,7 @@ z_sum = np.zeros((xmax - xmin, ymax - ymin))    # sum of all collected z values
 z_avg = 0
 count = np.zeros((xmax - xmin, ymax - ymin))    # 
 terrain = np.zeros((xmax - xmin, ymax - ymin))
+first_time = True
 
 # grid update
 def update_grid_batch(points):
@@ -55,17 +56,22 @@ def animate(_):
     return [img]
 
 # initialization to set up the grid, using default LIDAR and telemtry values
-initial_points = lidar_processer.process_lidar([-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0 -1.0, -1.0], [0, 0, 0, 0, 0, 0])
-for point in initial_points:
-    z_avg += point[2]
 
-z_avg /= len(initial_points) 
 
 # loop
 while True:
     lidar, position = convert_tss_for_lidar()
 
     points = lidar_processer.process_lidar(lidar, position)
+
+    # if first time, then setup new grid and the altitude avg
+    if (first_time):
+        first_time = False
+        for point in points:
+            z_avg += point[2]
+
+        z_avg /= len(points) 
+
     print(points)
     
     # update terrain

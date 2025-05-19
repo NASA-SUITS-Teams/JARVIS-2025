@@ -22,7 +22,9 @@ def fetch_lunarlink_json_data():
 
 def parse_lunarlink_json_data(unparsed_data, tss_data):
     copy_tss = tss_data
+
     copy_tss["closest_epoch"] = unparsed_data["closest_epoch"]
+
     # DCU EVA 1
     copy_tss["DCU"]["dcu"]["eva1"]["batt"] = unparsed_data["data"]["2"]
     copy_tss["DCU"]["dcu"]["eva1"]["oxy"] = unparsed_data["data"]["3"]
@@ -30,6 +32,7 @@ def parse_lunarlink_json_data(unparsed_data, tss_data):
     copy_tss["DCU"]["dcu"]["eva1"]["fan"] = unparsed_data["data"]["5"]
     copy_tss["DCU"]["dcu"]["eva1"]["pump"] = unparsed_data["data"]["6"]
     copy_tss["DCU"]["dcu"]["eva1"]["co2"] = unparsed_data["data"]["7"]
+
     # DCU EVA 2
     copy_tss["DCU"]["dcu"]["eva2"]["batt"] = unparsed_data["data"]["8"]
     copy_tss["DCU"]["dcu"]["eva2"]["oxy"] = unparsed_data["data"]["9"]
@@ -37,18 +40,22 @@ def parse_lunarlink_json_data(unparsed_data, tss_data):
     copy_tss["DCU"]["dcu"]["eva2"]["fan"] = unparsed_data["data"]["11"]
     copy_tss["DCU"]["dcu"]["eva2"]["pump"] = unparsed_data["data"]["12"]
     copy_tss["DCU"]["dcu"]["eva2"]["co2"] = unparsed_data["data"]["13"]
+
     # ERROR STATES
     copy_tss["ERROR"]["error"]["fan_error"] = unparsed_data["data"]["14"]
     copy_tss["ERROR"]["error"]["oxy_error"] = unparsed_data["data"]["15"]
     copy_tss["ERROR"]["error"]["pump_error"] = unparsed_data["data"]["16"]
+
     # EVA1 IMU
     copy_tss["IMU"]["imu"]["eva1"]["posx"] = unparsed_data["17"]
     copy_tss["IMU"]["imu"]["eva1"]["posy"] = unparsed_data["18"]
     copy_tss["IMU"]["imu"]["eva1"]["heading"] = unparsed_data["19"]
+
     # EVA2 IMU
     copy_tss["IMU"]["imu"]["eva2"]["posx"] = unparsed_data["20"]
     copy_tss["IMU"]["imu"]["eva2"]["posy"] = unparsed_data["21"]
     copy_tss["IMU"]["imu"]["eva2"]["heading"] = unparsed_data["22"]
+
     # EVA 1 SPEC
     copy_tss["SPEC"]["spec"]["eva1"]["id"] = unparsed_data["31"]
     copy_tss["SPEC"]["spec"]["eva1"]["SiO2"] = unparsed_data["32"]
@@ -61,6 +68,7 @@ def parse_lunarlink_json_data(unparsed_data, tss_data):
     copy_tss["SPEC"]["spec"]["eva1"]["K20"] = unparsed_data["39"]
     copy_tss["SPEC"]["spec"]["eva1"]["P2O3"] = unparsed_data["40"]
     copy_tss["SPEC"]["spec"]["eva1"]["other"] = unparsed_data["41"]
+
     # EVA 2 SPEC
     copy_tss["SPEC"]["spec"]["eva2"]["id"] = unparsed_data["42"]
     copy_tss["SPEC"]["spec"]["eva2"]["SiO2"] = unparsed_data["43"]
@@ -73,6 +81,7 @@ def parse_lunarlink_json_data(unparsed_data, tss_data):
     copy_tss["SPEC"]["spec"]["eva2"]["K20"] = unparsed_data["50"]
     copy_tss["SPEC"]["spec"]["eva2"]["P2O3"] = unparsed_data["51"]
     copy_tss["SPEC"]["spec"]["eva2"]["other"] = unparsed_data["52"]
+
     # UIA
     copy_tss["UIA"]["uia"]["eva1_power"] = unparsed_data["53"]
     copy_tss["UIA"]["uia"]["eva1_oxy"] = unparsed_data["54"]
@@ -84,8 +93,10 @@ def parse_lunarlink_json_data(unparsed_data, tss_data):
     copy_tss["UIA"]["uia"]["eva2_water_waste"] = unparsed_data["60"]
     copy_tss["UIA"]["uia"]["oxy_vent"] = unparsed_data["61"]
     copy_tss["UIA"]["uia"]["depress"] = unparsed_data["62"]
+
     # TELEMETRY
     copy_tss["TELEMETRY"]["telemetry"]["eva_time"] = unparsed_data["63"]
+
     # EVA1 TELEMETRY
     copy_tss["TELEMETRY"]["telemetry"]["eva1"]["batt_time_left"] = unparsed_data["64"]
     copy_tss["TELEMETRY"]["telemetry"]["eva1"]["oxi_pri_storage"] = unparsed_data["65"]
@@ -109,6 +120,7 @@ def parse_lunarlink_json_data(unparsed_data, tss_data):
     copy_tss["TELEMETRY"]["telemetry"]["eva1"]["coolant_ml"] = unparsed_data["83"]
     copy_tss["TELEMETRY"]["telemetry"]["eva1"]["coolant_gas_pressure"] = unparsed_data["84"]
     copy_tss["TELEMETRY"]["telemetry"]["eva1"]["coolant_liquid_pressure"] = unparsed_data["85"]
+
     # EVA2 TELEMETRY
     copy_tss["TELEMETRY"]["telemetry"]["eva2"]["batt_time_left"] = unparsed_data["86"]
     copy_tss["TELEMETRY"]["telemetry"]["eva2"]["oxi_pri_storage"] = unparsed_data["87"]
@@ -132,6 +144,7 @@ def parse_lunarlink_json_data(unparsed_data, tss_data):
     copy_tss["TELEMETRY"]["telemetry"]["eva2"]["coolant_ml"] = unparsed_data["105"]
     copy_tss["TELEMETRY"]["telemetry"]["eva2"]["coolant_gas_pressure"] = unparsed_data["106"]
     copy_tss["TELEMETRY"]["telemetry"]["eva2"]["coolant_liquid_pressure"] = unparsed_data["107"]
+
     # EVA states
     copy_tss["EVA"]["eva"]["started"] = unparsed_data["108"]
     copy_tss["EVA"]["eva"]["paused"] = unparsed_data["109"]
