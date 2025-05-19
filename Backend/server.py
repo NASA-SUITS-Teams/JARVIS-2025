@@ -195,6 +195,8 @@ def save_settings():
     chatbot.use_tools = settings["use_tools"]
     chatbot.use_thinking = settings["use_thinking"]
     enable_audio = settings["enable_audio"]
+    chatbot.context_k = settings["context_k"]
+    chatbot.message_k = settings["message_k"]
 
     return jsonify({"status": "ok"}), 200
 
@@ -207,6 +209,8 @@ def load_settings():
         "use_tools": chatbot.use_tools,
         "use_thinking": chatbot.use_thinking,
         "enable_audio": enable_audio,
+        "context_k": chatbot.context_k,
+        "message_k": chatbot.message_k,
     }
 
     return jsonify({"settings": settings})

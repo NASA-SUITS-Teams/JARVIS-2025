@@ -35,6 +35,8 @@ class ChatBot:
 
         self.use_rag = use_rag
         self.rag_info = "None"
+        self.context_k = 5
+        self.message_k = 5
         if self.use_rag:
             self.vectorstore = load_vectorstore()
             self.client = chromadb.Client()
@@ -86,9 +88,9 @@ class ChatBot:
 
             rag_info = []
 
-            doc_texts, doc_ids = self.get_rag_info(context, k=2)
+            doc_texts, doc_ids = self.get_rag_info(context, k=self.context_k)
             rag_info.append(doc_texts)
-            doc_texts, doc_ids = self.get_rag_info(message, k=2, ignore_ids=doc_ids)
+            doc_texts, doc_ids = self.get_rag_info(message, k=self.message_k, ignore_ids=doc_ids)
             rag_info.append(doc_texts)
 
             rag_info = "\n\n".join(rag_info)
@@ -330,6 +332,9 @@ class ChatBot:
             return error_msg
 
     def get_rag_info(self, prompt, k, ignore_ids=[]):
+        if k <= 0:
+            return "", []
+
         retrieved_docs = self.vectorstore.similarity_search_with_relevance_scores(
             prompt, k=k + len(ignore_ids)
         )

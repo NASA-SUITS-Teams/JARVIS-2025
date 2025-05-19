@@ -269,6 +269,8 @@ export default function LLMWidget() {
   const [useTools, setUseTools] = useState(true);
   const [useThinking, setUseThinking] = useState(false);
   const [enableAudio, setEnableAudio] = useState(false);
+  const [contextK, setContextK] = useState(5);
+  const [messageK, setMessageK] = useState(5);
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -319,7 +321,7 @@ export default function LLMWidget() {
           onClick={() => setShowingSettings((prev) => 
           {
             if (prev == true) {
-              syncSettingsToBackend(audioThreshold, useRag, useTools, useThinking, enableAudio);
+              syncSettingsToBackend(audioThreshold, useRag, useTools, useThinking, enableAudio, contextK, messageK);
             }
 
             return !prev
@@ -631,6 +633,39 @@ export default function LLMWidget() {
                 <span className="text-sm font-medium">{enableAudio ? "On" : "Off"}</span>
               </div>
             </div>
+
+            <div className="border rounded-xl p-4 shadow-md bg-gray w-full">
+              <p className="text-sm font-medium mb-2">
+                RAG Chunks from Context (default: 5)
+              </p>
+              <div className="flex items-center space-x-4">
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={contextK}
+                  onChange={(e) => setContextK(Number(e.target.value))}
+                  className="w-16 border px-2 py-1 rounded"
+                />
+              </div>
+            </div>
+
+            <div className="border rounded-xl p-4 shadow-md bg-gray w-full">
+              <p className="text-sm font-medium mb-2">
+                RAG Chunks from Message (default: 5)
+              </p>
+              <div className="flex items-center space-x-4">
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={messageK}
+                  onChange={(e) => setMessageK(Number(e.target.value))}
+                  className="w-16 border px-2 py-1 rounded"
+                />
+              </div>
+            </div>
+
           </div>
         </>
       )}
