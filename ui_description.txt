@@ -1,0 +1,38 @@
+The UI is broken into a widget panel with multiple modular widgets and a side panel. The user can customize the 
+widgets, choosing which ones to display and how to display them (size and location on screen).
+
+The map widget contains an overhead map of a larger section of the moon's surface and the testing 
+location(s). There is an option to view a larger zoomed-out snippet of the moon's surface, as well as an option 
+to view just the test location (Rock Yard). The map allows the user to drop geopins on areas of interest and then 
+generate a shortest path from the pressurized rover's current position to a selected pin. 
+
+The ALERTS widget displays updates on the environment, such as critical notifications regarding the state of the 
+rover and EVAs, and/or any errors that must be addressed. These notifications are color-coded by urgency, with red 
+being the most critical state. 
+
+The LLM widget contains an interface to interact with JARVIS. Here, you can interact with JARVIS directly through 
+text input or transcribed oral prompts. JARVIS has access to execute backend functions and can assist the user with 
+system operations. 
+
+The MAP TOGGLES widget allows the user to filter out the data displayed on the map, allowing customization of the
+viewing platform and decluttering capabilities. 
+
+ROVER PROCEDURES provides a visual guide and interactive checklist for the tasks the rover operator must complete. 
+
+The RESOURCE CONSUMPTION widget allows the user to input a time interval, and the module will return the resources
+that are expected to be consumed in that time, such as the battery level, oxygen level/pressure, and cabin 
+temperature. 
+
+SCAN DATA displays the data retrieved from the rock scans taken by the two EVAs. 
+
+ROVER CONTROLS provides a way to interface with certain rover processes, such as turning headlights on/off, air
+conditioning, etc. 
+
+The EVA TIMER displays the timers and statuses of the EVA Telemetry stations. 
+
+The VIDEO FEEDS provide a way to stream LTV, EVA#1, and EVA#2 camera feeds. 
+
+The side panel on the right provides a way to interact with the system controls. Under quick actions, the user 
+can add geopins on the map, reset the map, and scan the terrain. Under System States, there are 4 buttons: ROVER, 
+EVA#1, EVA#1, and UIA. Each one is a selectable default state for the widget panel for quick access to filter for 
+relevant widgets. Below this is a display for rover data, such as battery level, brakes, cabin pressure, etc.  
