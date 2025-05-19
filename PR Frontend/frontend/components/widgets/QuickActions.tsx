@@ -9,7 +9,7 @@ export default function QuickActions({
 }: {
   tssData: TSSData;
 }) {
-  const { resetPins, resetHistory } = useAPI();
+  const { resetPins, resetHistory, scanTerrain } = useAPI();
   const [scanCount, setScanCount] = useState(0);
 
   const scanTerrain = () => {
@@ -32,6 +32,16 @@ export default function QuickActions({
     } catch (error) {
       alert("Error parsing terrain data: " + error);
     }
+
+    // fetch terrain data heat map from server
+    const base64Image = scanTerrain();
+
+    // open a new tab with the image
+    const newTab = window.open();
+    if (newTab) {
+      newTab.document.body.innerHTML = `<img src="data:image/png;base64,${base64Image}" alt="Terrain Data" />`;
+    }
+
 
     // overwrite terrainData with the updated array
     existingData.push(terrainData);

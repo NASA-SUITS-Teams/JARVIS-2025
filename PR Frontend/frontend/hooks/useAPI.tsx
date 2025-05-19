@@ -112,6 +112,23 @@ export const useAPI = () => {
       .catch((error) => alert("Error resetting pins: " + error));
   };
 
+  const scanTerrain = async () => {
+    await fetch("http://localhost:8282" + "/scan_terrain", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          alert("Error resetting pins: " + response.statusText);
+        }
+
+        return response.json().terrain_image;
+      })
+      .catch((error) => alert("Error resetting pins: " + error));
+  };
+
   return {
     data,
     error,
@@ -122,5 +139,6 @@ export const useAPI = () => {
     resetPins,
     pollServerData,
     resetHistory,
+    scanTerrain
   };
 };

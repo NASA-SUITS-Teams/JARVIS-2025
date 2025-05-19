@@ -18,6 +18,7 @@ from LLM.utils.ChatBot import ChatBot
 from Backend.tss import fetch_tss_json_data
 from Backend.lunarlink import fetch_lunarlink_json_data, send_lunarlink_data
 from Pathfinding.pathfinding import find_path
+from Pathfinding.terrain_scan import terrain_scan
 
 # Init Flask app and global state
 app = Flask(__name__)
@@ -87,7 +88,14 @@ def reset_pins():
     pin_data = []
     return jsonify({"status": "All pins reset"}), 200
 
+@app.route('/terrain_scan', methods=['POST'])
+def terrain_scan_route():
+    global tss_data
+    rover_position = (tss_data['ROVER_TELEMETRY']['pr_telemetry']['current_pos_x'], tss_data['ROVER_TELEMETRY']['pr_telemetry']['current_pos_y'])
+    terrain_image = terrain_scan(rover_position)
 
+    # send back the terrain image which is base64 encoded
+    return jsonify({"terrain_image": terrain_image}), 200
 
 chatbot = ChatBot(model="qwen3:4b-q8_0", use_rag=True, use_tools=True, use_thinking=False, FLASK=True)
 @app.route('/llm_response_stream', methods=['POST'])
