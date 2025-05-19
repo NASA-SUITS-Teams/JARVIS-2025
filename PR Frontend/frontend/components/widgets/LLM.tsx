@@ -49,10 +49,20 @@ export default function LLMWidget() {
   };
 
 
+  const [isListening, setIsListening] = useState<boolean>(false);
   const evtSource = new EventSource("http://127.0.0.1:8282/events");
 
   evtSource.onmessage = function (event) {
     console.log("Received:", event.data);
+    if (event.data === "Listening") {
+      console.log("okok");
+      setIsListening(true);
+    }
+    if (event.data !== "Listening") {
+      console.log("yep");
+      setIsListening(false);
+      setEditableTranscript(event.data)
+    }
   };
 
 

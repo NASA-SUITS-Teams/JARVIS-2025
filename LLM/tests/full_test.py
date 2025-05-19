@@ -21,7 +21,7 @@ tts = TTS("tts_models/en/vctk/vits")
 audio = Audio()
 
 
-chatbot = ChatBot(model=CHAT_MODEL, use_rag=True, use_tools=True)
+chatbot = ChatBot(model=CHAT_MODEL, use_rag=False, use_tools=False)
 
 
 print("Ready!")

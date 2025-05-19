@@ -90,6 +90,8 @@ def reset_pins():
 
 
 chatbot = ChatBot(model="qwen3:4b-q8_0", use_rag=True, use_tools=True, use_thinking=False, FLASK=True)
+audio_threshold = 50
+
 @app.route('/llm_response_stream', methods=['POST'])
 def stream_response():
     data = request.get_json()["request"]
@@ -97,7 +99,7 @@ def stream_response():
 
     def generate():
         try:
-            for is_tool, message, tool in chatbot.get_response_stream(prompt, just_print=False):
+            for is_tool, message, tool in chatbot.get_response_stream_flask(prompt, just_print=False):
                 if not is_tool:
                     is_thinking, content = message
                     yield json.dumps({
@@ -138,9 +140,12 @@ def load_chat_history():
 
 @app.route('/save_settings', methods=['POST'])
 def save_settings():
+    global audio_threshold
+
     data = request.get_json()
     settings = data.get("settings", [])
 
+    audio_threshold = settings["audio_threshold"]
     chatbot.use_rag = settings["use_rag"]
     chatbot.use_tools = settings["use_tools"]
     chatbot.use_thinking = settings["use_thinking"]
@@ -151,7 +156,7 @@ def save_settings():
 def load_settings():
 
     settings = {
-        "audio_threshold": 50,
+        "audio_threshold": audio_threshold,
         "use_rag": chatbot.use_rag,
         "use_tools": chatbot.use_tools,
         "use_thinking": chatbot.use_thinking,
@@ -211,7 +216,7 @@ def listen():
 
         prediction = owwModel.predict(chunk)
 
-        if prediction["hey jarvis"] > 0.5:
+        if prediction["hey jarvis"] > (audio_threshold / 100):
             print("Hey Jarvis detected")
             audio.stream.stop()
 

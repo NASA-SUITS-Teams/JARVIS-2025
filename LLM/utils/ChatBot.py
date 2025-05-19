@@ -66,7 +66,7 @@ class ChatBot:
 
         return context
 
-    def get_response_stream(self, message, just_print=False, add_messages=True):
+    def get_response_stream_flask(self, message, just_print=False, add_messages=True):
         """Get a streaming response from OpenAI-type API and display in real-time"""
         if not add_messages:
             old_messages = self.messages.copy()
@@ -205,6 +205,141 @@ class ChatBot:
             print(error_msg)
             if self.FLASK:
                 yield False, (False, error_msg), ()
+            return error_msg
+
+    def get_response_stream(self, message, just_print=False, add_messages=True):
+        if self.FLASK:
+            self.get_response_stream_flask(message, just_print=just_print, add_messages=add_messages)
+            return
+
+        """Get a streaming response from OpenAI-type API and display in real-time"""
+        if not add_messages:
+            old_messages = self.messages.copy()
+
+        if not self.use_thinking:
+            message = message + " /no_think"
+
+        self.add_message("user", message)
+
+        url = f"{self.base_url}/api/chat"
+
+        system_messages = []
+
+        if self.use_rag:
+            context = self.get_recent_context()
+
+            rag_info = []
+
+            doc_texts, doc_ids = self.get_rag_info(context, k=2)
+            rag_info.append(doc_texts)
+            doc_texts, doc_ids = self.get_rag_info(message, k=2, ignore_ids=doc_ids)
+            rag_info.append(doc_texts)
+
+            rag_info = "\n\n".join(rag_info)
+            rag_info = f"Relevant information (optional):\n{rag_info}\n\n"
+
+            system_messages.append({"role": "user", "content": rag_info})
+
+        if self.use_tools:
+            tools_message = ""
+            tools_message += "If you need more information or there are any functions that relevant to the context do not overthink. Instead, explain which function you are calling and at the end of your response suggest them in a block of '<functions>' in the format `function_name(arg1, arg2)` and type '</functions>' when you are done suggesting functions. At the end of your response, only suggest functions when they are truly necessary for the current context.\n"
+            tools_message += "\n" + "Optional functions:\n" + ALL_TOOLS_STRING
+
+            system_messages.append({"role": "system", "content": tools_message})
+
+        # Prepare payload
+        payload = {
+            "model": self.model,
+            "stream": True,
+            "options": {"num_predict": 4096},
+        }
+
+        if self.use_thinking:
+            system_messages.append({"role": "system", "content": SYSTEM_PROMPT})
+        else:
+            system_messages.append({"role": "system", "content": "/no_think " + SYSTEM_PROMPT})
+
+        payload["messages"] = system_messages + self.messages
+
+        if DEBUG:
+            print("-=" * 7)
+            print("messages:")
+            print(payload["messages"])
+            print("-=" * 7)
+
+        full_response = ""
+
+        is_thinking = False
+        try:
+            # Process the streaming response line by line
+            with requests.post(url, json=payload, stream=True) as response:
+
+                if just_print:
+                    print("Jarvis: ", end="", flush=True)
+
+                for line in response.iter_lines():
+                    if line:
+                        # Parse the JSON response
+                        chunk = json.loads(line)
+                        message = chunk["message"]
+
+                        if "content" in message:
+                            content = message["content"]
+                            full_response += content
+
+                            if content == "<think>":
+                                is_thinking = True
+
+                            if just_print:
+                                print(content, end="", flush=True)
+
+                            if content == "</think>":
+                                is_thinking = False
+
+                        if "done" in chunk and chunk["done"]:
+                            break
+
+            if just_print:
+                print()
+
+            full_response = re.sub(r"<think>(\n|.)*</think>", "", full_response).strip()
+
+            match = re.search(r"<functions>((\n|.)*)</functions>", full_response)
+            tool_response = ""
+            if match:
+                function_calls = match.group(1).strip()
+                if DEBUG:
+                    print(f"CALLING FUNCTIONS: {function_calls}")
+
+                tool_prompt = f"/no_think Call these functions:\n{function_calls}"
+
+                tool_response = self.toolbot.get_response_stream(tool_prompt) 
+
+                if just_print:
+                    print(tool_response)
+
+                self.add_message("system", tool_response)
+
+            full_response = re.sub(
+                r"<functions>(\n|.)*</functions>", "", full_response
+            ).strip()
+            self.add_message("assistant", full_response)
+
+            if not add_messages:
+                self.messages = old_messages
+
+            if self.TESTING:
+                return full_response, tool_response
+
+            return full_response
+
+        except requests.exceptions.ConnectionError:
+            error_msg = "Error: Could not connect to Ollama. Make sure it is running with 'ollama serve'"
+            print(error_msg)
+            return error_msg
+        except Exception as e:
+            error_msg = f"Error: {str(e)}"
+            print(error_msg)
             return error_msg
 
     def get_rag_info(self, prompt, k, ignore_ids=[]):
