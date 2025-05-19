@@ -39,3 +39,23 @@ export const syncFromBackend = async (): Promise<ChatMessage[]> => {
   const data = await res.json();
   return data.chat_history ?? [];
 };
+
+
+export const syncSettingsToBackend = async (audioThreshold: number, useRag: boolean, useTools: boolean, useThinking: boolean) => {
+  await fetch("http://localhost:8282/save_settings", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ "settings": {
+      "audio_threshold": audioThreshold,
+      "use_rag": useRag,
+      "use_tools": useTools,
+      "use_thinking": useThinking,
+    } }),
+  });
+};
+
+export const syncSettingsFromBackend = async (): Promise<Record<string, string>> => {
+  const res = await fetch("http://localhost:8282/load_settings");
+  const data = await res.json();
+  return data.settings ?? [];
+};

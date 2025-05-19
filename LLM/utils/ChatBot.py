@@ -23,13 +23,13 @@ Do not use any formatting. Communicate clearly and naturally using only plain pu
 
 class ChatBot:
     def __init__(
-        self, model, use_rag=False, use_tools=False, THINKING=True, TESTING=False, FLASK=False
+        self, model, use_rag=False, use_tools=False, use_thinking=True, TESTING=False, FLASK=False
     ):
         """Initialize ChatBot with OpenAI-type API"""
         self.base_url = "http://localhost:11434"
         self.model = model
         self.messages = []
-        self.THINKING = THINKING
+        self.use_thinking = use_thinking
         self.TESTING = TESTING
         self.FLASK = FLASK
 
@@ -71,13 +71,14 @@ class ChatBot:
         if not add_messages:
             old_messages = self.messages.copy()
 
-        if not self.THINKING:
+        if not self.use_thinking:
             message = message + " /no_think"
 
         self.add_message("user", message)
 
-        # Prepare API request
         url = f"{self.base_url}/api/chat"
+
+        system_messages = []
 
         if self.use_rag:
             context = self.get_recent_context()
@@ -92,22 +93,6 @@ class ChatBot:
             rag_info = "\n\n".join(rag_info)
             rag_info = f"Relevant information (optional):\n{rag_info}\n\n"
 
-        if DEBUG:
-            print("-=" * 7)
-            print("messages:")
-            print(self.messages)
-            print("-=" * 7)
-
-        # Prepare payload
-        payload = {
-            "model": self.model,
-            "stream": True,
-            "options": {"num_predict": 4096},
-        }
-
-        system_messages = []
-
-        if self.use_rag:
             system_messages.append({"role": "user", "content": rag_info})
 
         if self.use_tools:
@@ -117,12 +102,25 @@ class ChatBot:
 
             system_messages.append({"role": "system", "content": tools_message})
 
-        system_messages.append({"role": "system", "content": SYSTEM_PROMPT})
+        # Prepare payload
+        payload = {
+            "model": self.model,
+            "stream": True,
+            "options": {"num_predict": 4096},
+        }
+
+        if self.use_thinking:
+            system_messages.append({"role": "system", "content": SYSTEM_PROMPT})
+        else:
+            system_messages.append({"role": "system", "content": "/no_think " + SYSTEM_PROMPT})
 
         payload["messages"] = system_messages + self.messages
 
         if DEBUG:
+            print("-=" * 7)
+            print("messages:")
             print(payload["messages"])
+            print("-=" * 7)
 
         full_response = ""
 
