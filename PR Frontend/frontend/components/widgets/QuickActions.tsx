@@ -9,10 +9,10 @@ export default function QuickActions({
 }: {
   tssData: TSSData;
 }) {
-  const { resetPins, resetHistory, scanTerrain } = useAPI();
+  const { resetPins, resetHistory, scanTerrain: generateHeatmap } = useAPI();
   const [scanCount, setScanCount] = useState(0);
 
-  const scanTerrain = () => {
+  const scanTerrain = async () => {
     // save current lidar to local storage
     const lidarData = tssData.ROVER_TELEMETRY.pr_telemetry.lidar;
 
@@ -34,21 +34,17 @@ export default function QuickActions({
     }
 
     // fetch terrain data heat map from server
-    const base64Image = scanTerrain();
-
-    // open a new tab with the image
+    const base64Image = await generateHeatmap();
     const newTab = window.open();
     if (newTab) {
       newTab.document.body.innerHTML = `<img src="data:image/png;base64,${base64Image}" alt="Terrain Data" />`;
     }
-
 
     // overwrite terrainData with the updated array
     existingData.push(terrainData);
     localStorage.setItem("terrainData", JSON.stringify(existingData));
 
     setScanCount((prev) => prev + 1);
-    alert("Terrain data saved to local storage");
   };
 
   return (

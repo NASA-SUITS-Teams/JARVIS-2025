@@ -1,12 +1,19 @@
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-import pathfinding
 import os
 import base64
 
+# set root path to parent folder to access other modules
+import sys
+sys.path.append("..")
+
+from Pathfinding.pathfinding import xy_to_index
+
 def terrain_scan(pos):
     pos = [round(pos[0]), round(pos[1])]
-    indices  = pathfinding.xy_to_index(pos)
+    indices = xy_to_index(pos)
     x = indices[0]
     y = indices[1]
 
