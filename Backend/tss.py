@@ -1,15 +1,15 @@
 import requests
 
 BASE_URL = "http://192.168.51.110:14141/json_data"
-TEAM_NUMBER = 4
+TEAM_NUMBER = 0
 
 DATA_KEYS = [
-    "ERROR", # error
+    "ERROR",
     "IMU",
-    "SPEC", # spec
-    "ROVER", # rover
-    #"DCU",
-    #"UIA", # uia
+    "SPEC",
+    "ROVER",
+    "DCU", 
+    "UIA",
 ]
 
 TEAM_DATA_KEYS = [

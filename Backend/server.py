@@ -143,7 +143,7 @@ def update_tss_loop():
     while True:
         tss_data = fetch_tss_json_data()
 
-        time.sleep(10) # poll every 10 seconds
+        time.sleep(1) # poll every 3 seconds
 
 # Update lunarlink data every 10 seconds, including EVA, etc
 def update_lunarlink_loop():

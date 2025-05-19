@@ -281,7 +281,7 @@ export default function Map({
                 left: `${roverPos.left}%`,
                 top: `${roverPos.top}%`,
                 transform: `translate(-50%, -50%) rotate(${
-                  tssData.ROVER_TELEMETRY.pr_telemetry.heading || 0
+                 (tssData.ROVER_TELEMETRY.pr_telemetry.heading + 180) % 360 || 0
                 }deg)`,
               }}
             >

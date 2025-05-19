@@ -63,7 +63,7 @@ export const useAPI = () => {
     }
   };
 
-  // Fetch new data every 5 seconds
+  // Fetch new data every 3 seconds
   useEffect(() => {
     if (!pollServerData) return;
 
@@ -72,13 +72,13 @@ export const useAPI = () => {
     const interval = setInterval(() => {
       setError(null); // Reset error state before fetching
       fetchData();
-    }, 5000);
+    }, 1000);
 
     return () => clearInterval(interval);
   }, [pollServerData]);
 
   const sendPin = async (newPin: [number, number]) => {
-    await fetch("http://10.0.0.108:8282" + "/add_pin", {
+    await fetch("http://localhost:8282" + "/add_pin", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -97,7 +97,7 @@ export const useAPI = () => {
   };
 
   const resetPins = async () => {
-    await fetch("http://10.0.0.108:8282" + "/reset_pins", {
+    await fetch("http://localhost:8282" + "/reset_pins", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

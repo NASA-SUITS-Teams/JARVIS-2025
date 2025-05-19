@@ -3,67 +3,58 @@
 import React, { useState, useEffect } from "react";
 import { CheckSquare, RefreshCcw } from "lucide-react";
 
+/*
+POIS for PR
+-5855.60, -10168.60
+-5868.10, -10016.10
+-5745.90, -9977.30
+*/
+
+/*
+GEOLOGY POIS
+LTV POI 1: -5635.00, -9970.00 
+
+LTV POI 2: -5610.00, -9971.00
+LTV POI 3: -5615.00, -9995.00*/
+
 const TASKS = [
-  // Pre-flight checklist
   { id: "battery", label: "Pilot verify battery level is > 95%" },
   { id: "o2-level", label: "Pilot verify O₂ levels are > 95%" },
   { id: "o2-pressure", label: "Verify O₂ pressure is > 2900 psi" },
   { id: "cabin-pressure", label: "Verify PR cabin pressure is > 3.95 psi" },
   { id: "headlights", label: "Toggle PR headlights ON then OFF" },
-
-  // Initial pin drop
   { id: "drop-pin-current", label: "Drop pin at current location" },
 
-  // Point A sequence
-  { id: "select-point-a", label: "Determine “Point A” and drop pin" },
+  { id: "select-point-a", label: "Drop pin at point A (-5855.60, -10168.60)" },
   { id: "nav-point-a", label: "Begin navigation to Point A" },
   { id: "stop-at-point-a", label: "Verify PR has come to a complete stop" },
-  { id: "scan-point-a", label: "Begin terrain scan at Point A" },
-  { id: "select-point-b", label: "Determine “Point B” and drop pin" },
-  { id: "verify-pnr-a", label: "Verify PNR for Point A" },
+  { id: "scan-point-a", label: "Conduct terrain scan at Point A" },
+  { id: "verify-pnr-a", label: "Verify PNR at Point A" },
   {
-    id: "note-consumables-a",
-    label: "Note anticipated remaining consumables at Point A",
-  },
-  {
-    id: "save-point-a-data",
-    label: "Ensure terrain data for Point A is stored",
+    id: "verify-consumables-a",
+    label: "Note anticipiated consumables at Point A",
   },
 
-  // Point B sequence
+  { id: "select-point-b", label: "Drop pin at point B (-5868.10, -10016.10)" },
   { id: "nav-point-b", label: "Begin navigation to Point B" },
   { id: "stop-at-point-b", label: "Verify PR has come to a complete stop" },
-  { id: "scan-point-b", label: "Begin terrain scan at Point B" },
-  { id: "select-point-c", label: "Determine “Point C” and drop pin" },
-  { id: "verify-pnr-b", label: "Verify PNR for Point B" },
+  { id: "scan-point-b", label: "Conduct terrain scan at Point B" },
+  { id: "verify-pnr-b", label: "Verify PNR at Point B" },
   {
-    id: "note-consumables-b",
-    label: "Note anticipated remaining consumables at Point B",
-  },
-  {
-    id: "save-point-b-data",
-    label: "Ensure terrain data for Point B is stored",
+    id: "verify-consumables-b",
+    label: "Note anticipiated consumables at Point B",
   },
 
-  // Point C sequence
+  { id: "select-point-c", label: "Drop pin at point B (-5745.90, -9977.30)" },
   { id: "nav-point-c", label: "Begin navigation to Point C" },
   { id: "stop-at-point-c", label: "Verify PR has come to a complete stop" },
+  { id: "scan-point-c", label: "Conduct terrain scan at Point C" },
+  { id: "verify-pnr-c", label: "Verify PNR at Point C" },
   {
-    id: "check-telemetry",
-    label: "Check telemetry data for off-nominal values",
-  },
-  { id: "scan-point-c", label: "Begin terrain scan at Point C" },
-  {
-    id: "save-point-c-data",
-    label: "Ensure terrain data for Point C is stored",
-  },
-  { id: "verify-pnr-c", label: "Verify PNR for Point C" },
-  {
-    id: "note-consumables-c",
-    label: "Note anticipated remaining consumables at Point C",
+    id: "verify-consumables-c",
+    label: "Note anticipiated consumables at Point C",
   },
 
-  // Return and egress preparations
   { id: "verify-home-path", label: "Verify path to home base is generated" },
   { id: "nav-home", label: "Begin navigation to home base" },
 
@@ -79,7 +70,6 @@ const TASKS = [
   // Final airlock clearance
   { id: "unlock-airlock", label: "Unlock airlock & announce all-clear for EV" },
 ];
-
 
 export default function Procedures() {
   // Lazy-load from localStorage so state persists across refresh
@@ -112,7 +102,14 @@ export default function Procedures() {
         <div className="flex items-center space-x-2 drag-handle hover:cursor-move">
           <CheckSquare size={18} className="text-blue-400" />
           <span className="font-bold">ROVER PROCEDURES</span>
-           <span className="text-sm text-gray-400">- {((Object.values(done).filter(Boolean).length / TASKS.length) * 100).toFixed(0)}%</span>
+          <span className="text-sm text-gray-400">
+            -{" "}
+            {(
+              (Object.values(done).filter(Boolean).length / TASKS.length) *
+              100
+            ).toFixed(0)}
+            %
+          </span>
         </div>
         <button
           onClick={resetAll}

@@ -21,8 +21,8 @@ function saveStartTimes(times: Record<string, number>) {
 }
 
 export const ROVER_THRESHOLDS: Record<keyof PRTelemetry, [number, number]> = {
-  pitch: [0.0, 50.0],
-  roll: [0.0, 50.0],
+  pitch: [-10.0, 50.0],
+  roll: [-10.0, 50.0],
   speed: [0.0, 18.0],
   surface_incline: [0.0, 50.0],
   oxygen_tank: [25.0, 100.0],
