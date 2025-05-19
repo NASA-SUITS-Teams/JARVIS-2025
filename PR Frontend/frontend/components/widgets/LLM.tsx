@@ -2,12 +2,13 @@ import React, { useEffect, useRef, useState } from "react";
 import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
-import { Terminal, Music4Icon, Send, Trash2, Pencil } from "lucide-react";
+import { Terminal, Music4Icon, Send, Trash2, Pencil, Settings, MessageSquare } from "lucide-react";
 import { askLLM, syncFromBackend, syncToBackend } from "@/hooks/useLLM";
 
 export default function LLMWidget() {
   const [response, setResponse] = useState("");
   const [isSendEnabled, setIsSendEnabled] = useState(true);
+  const [showingSettings, setShowingSettings] = useState(false);
 
   const [activeFunctionEdit, setActiveFunctionEdit] = useState<{
     function_name: string;
@@ -155,7 +156,6 @@ export default function LLMWidget() {
 
       if (confirmed) {
         console.log("User accepted", fnCall.function_name, args);
-        // Optional: call actual tool or handle args
       } else {
         console.log("User denied", fnCall.function_name);
       }
@@ -237,6 +237,26 @@ export default function LLMWidget() {
     setEditableTranscript(e.target.value);
   };
 
+
+
+
+
+  const SettingsIcon = !showingSettings ? Settings : MessageSquare;
+
+  const [audioThreshold, setAudioThreshold] = useState(50);
+  const [useRag, setUseRag] = useState(true);
+  const [useTools, setUseTools] = useState(true);
+  const [useThinking, setUseThinking] = useState(false);
+
+  const changeAudioThreshold = (newValue: number) => {
+    const clamped = Math.min(100, Math.max(0, newValue));
+    setAudioThreshold(clamped);
+  };
+
+
+
+
+
   return (
     <div className="w-full h-full bg-gray-800 rounded-lg border border-blue-600 shadow-lg shadow-blue-500/10 overflow-hidden flex flex-col">
       <div className="bg-gray-700 p-2 border-b border-blue-600 flex items-center space-x-2 drag-handle hover:cursor-move">
@@ -244,166 +264,287 @@ export default function LLMWidget() {
         <span className="font-bold">LLM INTERFACE</span>
       </div>
 
-      <div className="ml-auto flex items-center space-x-2">
+      {/* Top Buttons */}
+      <div className="flex items-center justify-between space-x-2 w-full">
+        {/* Settings Button */}
         <button
-          onDoubleClick={clearMessages}
-          className="text-red-400 hover:text-red-500 p-1 rounded hover:bg-gray-800
+          onClick={() => setShowingSettings((prev) => !prev)}
+          className="text-white-400 hover:text-gray-800 p-1 rounded hover:bg-gray-400
           flex-1 flex items-center justify-center px-3 py-2 rounded-md border text-sm text-white font-medium disabled:opacity-50"
-          title="Clear Messages"
         >
-          <Trash2 size={16} className="mr-2" />
-          Clear Messages
+          <SettingsIcon size={16} className="mr-2" />
+          {!showingSettings ? "Settings" : "Show Chat"}
         </button>
-      </div>
 
-      <div className="flex-1 overflow-y-auto space-y-3 pr-1" ref={containerRef}>
-        {messages.map((msg, index) => (
-          <div
-            key={index}
-            className={`group relative p-2 rounded-md max-w-[80%] text-sm ${msg.role === 'user'
-              ? 'bg-gray-700 text-white ml-auto'
-              : 'bg-blue-600 text-white mr-auto'
-              }`}
+        {/* Clear Messages Button */}
+        {!showingSettings && (
+          <button
+            onDoubleClick={clearMessages}
+            className="text-red-400 hover:text-white-500 p-1 rounded hover:bg-red-800
+          flex-1 flex items-center justify-center px-3 py-2 rounded-md border text-sm text-white font-medium disabled:opacity-50"
           >
-
-            {/* Action buttons */}
-            <div className="absolute top-1 right-1 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-              <button onDoubleClick={() => handleEdit(index)} className="text-gray-300 hover:text-yellow-300 p-1 rounded hover:bg-black/10" title="Edit message">
-                <Pencil size={14} />
-              </button>
-              <button onDoubleClick={() => handleDelete(index)} className="text-gray-300 hover:text-red-400 p-1 rounded hover:bg-black/10" title="Delete message">
-                <Trash2 size={14} />
-              </button>
-            </div>
-
-
-            {/* Message content */}
-            <span className="font-bold">
-              {msg.role === 'user' ? 'User: ' : 'Jarvis: '}
-            </span>
-            <div className="whitespace-pre-wrap">
-              {msg.content.trim()}
-            </div>
-          </div>
-        ))}
-        <div ref={bottomRef} />
+            <Trash2 size={16} className="mr-2" />
+            Clear Messages
+          </button>
+        )}
       </div>
 
+      {!showingSettings && (
+        <>
+          <div className="flex-1 overflow-y-auto space-y-3 pr-1" ref={containerRef}>
+            {messages.map((msg, index) => (
+              <div
+                key={index}
+                className={`group relative p-2 rounded-md max-w-[80%] text-sm ${msg.role === 'user'
+                  ? 'bg-gray-700 text-white ml-auto'
+                  : 'bg-blue-600 text-white mr-auto'
+                  }`}
+              >
 
-      {activeFunctionEdit && (
-        <div className="bg-gray-900 p-4 border border-blue-600 rounded-md mb-2 space-y-2">
-          <div className="text-blue-300 font-semibold"></div>
+                {/* Action buttons */}
+                <div className="absolute top-1 right-1 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  <button onDoubleClick={() => handleEdit(index)} className="text-gray-300 hover:text-yellow-300 p-1 rounded hover:bg-black/10" title="Edit message">
+                    <Pencil size={14} />
+                  </button>
+                  <button onDoubleClick={() => handleDelete(index)} className="text-gray-300 hover:text-red-400 p-1 rounded hover:bg-black/10" title="Delete message">
+                    <Trash2 size={14} />
+                  </button>
+                </div>
 
-          <div className="text-white text-sm">
-            <label className="block mb-1 text-gray-400">Function Name</label>
-            <input
-              className="w-full p-2 rounded-md bg-gray-800 border border-blue-500 text-white"
-              value={activeFunctionEdit.function_name}
-              onChange={(e) =>
-                setActiveFunctionEdit({
-                  ...activeFunctionEdit,
-                  function_name: e.target.value,
-                })
-              }
-            />
+
+                {/* Message content */}
+                <span className="font-bold">
+                  {msg.role === 'user' ? 'User: ' : 'Jarvis: '}
+                </span>
+                <div className="whitespace-pre-wrap">
+                  {msg.content.trim()}
+                </div>
+              </div>
+            ))}
+            <div ref={bottomRef} />
           </div>
 
-          <div className="space-y-2">
-            {Object.entries(activeFunctionEdit.args).map(([key, value]) => (
-              <div key={key} className="text-white text-sm">
-                <label className="block mb-1 text-gray-400">{key}</label>
+
+          {activeFunctionEdit && (
+            <div className="bg-gray-900 p-4 border border-blue-600 rounded-md mb-2 space-y-2">
+              <div className="text-blue-300 font-semibold"></div>
+
+              <div className="text-white text-sm">
+                <label className="block mb-1 text-gray-400">Function Name</label>
                 <input
                   className="w-full p-2 rounded-md bg-gray-800 border border-blue-500 text-white"
-                  value={value}
+                  value={activeFunctionEdit.function_name}
                   onChange={(e) =>
-                    setActiveFunctionEdit((prev) =>
-                      prev
-                        ? {
-                          ...prev,
-                          args: { ...prev.args, [key]: e.target.value },
-                        }
-                        : prev
-                    )
+                    setActiveFunctionEdit({
+                      ...activeFunctionEdit,
+                      function_name: e.target.value,
+                    })
                   }
                 />
               </div>
-            ))}
-          </div>
 
-          <div className="flex space-x-2 pt-2">
-            <button
-              className="flex-1 px-3 py-2 rounded-md bg-green-600 hover:bg-green-500 text-white font-medium text-sm"
-              onClick={() => {
-                if (resolveCurrentEditRef.current && activeFunctionEdit) {
-                  dummyConfirm(activeFunctionEdit);
-                  resolveCurrentEditRef.current(true, activeFunctionEdit.args);
-                  resolveCurrentEditRef.current = null;
-                }
-              }}
-            >
-              Confirm
-            </button>
+              <div className="space-y-2">
+                {Object.entries(activeFunctionEdit.args).map(([key, value]) => (
+                  <div key={key} className="text-white text-sm">
+                    <label className="block mb-1 text-gray-400">{key}</label>
+                    <input
+                      className="w-full p-2 rounded-md bg-gray-800 border border-blue-500 text-white"
+                      value={value}
+                      onChange={(e) =>
+                        setActiveFunctionEdit((prev) =>
+                          prev
+                            ? {
+                              ...prev,
+                              args: { ...prev.args, [key]: e.target.value },
+                            }
+                            : prev
+                        )
+                      }
+                    />
+                  </div>
+                ))}
+              </div>
 
+              <div className="flex space-x-2 pt-2">
+                <button
+                  className="flex-1 px-3 py-2 rounded-md bg-green-600 hover:bg-green-500 text-white font-medium text-sm"
+                  onClick={() => {
+                    if (resolveCurrentEditRef.current && activeFunctionEdit) {
+                      dummyConfirm(activeFunctionEdit);
+                      resolveCurrentEditRef.current(true, activeFunctionEdit.args);
+                      resolveCurrentEditRef.current = null;
+                    }
+                  }}
+                >
+                  Confirm
+                </button>
+
+                <button
+                  className="flex-1 px-3 py-2 rounded-md bg-red-600 hover:bg-red-500 text-white font-medium text-sm"
+                  onClick={() => {
+                    dummyCancel();
+                    if (resolveCurrentEditRef.current) {
+                      resolveCurrentEditRef.current(false);
+                      resolveCurrentEditRef.current = null;
+                    }
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
+
+          {/* Input Textbox */}
+          <textarea
+            ref={textareaRef}
+            value={editableTranscript}
+            onChange={handleChange}
+            placeholder="Your voice transcript will appear here."
+            className="p-2 rounded-md border border-blue-600 bg-gray-900 text-gray-200 text-sm resize-none overflow-y-auto max-h-48"
+          />
+
+          {/* Buttons row */}
+          <div className="flex space-x-2">
+            {/* Audio Button */}
+            {!listening ? (
+              <button
+                onClick={startListening}
+                className="flex-1 flex items-center justify-center px-3 py-2 rounded-md border border-blue-400 bg-blue-900/50 text-sm text-blue-100 font-medium hover:bg-blue-800"
+              >
+                <Music4Icon size={16} className="mr-2" />
+                Start Listening
+              </button>
+            ) : (
+              <button
+                onClick={stopListening}
+                className="flex-1 flex items-center justify-center px-3 py-2 rounded-md border border-red-400 bg-red-900/50 text-sm text-red-100 font-medium hover:bg-red-800"
+              >
+                <Music4Icon size={16} className="mr-2 animate-pulse text-red-400" />
+                Stop Listening
+              </button>
+            )}
+
+            {/* Send Button */}
             <button
-              className="flex-1 px-3 py-2 rounded-md bg-red-600 hover:bg-red-500 text-white font-medium text-sm"
-              onClick={() => {
-                dummyCancel();
-                if (resolveCurrentEditRef.current) {
-                  resolveCurrentEditRef.current(false);
-                  resolveCurrentEditRef.current = null;
-                }
-              }}
+              onClick={handleSend}
+              disabled={!editableTranscript.trim() || !isSendEnabled}
+              className="flex-1 flex items-center justify-center px-3 py-2 rounded-md border border-blue-400 bg-blue-600 text-sm text-white font-medium hover:bg-blue-500 disabled:opacity-50"
             >
-              Cancel
+              <Send size={16} className="mr-2" />
+              Send to LLM
             </button>
           </div>
-        </div>
+        </>
       )}
 
 
+      {/* Settings Page */}
+      {showingSettings && (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="border rounded-xl p-4 shadow-md bg-gray w-full">
+              <p className="text-sm font-medium mb-2">
+                Audio Threshold (default: 50)
+              </p>
+              <div className="flex items-center space-x-4">
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  value={audioThreshold}
+                  onChange={(e) => changeAudioThreshold(Number(e.target.value))}
+                  className="w-full"
+                />
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={audioThreshold}
+                  onChange={(e) => changeAudioThreshold(Number(e.target.value))}
+                  className="w-16 border px-2 py-1 rounded"
+                />
+              </div>
+            </div>
 
+            <div className="border rounded-xl p-4 shadow-md bg-gray w-full">
+              <p className="text-sm font-medium mb-2">
+                RAG (default: On)
+              </p>
+              <div className="flex items-center space-x-3">
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={useRag}
+                    onChange={() => setUseRag((prev) => !prev)}
+                    className="sr-only peer"
+                  />
+                  <div
+                    className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-green-500 
+                     peer-focus:ring-2 peer-focus:ring-green-300 transition-colors"
+                  ></div>
+                  <div
+                    className="absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform 
+                     peer-checked:translate-x-5"
+                  ></div>
+                </label>
+                <span className="text-sm font-medium">{useRag ? "On" : "Off"}</span>
+              </div>
+            </div>
 
+            <div className="border rounded-xl p-4 shadow-md bg-gray w-full">
+              <p className="text-sm font-medium mb-2">
+                Tools (default: On)
+              </p>
+              <div className="flex items-center space-x-3">
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={useTools}
+                    onChange={() => setUseTools((prev) => !prev)}
+                    className="sr-only peer"
+                  />
+                  <div
+                    className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-green-500 
+                     peer-focus:ring-2 peer-focus:ring-green-300 transition-colors"
+                  ></div>
+                  <div
+                    className="absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform 
+                     peer-checked:translate-x-5"
+                  ></div>
+                </label>
+                <span className="text-sm font-medium">{useTools ? "On" : "Off"}</span>
+              </div>
+            </div>
 
-      {/* Input Textbox */}
-      <textarea
-        ref={textareaRef}
-        value={editableTranscript}
-        onChange={handleChange}
-        placeholder="Your voice transcript will appear here."
-        className="p-2 rounded-md border border-blue-600 bg-gray-900 text-gray-200 text-sm resize-none overflow-y-auto max-h-48"
-      />
-
-      {/* Buttons row */}
-      <div className="flex space-x-2">
-        {/* Audio Button */}
-        {!listening ? (
-          <button
-            onClick={startListening}
-            className="flex-1 flex items-center justify-center px-3 py-2 rounded-md border border-blue-400 bg-blue-900/50 text-sm text-blue-100 font-medium hover:bg-blue-800"
-          >
-            <Music4Icon size={16} className="mr-2" />
-            Start Listening
-          </button>
-        ) : (
-          <button
-            onClick={stopListening}
-            className="flex-1 flex items-center justify-center px-3 py-2 rounded-md border border-red-400 bg-red-900/50 text-sm text-red-100 font-medium hover:bg-red-800"
-          >
-            <Music4Icon size={16} className="mr-2 animate-pulse text-red-400" />
-            Stop Listening
-          </button>
-        )}
-
-        {/* Send Button */}
-        <button
-          onClick={handleSend}
-          disabled={!editableTranscript.trim() || !isSendEnabled}
-          className="flex-1 flex items-center justify-center px-3 py-2 rounded-md border border-blue-400 bg-blue-600 text-sm text-white font-medium hover:bg-blue-500 disabled:opacity-50"
-        >
-          <Send size={16} className="mr-2" />
-          Send to LLM
-        </button>
-      </div>
+            <div className="border rounded-xl p-4 shadow-md bg-gray w-full">
+              <p className="text-sm font-medium mb-2">
+                Thinking (default: Off)
+              </p>
+              <div className="flex items-center space-x-3">
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={useThinking}
+                    onChange={() => setUseThinking((prev) => !prev)}
+                    className="sr-only peer"
+                  />
+                  <div
+                    className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-green-500 
+                     peer-focus:ring-2 peer-focus:ring-green-300 transition-colors"
+                  ></div>
+                  <div
+                    className="absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform 
+                     peer-checked:translate-x-5"
+                  ></div>
+                </label>
+                <span className="text-sm font-medium">{useThinking ? "On" : "Off"}</span>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

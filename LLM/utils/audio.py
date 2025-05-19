@@ -36,7 +36,13 @@ class Audio:
         if not self.stream.active:
             self.stream.start()
 
+        i = 0
         while len(self.audio_q) == 0:
+            i += 1
+            if i == 10:
+                print("Timed out waiting for audio.")
+                return None
+
             time.sleep(0.1)
 
         return self.audio_q.pop()
@@ -117,7 +123,7 @@ class Audio:
 
         self.stream.start()
 
-        return text
+        return text.strip()
 
 
 def say(tts, text):
