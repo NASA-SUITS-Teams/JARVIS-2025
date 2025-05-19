@@ -34,6 +34,7 @@ class ChatBot:
         self.FLASK = FLASK
 
         self.use_rag = use_rag
+        self.rag_info = "None"
         if self.use_rag:
             self.vectorstore = load_vectorstore()
             self.client = chromadb.Client()
@@ -91,6 +92,7 @@ class ChatBot:
             rag_info.append(doc_texts)
 
             rag_info = "\n\n".join(rag_info)
+            self.rag_info = rag_info
             rag_info = f"Relevant information (optional):\n{rag_info}\n\n"
 
             system_messages.append({"role": "user", "content": rag_info})

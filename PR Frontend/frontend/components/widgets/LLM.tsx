@@ -115,6 +115,11 @@ export default function LLMWidget() {
           try {
             const partial: Partial<LLMResponse> = JSON.parse(line);
             const isTool = partial.is_tool ?? false;
+            const isRag = partial.is_rag ?? false;
+            if (isRag) {
+              setRagInfo(partial.response ?? "None")
+              continue
+            }
 
             if (!isTool) {
               const text = partial.response ?? "";
@@ -236,6 +241,12 @@ export default function LLMWidget() {
     }
   }, [messages]);
 
+  useEffect(() => {
+    if (!showingSettings && bottomRef.current && containerRef.current) {
+      containerRef.current.scrollTop = bottomRef.current.offsetTop;
+    }
+  }, [showingSettings]);
+
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -280,6 +291,9 @@ export default function LLMWidget() {
 
 
 
+  const [ragSidebarOpen, setRagSidebarOpen] = useState(false);
+  const [ragInfo, setRagInfo] = useState("None");
+
 
 
   return (
@@ -291,6 +305,15 @@ export default function LLMWidget() {
 
       {/* Top Buttons */}
       <div className="flex items-center justify-between space-x-2 w-full">
+        {!showingSettings && (
+          <button
+            onClick={() => setRagSidebarOpen(!ragSidebarOpen)}
+            className="top-1/2 -left-3 transform bg-blue-600 hover:bg-blue-500 text-white px-2 py-1 rounded-r z-20"
+          >
+            {ragSidebarOpen ? 'Close RAG' : 'Open RAG'}
+          </button>
+        )}
+
         {/* Settings Button */}
         <button
           onClick={() => setShowingSettings((prev) => 
@@ -322,6 +345,12 @@ export default function LLMWidget() {
             Clear Messages
           </button>
         )}
+      </div>
+
+      <div className={`relative overflow-y-auto h-1/3 bg-gray-900 border-r border-blue-600 p-4 z-10 ${(ragSidebarOpen && !showingSettings) ? "block" : "hidden"}`}>
+        <div className="whitespace-pre-wrap">
+          {ragInfo}
+        </div>
       </div>
 
       {!showingSettings && (

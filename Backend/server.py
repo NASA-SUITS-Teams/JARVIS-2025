@@ -150,6 +150,11 @@ def stream_response():
                         "function_name": function_name,
                         "args": args,
                     }) + "\n"
+
+            yield json.dumps({
+                "is_rag": True,
+                "response": chatbot.rag_info,
+            }) + "\n"
         except Exception as e:
             yield json.dumps({
                 "response": f"Error: {str(e)}",
