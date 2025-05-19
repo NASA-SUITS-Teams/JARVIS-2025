@@ -30,10 +30,13 @@ const TASKS = [
   { id: "stop-at-point-a", label: "Verify PR has come to a complete stop" },
   { id: "scan-point-a", label: "Conduct terrain scan at Point A" },
   { id: "verify-pnr-a", label: "Verify PNR at Point A" },
-  {
+  {                                   
     id: "verify-consumables-a",
     label: "Note anticipiated consumables at Point A",
   },
+  { id: "verify-storage-a", label: "ensure successful storage of terrain data"},
+  { id: "announce-completion-a", label: "Announce successful completion of terrain scan"},
+
 
   { id: "select-point-b", label: "Drop pin at point B (-5868.10, -10016.10)" },
   { id: "nav-point-b", label: "Begin navigation to Point B" },
@@ -44,16 +47,23 @@ const TASKS = [
     id: "verify-consumables-b",
     label: "Note anticipiated consumables at Point B",
   },
+  { id: "verify-storage-b", label: "ensure successful storage of terrain data"},
+  { id: "announce-completion-b", label: "Announce successful completion of terrain scan"},
 
-  { id: "select-point-c", label: "Drop pin at point B (-5745.90, -9977.30)" },
+
+  { id: "select-point-c", label: "Drop pin at point C (-5745.90, -9977.30)" },
   { id: "nav-point-c", label: "Begin navigation to Point C" },
   { id: "stop-at-point-c", label: "Verify PR has come to a complete stop" },
+  { id: "check-telementry-c", label: "Check telemetry data and look for any off-nominal values"}, 
   { id: "scan-point-c", label: "Conduct terrain scan at Point C" },
   { id: "verify-pnr-c", label: "Verify PNR at Point C" },
   {
     id: "verify-consumables-c",
     label: "Note anticipiated consumables at Point C",
   },
+  { id: "verify-storage-c", label: "ensure successful storage of terrain data"},
+  { id: "announce-completion-c", label: "Announce successful completion of terrain scan"},
+
 
   { id: "verify-home-path", label: "Verify path to home base is generated" },
   { id: "nav-home", label: "Begin navigation to home base" },
