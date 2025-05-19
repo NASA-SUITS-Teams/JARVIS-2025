@@ -1,7 +1,7 @@
 import { APIResponseData } from "@/types/api";
 import { useEffect, useState } from "react";
 
-const API_URL = "http://localhost:8282"; // replace with the python flask server URL
+const API_URL = "http://172.20.3.132:8282"; // replace with the python flask server URL
 
 export const useAPI = () => {
   const [data, setData] = useState<APIResponseData>({
@@ -78,7 +78,7 @@ export const useAPI = () => {
   }, [pollServerData]);
 
   const sendPin = async (newPin: [number, number]) => {
-    await fetch("http://localhost:8282" + "/add_pin", {
+    await fetch("http://172.20.3.132:8282" + "/add_pin", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -97,7 +97,7 @@ export const useAPI = () => {
   };
 
   const resetPins = async () => {
-    await fetch("http://localhost:8282" + "/reset_pins", {
+    await fetch("http://172.20.3.132:8282" + "/reset_pins", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -113,7 +113,7 @@ export const useAPI = () => {
   };
 
   const scanTerrain = async () => {
-    const response = await fetch("http://localhost:8282" + "/terrain_scan", {
+    const response = await fetch("http://172.20.3.132:8282" + "/terrain_scan", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

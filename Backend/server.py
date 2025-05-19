@@ -291,4 +291,4 @@ if __name__ == "__main__":
 
     threading.Thread(target=listen, daemon=True).start()
 
-    app.run(debug=True, use_reloader=False, host="localhost", port=8282)
+    app.run(debug=True, use_reloader=False, host="0.0.0.0", port=8282)

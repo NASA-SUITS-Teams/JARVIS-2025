@@ -2,13 +2,16 @@ export const askLLM = async (
     request: LLMRequest,
     onChunk: (chunk: string) => void
 ): Promise<void> => {
-    const response = await fetch("http://localhost:8282/llm_response_stream", {
+    const response = await fetch(
+      "http://172.20.3.132:8282/llm_response_stream",
+      {
         method: "POST",
         headers: {
-            "Content-Type": "application/json",
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ request }),
-    });
+      }
+    );
 
     if (!response.body) {
         throw new Error("No response body");
@@ -27,7 +30,7 @@ export const askLLM = async (
 };
 
 export const syncToBackend = async (chatHistory: ChatMessage[]) => {
-  await fetch("http://localhost:8282/save_chat_history", {
+  await fetch("http://172.20.3.132:8282/save_chat_history", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ chat_history: chatHistory }),
@@ -35,28 +38,30 @@ export const syncToBackend = async (chatHistory: ChatMessage[]) => {
 };
 
 export const syncFromBackend = async (): Promise<ChatMessage[]> => {
-  const res = await fetch("http://localhost:8282/load_chat_history");
+  const res = await fetch("http://172.20.3.132:8282/load_chat_history");
   const data = await res.json();
   return data.chat_history ?? [];
 };
 
 
 export const syncSettingsToBackend = async (audioThreshold: number, useRag: boolean, useTools: boolean, useThinking: boolean, enableAudio: boolean) => {
-  await fetch("http://localhost:8282/save_settings", {
+  await fetch("http://172.20.3.132:8282/save_settings", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ "settings": {
-      "audio_threshold": audioThreshold,
-      "use_rag": useRag,
-      "use_tools": useTools,
-      "use_thinking": useThinking,
-      "enable_audio": enableAudio,
-    } }),
+    body: JSON.stringify({
+      settings: {
+        audio_threshold: audioThreshold,
+        use_rag: useRag,
+        use_tools: useTools,
+        use_thinking: useThinking,
+        enable_audio: enableAudio,
+      },
+    }),
   });
 };
 
 export const syncSettingsFromBackend = async (): Promise<Record<string, string>> => {
-  const res = await fetch("http://localhost:8282/load_settings");
+  const res = await fetch("http://172.20.3.132:8282/load_settings");
   const data = await res.json();
   return data.settings ?? [];
 };

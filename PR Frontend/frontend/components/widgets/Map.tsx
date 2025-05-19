@@ -280,7 +280,7 @@ export default function Map({
             )}
 
           {/* Rover Icon */}
-          {roverPos?.left != 100 && visibleLayers.pr && (
+          {roverPos && roverPos?.left != 100 && visibleLayers.pr && (
             <div
               className="absolute z-20"
               style={{
@@ -316,50 +316,54 @@ export default function Map({
           )}
 
           {/* EVA #1 Icon */}
-          {eva1Pos?.left != 100 && visibleLayers.eva && tssData.EVA.eva.started && (
-            <div
-              className="absolute z-20"
-              style={{
-                left: `${eva1Pos.left}%`,
-                top: `${eva1Pos.top}%`,
-                transform: `translate(-50%, -50%) rotate(${
-                  tssData.IMU.imu.eva1.heading || 0
-                }deg)`,
-              }}
-            >
-              <svg width="30" height="30" viewBox="0 0 24 24">
-                <polygon
-                  points="12,2 4,20 12,15 20,20"
-                  fill="#ec4899"
-                  stroke="white"
-                  strokeWidth="1"
-                />
-              </svg>
-            </div>
-          )}
+          {eva1Pos && eva1Pos?.left != 100 &&
+            visibleLayers.eva &&
+            tssData.EVA.eva.started && (
+              <div
+                className="absolute z-20"
+                style={{
+                  left: `${eva1Pos.left}%`,
+                  top: `${eva1Pos.top}%`,
+                  transform: `translate(-50%, -50%) rotate(${
+                    tssData.IMU.imu.eva1.heading || 0
+                  }deg)`,
+                }}
+              >
+                <svg width="30" height="30" viewBox="0 0 24 24">
+                  <polygon
+                    points="12,2 4,20 12,15 20,20"
+                    fill="#ec4899"
+                    stroke="white"
+                    strokeWidth="1"
+                  />
+                </svg>
+              </div>
+            )}
 
           {/* EVA #2 Icon */}
-          {eva2Pos?.left != 100 && visibleLayers.eva && tssData.EVA.eva.started && (
-            <div
-              className="absolute z-20"
-              style={{
-                left: `${eva2Pos.left}%`,
-                top: `${eva2Pos.top}%`,
-                transform: `translate(-50%, -50%) rotate(${
-                  tssData.IMU.imu.eva2.heading || 0
-                }deg)`,
-              }}
-            >
-              <svg width="30" height="30" viewBox="0 0 24 24">
-                <polygon
-                  points="12,2 4,20 12,15 20,20"
-                  fill="#ec4899"
-                  stroke="white"
-                  strokeWidth="1"
-                />
-              </svg>
-            </div>
-          )}
+          {eva2Pos && eva2Pos?.left != 100 &&
+            visibleLayers.eva &&
+            tssData.EVA.eva.started && (
+              <div
+                className="absolute z-20"
+                style={{
+                  left: `${eva2Pos.left}%`,
+                  top: `${eva2Pos.top}%`,
+                  transform: `translate(-50%, -50%) rotate(${
+                    tssData.IMU.imu.eva2.heading || 0
+                  }deg)`,
+                }}
+              >
+                <svg width="30" height="30" viewBox="0 0 24 24">
+                  <polygon
+                    points="12,2 4,20 12,15 20,20"
+                    fill="#ec4899"
+                    stroke="white"
+                    strokeWidth="1"
+                  />
+                </svg>
+              </div>
+            )}
 
           {/* POIs */}
           {rover &&

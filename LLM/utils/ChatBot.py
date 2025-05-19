@@ -26,7 +26,7 @@ class ChatBot:
         self, model, use_rag=False, use_tools=False, use_thinking=True, TESTING=False, FLASK=False
     ):
         """Initialize ChatBot with OpenAI-type API"""
-        self.base_url = "http://localhost:11434"
+        self.base_url = "http://172.20.3.132:11434"
         self.model = model
         self.messages = []
         self.use_thinking = use_thinking
