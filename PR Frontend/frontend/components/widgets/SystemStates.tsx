@@ -10,7 +10,6 @@ export default function SystemStates({
 }: {
   tssData: TSSData & { eva: EVAState }; // assume `eva` is your state payload
 }) {
-  console.log(tssData);
   const tabs = ["ROVER", "EVA #1", "EVA #2", "UIA"] as const;
   const [activeIndex, setActiveIndex] = useState(0);
 
