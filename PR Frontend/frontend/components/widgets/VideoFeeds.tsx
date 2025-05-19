@@ -7,9 +7,9 @@ export default function VideoFeeds() {
   );
 
   const dataFeeds = {
-    eva1: "http://172.20.1.98:8000/stream.mjpg", // @TODO add
-    eva2: "http://192.168.51.27:5000",
     ltv: "http://192.168.51.150:5000",
+    eva1: "http://172.20.1.98:8000/stream.mjpg",
+    eva2: "http://192.168.51.27:5000",
   };
 
   return (

@@ -3,9 +3,11 @@ import { useEffect, useState } from "react";
 export default function Header({
   elapsedTime,
   error,
+  lunarlinkOnline,
 }: {
   elapsedTime: number;
   error: any;
+  lunarlinkOnline: boolean;
 }) {
   const [time, setTime] = useState<number | null>(elapsedTime ?? 0);
 
@@ -42,15 +44,15 @@ export default function Header({
         </div>
         <div
           className={`flex items-center space-x-2 ${
-            error ? "text-red-500" : "text-green-500"
+            !lunarlinkOnline ? "text-red-500" : "text-green-500"
           }`}
         >
           <div
             className={`w-3 h-3 rounded-full ${
-              error ? "bg-red-500" : "bg-green-500"
+              !lunarlinkOnline ? "bg-red-500" : "bg-green-500"
             } animate-pulse`}
           ></div>
-          <span>LunarLink {error ? "FAILURE" : "NORMAL"}</span>{" "}
+          <span>LunarLink {!lunarlinkOnline ? "FAILURE" : "NORMAL"}</span>{" "}
           {/* @TODO change this to actually use lunarlink status */}
         </div>
         <div className="text-blue-300">

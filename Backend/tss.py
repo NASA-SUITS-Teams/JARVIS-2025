@@ -1,6 +1,6 @@
 import requests
 
-BASE_URL = "http://192.168.51.110:14141/json_data"
+BASE_URL = "http://data.cs.purdue.edu:14141/json_data"
 TEAM_NUMBER = 0
 
 DATA_KEYS = [

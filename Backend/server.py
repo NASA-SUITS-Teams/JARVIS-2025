@@ -223,16 +223,17 @@ def update_tss_loop():
     while True:
         tss_data = fetch_tss_json_data()
 
-        time.sleep(1) # poll every 3 seconds
+        time.sleep(1) # poll every 1 seconds
 
 # Update lunarlink data every 10 seconds, including EVA, etc
 def update_lunarlink_loop():
+    global tss_data
     global lunarlink_data
 
     while True:
-        lunarlink_data = fetch_lunarlink_json_data()
+        lunarlink_data = fetch_lunarlink_json_data(tss_data)
 
-        time.sleep(10)  # poll every 10 seconds
+        time.sleep(2)  # poll every 2 seconds
 
 
 
@@ -291,7 +292,17 @@ def event():
 # Start threads and server
 if __name__ == "__main__":
     threading.Thread(target=update_tss_loop, daemon=True).start()
-    #threading.Thread(target=update_lunarlink_loop, daemon=True).start()
+    
+    # Start the lunarlink update thread with automatic restart on failure
+    def lunarlink_thread_with_restart():
+        while not stop_event.is_set():
+            try:
+                update_lunarlink_loop()
+            except Exception as e:
+                print(f"Lunarlink thread error: {e}")
+                time.sleep(5)  # Wait a bit before restarting to avoid rapid restart loops
+    
+    threading.Thread(target=lunarlink_thread_with_restart, daemon=True).start()
 
     threading.Thread(target=listen, daemon=True).start()
 
