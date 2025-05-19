@@ -68,16 +68,16 @@ export default function Map({
   const pathDataHistorical = historicalData
     ? historicalData
         .map((entry) => {
-          const rover = entry.tssData.ROVER.rover;
-          return rover ? ([rover.posx, rover.posy] as [number, number]) : null;
+          const rover = entry.tssData.ROVER_TELEMETRY.pr_telemetry;
+          return rover ? ([rover.current_pos_x, rover.current_pos_y] as [number, number]) : null;
         })
         .filter((p): p is [number, number] => p !== null)
     : [];
 
   // live rover & EVA positions
-  const rover = tssData.ROVER.rover;
+  const rover = tssData.ROVER_TELEMETRY.pr_telemetry;
   const roverPos = rover
-    ? percentPosition([rover.posx, rover.posy], activeMap)
+    ? percentPosition([rover.current_pos_x, rover.current_pos_y], activeMap)
     : null;
   const eva1 = tssData.IMU?.imu.eva1;
   const eva2 = tssData.IMU?.imu.eva2;
@@ -137,7 +137,9 @@ export default function Map({
           <span className="font-bold">MAP</span>
           <span className="text-xs text-gray-400">
             {rover
-              ? ` (X:${rover.posx.toFixed(1)} Y:${rover.posy.toFixed(1)})`
+              ? ` (X:${rover.current_pos_x.toFixed(
+                  1
+                )} Y:${rover.current_pos_y.toFixed(1)})`
               : ""}
           </span>
         </div>
@@ -247,20 +249,29 @@ export default function Map({
           )}
 
           {/* Range Indicator Circle */}
-          {calculateRange(historicalData, tssData) > 0 && visibleLayers.range && (
-            <div
-              className="absolute rounded-full border-2 border-green-500 bg-green-500/30 pointer-events-none z-10 overflow-hidden"
-              style={{
-                left: `${roverPos?.left || 0}%`,
-                top: `${roverPos?.top || 0}%`,
-                width: `${(calculateRange(historicalData, tssData) / 
-                  (coordinateRanges[activeMap].x[1] - coordinateRanges[activeMap].x[0])) * 100}%`,
-                height: `${(calculateRange(historicalData, tssData) / 
-                  (coordinateRanges[activeMap].y[1] - coordinateRanges[activeMap].y[0])) * 100}%`,
-                transform: 'translate(-50%, -50%)',
-              }}
-            />
-          )}
+          {calculateRange(historicalData, tssData) > 0 &&
+            visibleLayers.range && (
+              <div
+                className="absolute rounded-full border-2 border-green-500 bg-green-500/30 pointer-events-none z-10 overflow-hidden"
+                style={{
+                  left: `${roverPos?.left || 0}%`,
+                  top: `${roverPos?.top || 0}%`,
+                  width: `${
+                    (calculateRange(historicalData, tssData) /
+                      (coordinateRanges[activeMap].x[1] -
+                        coordinateRanges[activeMap].x[0])) *
+                    100
+                  }%`,
+                  height: `${
+                    (calculateRange(historicalData, tssData) /
+                      (coordinateRanges[activeMap].y[1] -
+                        coordinateRanges[activeMap].y[0])) *
+                    100
+                  }%`,
+                  transform: "translate(-50%, -50%)",
+                }}
+              />
+            )}
 
           {/* Rover Icon */}
           {roverPos && visibleLayers.pr && (

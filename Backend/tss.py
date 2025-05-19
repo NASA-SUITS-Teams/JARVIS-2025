@@ -1,21 +1,21 @@
 import requests
 
-BASE_URL = "http://data.cs.purdue.edu:14141/json_data"
-TEAM_NUMBER = 0
+BASE_URL = "http://192.168.51.110:14141/json_data"
+TEAM_NUMBER = 4
 
 DATA_KEYS = [
-    #"DCU",
     "ERROR", # error
     "IMU",
-    "ROVER", # rover
     "SPEC", # spec
+    "ROVER", # rover
+    #"DCU",
     #"UIA", # uia
 ]
 
 TEAM_DATA_KEYS = [
     "ROVER_TELEMETRY", # rover telemetry
     "TELEMETRY", # eva telemetry
-    "EVA" # eva status
+    "EVA", # eva status,
 ]
 
 
@@ -63,11 +63,10 @@ def convert_tss_for_lidar():
     # Construct the LIDAR and rover telemetry data
     try:
         rt = raw['ROVER_TELEMETRY']['pr_telemetry']
-        rv = raw['ROVER']['rover']
-        lidar    = rt['lidar']
+        lidar = rt['lidar']
         position = [
-            rv['posx'],
-            rv['posy'],
+            rt['current_pos_x'],
+            rt['current_pos_y'],
             rt['current_pos_alt'],  # altitude
             rt['heading'],          # yaw
             rt['pitch'],

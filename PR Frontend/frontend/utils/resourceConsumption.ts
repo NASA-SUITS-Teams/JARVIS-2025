@@ -42,6 +42,7 @@ export function estimateFutureUsage(
     "oxygen_tank",
     "oxygen_levels",
     "oxygen_pressure",
+    "cabin_temperature"
     // @TODO add more keys as needed
   ];
 

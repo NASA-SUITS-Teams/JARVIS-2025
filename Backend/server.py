@@ -36,7 +36,7 @@ def santiy():
 @app.route('/get_data', methods=['GET'])
 def get_data():
     # calculate the best path using the current rover position and the goal position
-    current_position = (tss_data['ROVER']['rover']['posx'], tss_data['ROVER']['rover']['posy'])
+    current_position = (tss_data['ROVER_TELEMETRY']['pr_telemetry']['current_pos_x'], tss_data['ROVER_TELEMETRY']['pr_telemetry']['current_pos_y'])
     if len(pin_data) == 0:
         path = []
     else: # Note: goal position is currently calculated based on the most previous pin position
@@ -225,4 +225,4 @@ if __name__ == "__main__":
 
     threading.Thread(target=listen, daemon=True).start()
 
-    app.run(debug=True, use_reloader=False, host="0.0.0.0", port=8282)
+    app.run(debug=True, use_reloader=False, host="localhost", port=8282)

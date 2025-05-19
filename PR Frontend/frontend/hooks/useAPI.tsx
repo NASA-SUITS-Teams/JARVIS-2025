@@ -1,7 +1,7 @@
 import { APIResponseData } from "@/types/api";
 import { useEffect, useState } from "react";
 
-const API_URL = "http://10.0.0.108:8282"; // replace with the python flask server URL
+const API_URL = "http://localhost:8282"; // replace with the python flask server URL
 
 export const useAPI = () => {
   const [data, setData] = useState<APIResponseData>({
@@ -53,12 +53,6 @@ export const useAPI = () => {
       const response = await fetch(API_URL + "/get_data", options);
       const result: APIResponseData = await response.json();
       if (!result.tssData) setError("No TSS data found"); // handle error if not recieving TSS data
-
-      // modify pitch and roll values to convert from radians to degrees
-      result.tssData.ROVER_TELEMETRY.pr_telemetry.pitch =
-        (result.tssData.ROVER_TELEMETRY.pr_telemetry.pitch * 180) / Math.PI;
-      result.tssData.ROVER_TELEMETRY.pr_telemetry.roll =
-        (result.tssData.ROVER_TELEMETRY.pr_telemetry.roll * 180) / Math.PI;
 
       setData(result);
       addToHistory(result);
