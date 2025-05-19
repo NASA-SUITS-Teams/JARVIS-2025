@@ -11,6 +11,7 @@ COMMANDS = {
     "steering": 1110 # -100 to 100
 }
 URL = "128.10.2.13"
+#URL = "192.168.51.110"
 PORT = 14141
 
 # Initialize UDP socket
@@ -41,7 +42,9 @@ class Controller:
         self.light_pressed_last = False
         self.speed = 0
         self.music = False
-        self.Interstellar = pygame.mixer.Sound('Interstellar.mp3')
+        self.finished = False
+        self.songs = ['Interstellar.mp3', 'BadMoon.mp3', 'Highway.mp3']
+        self.i = 0
 
 
     def handle_input(self):
@@ -56,17 +59,36 @@ class Controller:
 
             # Lights
             if but4 and not self.light_pressed_last:
-                print("music!!!!!")
                 self.lights = not self.lights
                 send_command(COMMANDS["light"], self.lights)
             self.light_pressed_last = but4
 
             # Music
-            if but0 and not self.music:
-                self.music = not self.music
-                self.Interstellar.play()            
-            self.music = but0
+            if but0:
+                if not self.music:
+                    if self.i < len(self.songs):
+                        self.music = True
+                        playlist = pygame.mixer.Sound(self.songs[self.i])
+                        playlist.play()
+                        self.i += 1
+                    else:
+                        pygame.mixer.stop()
+                        self.music = False
+                        self.i = 0
+                else:
+                    pygame.mixer.stop()
+                    self.music = False
 
+            # Autoplay next song
+            if self.music and not pygame.mixer.get_busy():
+                if self.i < len(self.songs):
+                    playlist = pygame.mixer.Sound(self.songs[self.i])
+                    playlist.play()
+                    self.i += 1
+                else:
+                    self.music = False
+                    self.i = 0
+                
             # Throttle and Brake
             if rt > 0.1 and rt != 0.5:
                 if (self.speed < 100):
