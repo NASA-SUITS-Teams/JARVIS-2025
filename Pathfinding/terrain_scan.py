@@ -2,13 +2,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pathfinding
 import os
+import base64
 
 def terrain_scan(pos):
     pos = [round(pos[0]), round(pos[1])]
     indices  = pathfinding.xy_to_index(pos)
     x = indices[0]
     y = indices[1]
-
 
     # load terrain data, note from Conor: this is a crappy way to do this, python kinda sucks, or I suck at python... probably both
     THIS_DIR    = os.path.dirname(os.path.abspath(__file__))
@@ -41,6 +41,14 @@ def terrain_scan(pos):
     plt.xticks(ticks=tick_loc, labels=x_ticks)
     plt.yticks(ticks=tick_loc, labels=y_ticks)
 
-    plt.savefig("terrain_" + str(x) + "_" + str(y))
+    file_title = "terrain_" + str(x) + "_" + str(y)
+    plt.savefig(file_title)
 
+    return png_to_base64(file_title + ".png")
+
+
+def png_to_base64(file_path):
+    with open(file_path, "rb") as image_file:
+        encoded_string = base64.b64encode(image_file.read())
+        return encoded_string.decode("utf-8")
 
