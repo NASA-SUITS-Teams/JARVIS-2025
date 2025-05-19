@@ -122,7 +122,7 @@ class ChatBot:
             print(payload["messages"])
             print("-=" * 7)
 
-        full_response = ""
+        self.full_response = ""
 
         is_thinking = False
         try:
@@ -140,7 +140,7 @@ class ChatBot:
 
                         if "content" in message:
                             content = message["content"]
-                            full_response += content
+                            self.full_response += content
 
                             if content == "<think>":
                                 is_thinking = True
@@ -148,8 +148,7 @@ class ChatBot:
                             if just_print:
                                 print(content, end="", flush=True)
 
-                            if self.FLASK:
-                                yield False, (is_thinking, content), ()
+                            yield False, (is_thinking, content), ()
 
                             if content == "</think>":
                                 is_thinking = False
@@ -160,9 +159,9 @@ class ChatBot:
             if just_print:
                 print()
 
-            full_response = re.sub(r"<think>(\n|.)*</think>", "", full_response).strip()
+            self.full_response = re.sub(r"<think>(\n|.)*</think>", "", self.full_response).strip()
 
-            match = re.search(r"<functions>((\n|.)*)</functions>", full_response)
+            match = re.search(r"<functions>((\n|.)*)</functions>", self.full_response)
             tool_response = ""
             if match:
                 function_calls = match.group(1).strip()
@@ -171,47 +170,33 @@ class ChatBot:
 
                 tool_prompt = f"/no_think Call these functions:\n{function_calls}"
 
-                if self.FLASK:
-                    yield from self.toolbot.get_response_stream(tool_prompt) 
-                else:
-                    tool_response = self.toolbot.get_response_stream(tool_prompt) 
+                yield from self.toolbot.get_response_stream(tool_prompt) 
 
-                    if just_print:
-                        print(tool_response)
-
-                    self.add_message("system", tool_response)
-
-            full_response = re.sub(
-                r"<functions>(\n|.)*</functions>", "", full_response
+            self.full_response = re.sub(
+                r"<functions>(\n|.)*</functions>", "", self.full_response
             ).strip()
-            self.add_message("assistant", full_response)
+            self.add_message("assistant", self.full_response)
 
             if not add_messages:
                 self.messages = old_messages
 
             if self.TESTING:
-                return full_response, tool_response
+                return self.full_response, tool_response
 
-            return full_response
+            return self.full_response
 
         except requests.exceptions.ConnectionError:
             error_msg = "Error: Could not connect to Ollama. Make sure it is running with 'ollama serve'"
             print(error_msg)
-            if self.FLASK:
-                yield False, (False, error_msg), ()
+            yield False, (False, error_msg), ()
             return error_msg
         except Exception as e:
             error_msg = f"Error: {str(e)}"
             print(error_msg)
-            if self.FLASK:
-                yield False, (False, error_msg), ()
+            yield False, (False, error_msg), ()
             return error_msg
 
     def get_response_stream(self, message, just_print=False, add_messages=True):
-        if self.FLASK:
-            self.get_response_stream_flask(message, just_print=just_print, add_messages=add_messages)
-            return
-
         """Get a streaming response from OpenAI-type API and display in real-time"""
         if not add_messages:
             old_messages = self.messages.copy()

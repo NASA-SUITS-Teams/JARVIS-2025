@@ -126,7 +126,7 @@ class Audio:
         return text.strip()
 
 
-def say(tts, text):
+def say(tts, text, blocking=True):
     if text == "":
         return
 
@@ -134,5 +134,4 @@ def say(tts, text):
 
     # from tts.synthesizer.output_sample_rate
     samplerate = int(22050 * 0.95)
-    sd.play(np.array(audio_data), samplerate=samplerate)
-    sd.wait()
+    sd.play(np.array(audio_data).astype(np.float32), samplerate=samplerate, blocking=blocking)

@@ -257,6 +257,7 @@ export default function LLMWidget() {
   const [useRag, setUseRag] = useState(true);
   const [useTools, setUseTools] = useState(true);
   const [useThinking, setUseThinking] = useState(false);
+  const [enableAudio, setEnableAudio] = useState(false);
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -265,6 +266,7 @@ export default function LLMWidget() {
       setUseRag(Boolean(settings.use_rag));
       setUseTools(Boolean(settings.use_tools));
       setUseThinking(Boolean(settings.use_thinking));
+      setEnableAudio(Boolean(settings.enable_audio));
     };
 
     fetchSettings();
@@ -294,7 +296,7 @@ export default function LLMWidget() {
           onClick={() => setShowingSettings((prev) => 
           {
             if (prev == true) {
-              syncSettingsToBackend(audioThreshold, useRag, useTools, useThinking);
+              syncSettingsToBackend(audioThreshold, useRag, useTools, useThinking, enableAudio);
             }
 
             return !prev
@@ -312,6 +314,7 @@ export default function LLMWidget() {
         {!showingSettings && (
           <button
             onDoubleClick={clearMessages}
+            disabled={!isSendEnabled}
             className="text-red-400 hover:text-white-500 p-1 rounded hover:bg-red-800
           flex-1 flex items-center justify-center px-3 py-2 rounded-md border text-sm text-white font-medium disabled:opacity-50"
           >
@@ -572,6 +575,31 @@ export default function LLMWidget() {
                   ></div>
                 </label>
                 <span className="text-sm font-medium">{useThinking ? "On" : "Off"}</span>
+              </div>
+            </div>
+
+            <div className="border rounded-xl p-4 shadow-md bg-gray w-full">
+              <p className="text-sm font-medium mb-2">
+                Enable Audio (default: Off)
+              </p>
+              <div className="flex items-center space-x-3">
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={enableAudio}
+                    onChange={() => setEnableAudio((prev) => !prev)}
+                    className="sr-only peer"
+                  />
+                  <div
+                    className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-green-500 
+                     peer-focus:ring-2 peer-focus:ring-green-300 transition-colors"
+                  ></div>
+                  <div
+                    className="absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform 
+                     peer-checked:translate-x-5"
+                  ></div>
+                </label>
+                <span className="text-sm font-medium">{enableAudio ? "On" : "Off"}</span>
               </div>
             </div>
           </div>
