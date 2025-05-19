@@ -4,6 +4,8 @@ import signal
 import sys
 import threading
 import time
+import pygame
+from TTS.api import TTS
 from faster_whisper import WhisperModel
 from flask import Flask, request, jsonify, Response, stream_with_context
 from flask_cors import CORS
@@ -97,8 +99,34 @@ def terrain_scan_route():
     # send back the terrain image which is base64 encoded
     return jsonify({"terrain_image": terrain_image}), 200
 
+
 chatbot = ChatBot(model="qwen3:4b-q8_0", use_rag=True, use_tools=True, use_thinking=False, FLASK=True)
 audio_threshold = 50
+enable_audio = False
+
+tts = TTS("tts_models/en/vctk/vits")
+audio = Audio()
+
+model = WhisperModel("small", compute_type="float32")
+openwakeword.utils.download_models()
+
+owwModel = openwakeword.Model(
+    wakeword_models=["hey jarvis"],
+    enable_speex_noise_suppression=True,
+    inference_framework="onnx"
+)
+
+pygame.init()
+def say_and_block_audio(tts, text):
+    audio.stream.stop()
+
+    tts.tts_to_file(text=text, speaker="p230", file_path="output.wav")
+    sound = pygame.mixer.Sound("output.wav")
+    sound.play()
+
+    audio.audio_q.clear()
+    owwModel.reset()
+
 
 @app.route('/llm_response_stream', methods=['POST'])
 def stream_response():
@@ -129,6 +157,9 @@ def stream_response():
                 "is_tool": False,
             }) + "\n"
 
+        if enable_audio:
+            threading.Thread(target=say_and_block_audio, args=(tts, chatbot.full_response)).start()
+
     return Response(stream_with_context(generate()))
 
 @app.route('/save_chat_history', methods=['POST'])
@@ -149,6 +180,7 @@ def load_chat_history():
 @app.route('/save_settings', methods=['POST'])
 def save_settings():
     global audio_threshold
+    global enable_audio
 
     data = request.get_json()
     settings = data.get("settings", [])
@@ -157,6 +189,7 @@ def save_settings():
     chatbot.use_rag = settings["use_rag"]
     chatbot.use_tools = settings["use_tools"]
     chatbot.use_thinking = settings["use_thinking"]
+    enable_audio = settings["enable_audio"]
 
     return jsonify({"status": "ok"}), 200
 
@@ -168,6 +201,7 @@ def load_settings():
         "use_rag": chatbot.use_rag,
         "use_tools": chatbot.use_tools,
         "use_thinking": chatbot.use_thinking,
+        "enable_audio": enable_audio,
     }
 
     return jsonify({"settings": settings})
@@ -206,16 +240,6 @@ signal.signal(signal.SIGINT, signal_handler)
 
 
 def listen():
-    model = WhisperModel("small", compute_type="float32")
-    openwakeword.utils.download_models()
-
-    owwModel = openwakeword.Model(
-        wakeword_models=["hey jarvis"],
-        enable_speex_noise_suppression=True,
-        inference_framework="onnx"
-    )
-
-    audio = Audio()
 
     while not stop_event.is_set():
         chunk = audio.pop_audio_q()

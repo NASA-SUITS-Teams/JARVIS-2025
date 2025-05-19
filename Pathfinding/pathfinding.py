@@ -117,4 +117,24 @@ def index_to_xy(index):
     y_world = index[1] + ymin
     return (x_world, y_world)
 
+"""
+Break path into straight line segments characterized by start and end coordinates
+"""
+def segment_path(path):
+    segments = []
+    start_ind = 0
+    end_ind = 1
+    while True:
+        direction = np.array(path[start_ind + 1]) - np.array(path[start_ind])
+        print(end_ind)
+        if end_ind >= (len(path) - 1) :
+            segments.append( (path[start_ind], path[-1]) )
+            break
+        elif np.any( np.array(path[end_ind]) != ( np.array(path[start_ind]) + (end_ind - start_ind) * direction ) ):
+            segments.append( (path[start_ind], path[end_ind - 1]) )
+            start_ind = end_ind - 1
+        
+        end_ind += 1
+
+    return segments
     
