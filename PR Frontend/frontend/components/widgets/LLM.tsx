@@ -3,7 +3,7 @@ import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
 import { Terminal, Music4Icon, Send, Trash2, Pencil, Settings, MessageSquare } from "lucide-react";
-import { askLLM, syncFromBackend, syncToBackend } from "@/hooks/useLLM";
+import { askLLM, syncFromBackend, syncSettingsFromBackend, syncSettingsToBackend, syncToBackend } from "@/hooks/useLLM";
 
 export default function LLMWidget() {
   const [response, setResponse] = useState("");
@@ -248,6 +248,19 @@ export default function LLMWidget() {
   const [useTools, setUseTools] = useState(true);
   const [useThinking, setUseThinking] = useState(false);
 
+  useEffect(() => {
+    const fetchSettings = async () => {
+      const settings = await syncSettingsFromBackend();
+      setAudioThreshold(Number(settings.audio_threshold));
+      setUseRag(Boolean(settings.use_rag));
+      setUseTools(Boolean(settings.use_tools));
+      setUseThinking(Boolean(settings.use_thinking));
+    };
+
+    fetchSettings();
+  }, []);
+
+
   const changeAudioThreshold = (newValue: number) => {
     const clamped = Math.min(100, Math.max(0, newValue));
     setAudioThreshold(clamped);
@@ -268,7 +281,16 @@ export default function LLMWidget() {
       <div className="flex items-center justify-between space-x-2 w-full">
         {/* Settings Button */}
         <button
-          onClick={() => setShowingSettings((prev) => !prev)}
+          onClick={() => setShowingSettings((prev) => 
+          {
+            if (prev == true) {
+              syncSettingsToBackend(audioThreshold, useRag, useTools, useThinking);
+            }
+
+            return !prev
+          }
+          )}
+          disabled={!isSendEnabled}
           className="text-white-400 hover:text-gray-800 p-1 rounded hover:bg-gray-400
           flex-1 flex items-center justify-center px-3 py-2 rounded-md border text-sm text-white font-medium disabled:opacity-50"
         >

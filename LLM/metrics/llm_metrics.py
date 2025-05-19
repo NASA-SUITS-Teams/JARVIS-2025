@@ -103,7 +103,7 @@ qwen4bTools = ChatBot(
 qwen4bTools.name = "qwen3:4b-q8_0 Tools"
 
 qwen4bNtTools = ChatBot(
-    model="qwen3:4b-q8_0", use_rag=False, use_tools=True, THINKING=False, TESTING=True
+    model="qwen3:4b-q8_0", use_rag=False, use_tools=True, use_thinking=False, TESTING=True
 )
 qwen4bNtTools.name = "qwen3:4b-q8_0 nt Tools"
 
@@ -111,7 +111,7 @@ qwen4bRag = ChatBot(model="qwen3:4b-q8_0", use_rag=True, use_tools=False, TESTIN
 qwen4bRag.name = "qwen3:4b-q8_0 Rag"
 
 qwen4bNtRag = ChatBot(
-    model="qwen3:4b-q8_0", use_rag=True, use_tools=False, THINKING=False, TESTING=True
+    model="qwen3:4b-q8_0", use_rag=True, use_tools=False, use_thinking=False, TESTING=True
 )
 qwen4bNtRag.name = "qwen3:4b-q8_0 nt Rag"
 

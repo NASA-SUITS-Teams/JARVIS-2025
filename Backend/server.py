@@ -89,7 +89,7 @@ def reset_pins():
 
 
 
-chatbot = ChatBot(model="qwen3:4b-q8_0", use_rag=True, use_tools=True, THINKING=False, FLASK=True)
+chatbot = ChatBot(model="qwen3:4b-q8_0", use_rag=True, use_tools=True, use_thinking=False, FLASK=True)
 @app.route('/llm_response_stream', methods=['POST'])
 def stream_response():
     data = request.get_json()["request"]
@@ -134,6 +134,30 @@ def save_chat_history():
 def load_chat_history():
 
     return jsonify({"chat_history": chatbot.messages})
+
+
+@app.route('/save_settings', methods=['POST'])
+def save_settings():
+    data = request.get_json()
+    settings = data.get("settings", [])
+
+    chatbot.use_rag = settings["use_rag"]
+    chatbot.use_tools = settings["use_tools"]
+    chatbot.use_thinking = settings["use_thinking"]
+
+    return jsonify({"status": "ok"}), 200
+
+@app.route('/load_settings', methods=['GET'])
+def load_settings():
+
+    settings = {
+        "audio_threshold": 50,
+        "use_rag": chatbot.use_rag,
+        "use_tools": chatbot.use_tools,
+        "use_thinking": chatbot.use_thinking,
+    }
+
+    return jsonify({"settings": settings})
 
 
 # Update all TSS data every 10 seconds
