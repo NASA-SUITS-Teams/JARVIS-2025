@@ -1,12 +1,27 @@
 export type TSSData = {
+  DCU: {
+    dcu: {
+      eva1: DCUStates;
+      eva2: DCUStates;
+    };
+  };
   ERROR: {
     error: ErrorData;
+  };
+  IMU: {
+    imu: IMUData;
+  };
+  SPEC: {
+    spec: SpecData;
   };
   ROVER: {
     rover: RoverData;
   };
   ROVER_TELEMETRY: {
     pr_telemetry: PRTelemetry;
+  };
+  UIA: {
+    uia: UIAData;
   };
   TELEMETRY: {
     // this stands for EVA telemetry
@@ -18,22 +33,6 @@ export type TSSData = {
   };
   EVA: {
     eva: EVAData;
-  };
-  IMU: {
-    imu: IMUData;
-  }
-  SPEC: {
-    // this is the data for the spectrometer, we should only fetch it here as a backup in case we can't communicate with the EVAs directly
-    spec: SpecData;
-  };
-  UIA: {
-    uia: UIAData;
-  },
-  DCU: {
-    dcu: {
-      eva1: DCUStates;
-      eva2: DCUStates;
-    };
   };
 };
 
