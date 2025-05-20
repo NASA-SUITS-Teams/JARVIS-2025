@@ -118,23 +118,23 @@ def index_to_xy(index):
     return (x_world, y_world)
 
 """
-Break path into straight line segments characterized by start and end coordinates
+Break path into straight line segments to the end coordinates
 """
 def segment_path(path):
-    segments = []
-    start_ind = 0
-    end_ind = 1
-    while True:
-        direction = np.array(path[start_ind + 1]) - np.array(path[start_ind])
-        print(end_ind)
-        if end_ind >= (len(path) - 1) :
-            segments.append( (path[start_ind], path[-1]) )
-            break
-        elif np.any( np.array(path[end_ind]) != ( np.array(path[start_ind]) + (end_ind - start_ind) * direction ) ):
-            segments.append( (path[start_ind], path[end_ind - 1]) )
-            start_ind = end_ind - 1
-        
-        end_ind += 1
-
-    return segments
+    i = 0
+    auto_points = []
+    auto_headings = []
     
+    while True:
+        auto_points.append(path[i])
+        i += 10
+        if i >= len(path):
+            auto_points.append(path[-1])
+            break
+
+    for i in range(len(auto_points) - 1):
+        vec = np.array(auto_points[i+1]) - np.array(auto_points[i])
+        heading = np.arctan2(vec[1], vec[0])
+        auto_headings.append(heading)
+
+    return auto_points, auto_headings
