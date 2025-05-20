@@ -6,7 +6,7 @@ import threading
 import time
 import pygame
 from TTS.api import TTS
-from faster_whisper import WhisperModel
+#from faster_whisper import WhisperModel
 from flask import Flask, request, jsonify, Response, stream_with_context
 from flask_cors import CORS
 import openwakeword
@@ -107,7 +107,7 @@ enable_audio = False
 tts = TTS("tts_models/en/vctk/vits")
 audio = Audio()
 
-model = WhisperModel("small", compute_type="float32")
+#model = WhisperModel("small", compute_type="float32")
 openwakeword.utils.download_models()
 
 owwModel = openwakeword.Model(
@@ -304,6 +304,6 @@ if __name__ == "__main__":
     
     threading.Thread(target=lunarlink_thread_with_restart, daemon=True).start()
 
-    threading.Thread(target=listen, daemon=True).start()
+    #threading.Thread(target=listen, daemon=True).start()
 
     app.run(debug=True, use_reloader=False, host="0.0.0.0", port=8282)

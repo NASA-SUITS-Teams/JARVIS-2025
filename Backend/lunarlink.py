@@ -1,8 +1,7 @@
 import requests
 import time
 
-# @TODO change this URL to the correct one that AetherNet is using
-BASE_URL = "http://100.64.66.81:5000"
+BASE_URL = "http://192.168.51.189:5000"
 
 # make request to /now
 def fetch_lunarlink_json_data(tss_data):

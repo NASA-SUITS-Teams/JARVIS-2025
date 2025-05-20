@@ -8,7 +8,7 @@ export default function VideoFeeds() {
 
   const dataFeeds = {
     ltv: "http://192.168.51.150:5000",
-    eva1: "http://172.20.1.98:8000/stream.mjpg",
+    eva1: "http://192.168.51.189:8000/stream.mjpg",
     eva2: "http://192.168.51.27:5000",
   };
 
