@@ -242,7 +242,7 @@ export default function LLMWidget() {
   const dummyConfirm = (data: { function_name: string; args: Record<string, string> }) => {
     console.log("Confirmed:", data);
     if (data.function_name === "add_pin") {
-      sendPin([Number(data.args[0]), Number(data.args[1])])
+      sendPin([Number(data.args["x"]), Number(data.args["y"])])
     }
   };
 
