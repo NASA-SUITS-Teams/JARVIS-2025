@@ -52,10 +52,22 @@ export default function Home() {
   const { data, error, historicalData, loading, setPollServerData } = useAPI();
 
   const backendData: APIResponseData = data;
-  const tssData = backendData.tssData;
+  let tssData = backendData.tssData;
+  const lunarlinkData = backendData.lunarlinkData;
   const pinData = backendData.pinData;
-  const pathData = backendData.pathData
+  const pathData = backendData.pathData;
   const specData = tssData.SPEC?.spec;
+
+  let lunarlinkOnline = false;
+
+  // Check if lunarlinkData is available, if it is, swap it exactly with tssData
+  if (lunarlinkData?.ROVER_TELEMETRY?.pr_telemetry?.ac_cooling) {
+    console.log("Lunarlink data is available, swapping with TSS data");
+    lunarlinkOnline = true;
+    tssData = lunarlinkData;
+  } else {
+    //console.log("Lunarlink data is NOT available, using TSS data");
+  }
 
   // Draggable layout state
   const [layout, setLayout] = useState<Layout[]>(roverLayout);
@@ -69,7 +81,7 @@ export default function Home() {
     path: true,
     historicalPath: true,
     range: false,
-    ltv: true
+    ltv: true,
   });
 
   // Adding a new point to the map
@@ -101,11 +113,20 @@ export default function Home() {
     );
   }
 
+  if (!tssData?.ROVER_TELEMETRY?.pr_telemetry) {
+    return (
+        <div className="flex items-center justify-center h-screen bg-gray-900 text-blue-100 font-mono">
+          <span className="text-lg">TSS is down or backend is not working, check both</span>
+        </div>
+    );
+  }
+
   return (
     <div className="flex flex-col h-screen bg-gray-900 text-blue-100 font-mono">
       <Header
         elapsedTime={tssData.ROVER_TELEMETRY.pr_telemetry.mission_elapsed_time}
         error={error}
+        lunarlinkOnline={lunarlinkOnline}
       />
       <div className="flex flex-1 overflow-auto">
         <div className="flex-1 p-2">

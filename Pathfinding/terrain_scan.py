@@ -44,8 +44,8 @@ def terrain_scan(pos):
     plt.ylabel("y")
 
     tick_loc = [0, 10, 19]
-    x_ticks = [str(x-10), str(x), str(x+10)]
-    y_ticks = [str(y+10), str(y), str(y-10)]
+    x_ticks = [str(pos[0]-10), str(pos[0]), str(pos[0]+10)]
+    y_ticks = [str(pos[1]+10), str(pos[1]), str(pos[1]-10)]
     plt.xticks(ticks=tick_loc, labels=x_ticks)
     plt.yticks(ticks=tick_loc, labels=y_ticks)
 

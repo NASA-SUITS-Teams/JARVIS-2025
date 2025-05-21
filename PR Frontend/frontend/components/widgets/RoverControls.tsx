@@ -58,7 +58,7 @@ export default function RoverControls({ tssData }: RoverControlsProps) {
     const param = `pr_${key}=${newValue}`;
 
     try {
-      await fetch("http://127.0.0.1:14141/", {
+      await fetch("http://192.168.51.110:14141/", {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",

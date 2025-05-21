@@ -4,6 +4,7 @@ type LLMResponse = {
     is_tool: boolean;
     function_name: string;
     args: Record<string, string>;
+    is_rag: boolean;
 };
 
 type LLMRequest = {

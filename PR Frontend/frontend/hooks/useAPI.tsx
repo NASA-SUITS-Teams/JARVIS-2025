@@ -27,7 +27,7 @@ export const useAPI = () => {
   // Function to add new data to history
   const addToHistory = (newData: APIResponseData) => {
     setHistoricalData((prev) => {
-      const next = [...prev, { ...newData, timestamp: Date.now() }].slice(-20);
+      const next = [...prev, { ...newData, timestamp: Date.now() }].slice(-50);
       localStorage.setItem("historicalData", JSON.stringify(next));
       return next;
     });
@@ -56,7 +56,9 @@ export const useAPI = () => {
 
       setData(result);
       addToHistory(result);
+      setError(null); // Reset error state after successful fetch
     } catch (error) {
+      console.log("ERROR with API", error);
       setError(error);
     } finally {
       setLoading(false);

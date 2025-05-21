@@ -26,7 +26,7 @@ class ChatBot:
         self, model, use_rag=False, use_tools=False, use_thinking=True, TESTING=False, FLASK=False
     ):
         """Initialize ChatBot with OpenAI-type API"""
-        self.base_url = "http://localhost:11434"
+        self.base_url = "http://localhost:9292"
         self.model = model
         self.messages = []
         self.use_thinking = use_thinking
@@ -34,6 +34,9 @@ class ChatBot:
         self.FLASK = FLASK
 
         self.use_rag = use_rag
+        self.rag_info = "None"
+        self.context_k = 3
+        self.message_k = 2
         if self.use_rag:
             self.vectorstore = load_vectorstore()
             self.client = chromadb.Client()
@@ -41,16 +44,16 @@ class ChatBot:
         self.use_tools = use_tools
         if self.use_tools:
             self.toolbot = ToolBot(model=TOOL_MODEL, FLASK=FLASK)
-            self.add_message("user", "Hello")
-            self.add_message(
-                "assistant",
-                "Greetings. How may I assist you today?",
-            )
-            self.add_message("user", "What is 5 + 3 and 3 - 1?")
-            self.add_message(
-                "assistant",
-                "Let me call two functions to assist you.\n\n<functions>\nadd_two_numbers(a=5, b=3)\nsubtract_two_numbers(a=3, b=1)\n</functions>",
-            )
+#            self.add_message("user", "Hello")
+#            self.add_message(
+#                "assistant",
+#                "Greetings. How may I assist you today?",
+#            )
+#            self.add_message("user", "What is 5 + 3 and 3 - 1?")
+#            self.add_message(
+#                "assistant",
+#                "Let me call two functions to assist you.\n\n<functions>\nadd_two_numbers(a=5, b=3)\nsubtract_two_numbers(a=3, b=1)\n</functions>",
+#            )
 
     def add_message(self, role, content):
         self.messages.append({"role": role, "content": content})
@@ -85,19 +88,32 @@ class ChatBot:
 
             rag_info = []
 
-            doc_texts, doc_ids = self.get_rag_info(context, k=2)
+            doc_texts, doc_ids = self.get_rag_info(context, k=self.context_k)
             rag_info.append(doc_texts)
-            doc_texts, doc_ids = self.get_rag_info(message, k=2, ignore_ids=doc_ids)
+            doc_texts, doc_ids = self.get_rag_info(message, k=self.message_k, ignore_ids=doc_ids)
             rag_info.append(doc_texts)
 
             rag_info = "\n\n".join(rag_info)
-            rag_info = f"Relevant information (optional):\n{rag_info}\n\n"
+            self.rag_info = rag_info
+            rag_info = f"Relevant information (optional):\n{rag_info}"
 
             system_messages.append({"role": "user", "content": rag_info})
+
+        mission_info = "Mission information (optional):\n"
+        mission_info += "Point A: (-5855.60, -10168.60)\n"
+        mission_info += "Point B: (-5868.10, -10016.10)\n"
+        mission_info += "Point C: (-5745.90, -9977.30)\n"
+        mission_info += "Home base: (-5663.40, -10094.30)"
+        system_messages.append({"role": "user", "content": mission_info})
 
         if self.use_tools:
             tools_message = ""
             tools_message += "If you need more information or there are any functions that relevant to the context do not overthink. Instead, explain which function you are calling and at the end of your response suggest them in a block of '<functions>' in the format `function_name(arg1, arg2)` and type '</functions>' when you are done suggesting functions. At the end of your response, only suggest functions when they are truly necessary for the current context.\n"
+            tools_message += "For example:\n"
+            tools_message += "Pin A is at point (-5855.60, -10168.60), and I will call a function for that.\n\n"
+            tools_message += "<functions>\n"
+            tools_message += "add_pin(x=-5855.60, y=-10168.60)\n"
+            tools_message += "</functions>\n"
             tools_message += "\n" + "Optional functions:\n" + ALL_TOOLS_STRING
 
             system_messages.append({"role": "system", "content": tools_message})
@@ -328,6 +344,9 @@ class ChatBot:
             return error_msg
 
     def get_rag_info(self, prompt, k, ignore_ids=[]):
+        if k <= 0:
+            return "", []
+
         retrieved_docs = self.vectorstore.similarity_search_with_relevance_scores(
             prompt, k=k + len(ignore_ids)
         )

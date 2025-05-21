@@ -1,11 +1,10 @@
-import { LunarLinkData } from "./lunarlink";
 import { TSSData } from "./tss";
 
 export type APIResponseData = {
   tssData: TSSData;
-  lunarlinkData: LunarLinkData; // main source for partner teams data, we will use the TSS data as a backu
+  lunarlinkData: TSSData; // main source for partner teams data, we will use the TSS data as a backu
   pinData: PinElement[];
-}
+};
 
 export type Alert = {
   name: string;

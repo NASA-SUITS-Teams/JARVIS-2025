@@ -4,6 +4,9 @@ import SpeechRecognition, {
 } from "react-speech-recognition";
 import { Terminal, Music4Icon, Send, Trash2, Pencil, Settings, MessageSquare } from "lucide-react";
 import { askLLM, syncFromBackend, syncSettingsFromBackend, syncSettingsToBackend, syncToBackend } from "@/hooks/useLLM";
+import { io } from "socket.io-client";
+import { FUNCTIONS_CONFIG_MANIFEST } from "next/dist/shared/lib/constants";
+import { useAPI } from "@/hooks/useAPI";
 
 export default function LLMWidget() {
   const [response, setResponse] = useState("");
@@ -20,15 +23,17 @@ export default function LLMWidget() {
     transcript,
     listening,
     resetTranscript,
-    // browserSupportsSpeechRecognition, note: using this causes a hydration mismatch, @TODO: investigate
     browserSupportsContinuousListening,
   } = useSpeechRecognition();
+  const speechRecognitionAvailable = !!window.SpeechRecognition;
   const [editableTranscript, setEditableTranscript] = useState("");
 
 
   // Keep editableTranscript in sync when SpeechRecognition updates
   React.useEffect(() => {
-    setEditableTranscript(transcript);
+    if (speechRecognitionAvailable) {
+      setEditableTranscript(transcript);
+    }
   }, [transcript]);
 
   const startListening = () => {
@@ -50,20 +55,32 @@ export default function LLMWidget() {
 
 
   const [isListening, setIsListening] = useState<boolean>(false);
-  const evtSource = new EventSource("http://127.0.0.1:8282/events");
 
-  evtSource.onmessage = function (event) {
-    console.log("Received:", event.data);
-    if (event.data === "Listening") {
-      console.log("okok");
-      setIsListening(true);
-    }
-    if (event.data !== "Listening") {
-      console.log("yep");
-      setIsListening(false);
-      setEditableTranscript(event.data)
-    }
-  };
+
+  useEffect(() => {
+  const socket = io("http://localhost:8282");
+
+    socket.on("connect", () => {
+      console.log("Connected to WebSocket server");
+    });
+
+    socket.on("activation", (event) => {
+      if (event.data === "Listening") {
+        setIsListening(true);
+      } else {
+        setIsListening(false);
+        handleSend(event.data);
+      }
+    });
+
+    socket.on("disconnect", () => {
+      console.log("Disconnected from server");
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
 
 
@@ -78,8 +95,8 @@ export default function LLMWidget() {
 
   const resolveCurrentEditRef = useRef<((confirmed: boolean, updatedArgs?: Record<string, string>) => void) | null>(null);
 
-  const handleSend = async () => {
-    const userMessage = editableTranscript.trim();
+  const handleSend = async (transcriptOverride?: string) => {
+    const userMessage = (transcriptOverride ?? editableTranscript).trim();
     if (!userMessage) return;
 
     setIsSendEnabled(false);
@@ -88,20 +105,17 @@ export default function LLMWidget() {
     setEditableTranscript("");
 
     const request: LLMRequest = {
-      input: editableTranscript,
+      input: userMessage,
       enable_thinking: false,
       enable_rag: false,
       enable_tools: false,
     };
 
-    setMessages((prev) => [...prev, { role: 'assistant', content: "" }]);
-    const updatedMessages = [
-      ...messages,
+    setMessages(prev => [
+      ...prev,
       { role: 'user', content: userMessage },
       { role: 'assistant', content: '' }
-    ];
-
-    setMessages(updatedMessages);
+    ]);
 
     let assistantContent = "";
 
@@ -115,6 +129,11 @@ export default function LLMWidget() {
           try {
             const partial: Partial<LLMResponse> = JSON.parse(line);
             const isTool = partial.is_tool ?? false;
+            const isRag = partial.is_rag ?? false;
+            if (isRag) {
+              setRagInfo(partial.response ?? "None")
+              continue
+            }
 
             if (!isTool) {
               const text = partial.response ?? "";
@@ -134,6 +153,7 @@ export default function LLMWidget() {
                   ...updated[updated.length - 1],
                   content: assistantContent
                 };
+                syncToBackend(updated);
                 return updated;
               });
             } else {
@@ -171,13 +191,15 @@ export default function LLMWidget() {
       }
     }
 
-    const finalMessages = [
-      ...messages,
-      { role: 'user', content: userMessage },
-      { role: 'assistant', content: assistantContent }
-    ];
-
-    syncToBackend(finalMessages);
+//    setMessages(prev => {
+//      const finalMessages = [
+//        ...prev,
+//        { role: 'user', content: userMessage },
+//        { role: 'assistant', content: assistantContent }
+//      ];
+//      syncToBackend(finalMessages);
+//      return finalMessages;
+//    });
 
     setIsSendEnabled(true);
   };
@@ -216,8 +238,12 @@ export default function LLMWidget() {
   };
 
 
+  const { sendPin } = useAPI();
   const dummyConfirm = (data: { function_name: string; args: Record<string, string> }) => {
     console.log("Confirmed:", data);
+    if (data.function_name === "add_pin") {
+      sendPin([Number(data.args["x"]), Number(data.args["y"])])
+    }
   };
 
   const dummyCancel = () => {
@@ -235,6 +261,12 @@ export default function LLMWidget() {
       containerRef.current.scrollTop = bottomRef.current.offsetTop;
     }
   }, [messages]);
+
+  useEffect(() => {
+    if (!showingSettings && bottomRef.current && containerRef.current) {
+      containerRef.current.scrollTop = bottomRef.current.offsetTop;
+    }
+  }, [showingSettings]);
 
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -258,6 +290,8 @@ export default function LLMWidget() {
   const [useTools, setUseTools] = useState(true);
   const [useThinking, setUseThinking] = useState(false);
   const [enableAudio, setEnableAudio] = useState(false);
+  const [contextK, setContextK] = useState(5);
+  const [messageK, setMessageK] = useState(5);
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -280,6 +314,9 @@ export default function LLMWidget() {
 
 
 
+  const [ragSidebarOpen, setRagSidebarOpen] = useState(false);
+  const [ragInfo, setRagInfo] = useState("None");
+
 
 
   return (
@@ -291,12 +328,21 @@ export default function LLMWidget() {
 
       {/* Top Buttons */}
       <div className="flex items-center justify-between space-x-2 w-full">
+        {!showingSettings && (
+          <button
+            onClick={() => setRagSidebarOpen(!ragSidebarOpen)}
+            className="top-1/2 -left-3 transform bg-blue-600 hover:bg-blue-500 text-white px-2 py-1 rounded-r z-20"
+          >
+            {ragSidebarOpen ? 'Close RAG' : 'Open RAG'}
+          </button>
+        )}
+
         {/* Settings Button */}
         <button
           onClick={() => setShowingSettings((prev) => 
           {
             if (prev == true) {
-              syncSettingsToBackend(audioThreshold, useRag, useTools, useThinking, enableAudio);
+              syncSettingsToBackend(audioThreshold, useRag, useTools, useThinking, enableAudio, contextK, messageK);
             }
 
             return !prev
@@ -322,6 +368,12 @@ export default function LLMWidget() {
             Clear Messages
           </button>
         )}
+      </div>
+
+      <div className={`relative overflow-y-auto h-1/3 bg-gray-900 border-r border-blue-600 p-4 z-10 ${(ragSidebarOpen && !showingSettings) ? "block" : "hidden"}`}>
+        <div className="whitespace-pre-wrap">
+          {ragInfo}
+        </div>
       </div>
 
       {!showingSettings && (
@@ -443,7 +495,7 @@ export default function LLMWidget() {
           {/* Buttons row */}
           <div className="flex space-x-2">
             {/* Audio Button */}
-            {!listening ? (
+            {(!listening && !isListening) ? (
               <button
                 onClick={startListening}
                 className="flex-1 flex items-center justify-center px-3 py-2 rounded-md border border-blue-400 bg-blue-900/50 text-sm text-blue-100 font-medium hover:bg-blue-800"
@@ -463,7 +515,7 @@ export default function LLMWidget() {
 
             {/* Send Button */}
             <button
-              onClick={handleSend}
+              onClick={() => handleSend()}
               disabled={!editableTranscript.trim() || !isSendEnabled}
               className="flex-1 flex items-center justify-center px-3 py-2 rounded-md border border-blue-400 bg-blue-600 text-sm text-white font-medium hover:bg-blue-500 disabled:opacity-50"
             >
@@ -602,6 +654,39 @@ export default function LLMWidget() {
                 <span className="text-sm font-medium">{enableAudio ? "On" : "Off"}</span>
               </div>
             </div>
+
+            <div className="border rounded-xl p-4 shadow-md bg-gray w-full">
+              <p className="text-sm font-medium mb-2">
+                RAG Chunks from Context (default: 5)
+              </p>
+              <div className="flex items-center space-x-4">
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={contextK}
+                  onChange={(e) => setContextK(Number(e.target.value))}
+                  className="w-16 border px-2 py-1 rounded"
+                />
+              </div>
+            </div>
+
+            <div className="border rounded-xl p-4 shadow-md bg-gray w-full">
+              <p className="text-sm font-medium mb-2">
+                RAG Chunks from Message (default: 5)
+              </p>
+              <div className="flex items-center space-x-4">
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={messageK}
+                  onChange={(e) => setMessageK(Number(e.target.value))}
+                  className="w-16 border px-2 py-1 rounded"
+                />
+              </div>
+            </div>
+
           </div>
         </>
       )}

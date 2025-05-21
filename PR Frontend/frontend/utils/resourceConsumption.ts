@@ -69,47 +69,13 @@ export function calculateRange(
   history: APIResponseData[],
   current: TSSData
 ): number {
-  // Extract safe thresholds
-  const [minBattery] = ROVER_THRESHOLDS.battery_level;
-  const maxDistanceThreshold = 1700; // TSS says it can be 2500 but none of the maps go that far
-
   // Unwrap current telemetry
-  const { battery_level: batteryLevel, distance_from_base: currentDist } =
+  const { battery_level: currentBattery, distance_traveled: distanceTraveled, distance_from_base: distanceFromBase } =
     current.ROVER_TELEMETRY.pr_telemetry;
 
-  // Build consumption rates (percent battery per distance unit)
-  const rates: number[] = [];
-  for (let i = 1; i < history.length; i++) {
-    const prev = history[i - 1].tssData.ROVER_TELEMETRY.pr_telemetry;
-    const curr = history[i].tssData.ROVER_TELEMETRY.pr_telemetry;
+  const deltaBattery = 100 - currentBattery;
+  const batteryRate = deltaBattery / distanceTraveled;
+  const range = (currentBattery - 30) / batteryRate;
 
-    const deltaDist = Math.abs(
-      curr.distance_from_base - prev.distance_from_base
-    );
-    const deltaBatt = prev.battery_level - curr.battery_level;
-
-    if (deltaDist > 0 && deltaBatt > 0) {
-      rates.push(deltaBatt / deltaDist);
-    }
-  }
-
-  // If no movement history, assume full threshold distance is reachable (2500)
-  if (rates.length === 0) {
-    return maxDistanceThreshold;
-  }
-
-  // Use worst-case consumption for safety
-  const worstRate = Math.max(...rates);
-
-  // Compute how much battery can be used
-  const availableBattery = batteryLevel - minBattery;
-  if (availableBattery <= 0) {
-    return currentDist;
-  }
-
-  // additional range based on worst-case rate
-  const additionalRange = availableBattery / worstRate;
-
-  // capped at threshold
-  return Math.min(currentDist + additionalRange, maxDistanceThreshold);
+  return range;
 }

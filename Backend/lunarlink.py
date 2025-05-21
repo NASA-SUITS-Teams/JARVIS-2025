@@ -1,16 +1,15 @@
 import requests
 import time
 
-# @TODO change this URL to the correct one that AetherNet is using
-BASE_URL = "100.66.113.144:14141"
-PORT=5000
+BASE_URL = "http://192.168.51.189:5000"
 
 # make request to /now
-def fetch_lunarlink_json_data():
+def fetch_lunarlink_json_data(tss_data):
     data = {}
-    url = f"http://{BASE_URL}:{PORT}/now"
+    url = f"{BASE_URL}/now"
 
     try:
+        print(f"Fetching data from {url}")
         resp = requests.get(url, timeout=5)
         resp.raise_for_status()
         data = resp.json()
@@ -18,12 +17,10 @@ def fetch_lunarlink_json_data():
         print(f"Error fetching data from {url}: {e}")
         data = None
 
-    return data
+    return parse_lunarlink_json_data(data, tss_data)
 
 def parse_lunarlink_json_data(unparsed_data, tss_data):
     copy_tss = tss_data
-
-    copy_tss["closest_epoch"] = unparsed_data["closest_epoch"]
 
     # DCU EVA 1
     copy_tss["DCU"]["dcu"]["eva1"]["batt"] = unparsed_data["data"]["2"]
