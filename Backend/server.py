@@ -305,17 +305,8 @@ def index():
 if __name__ == "__main__":
     threading.Thread(target=update_tss_loop, daemon=True).start()
     
-    # Start the lunarlink update thread with automatic restart on failure
-    def lunarlink_thread_with_restart():
-        while not stop_event.is_set():
-            try:
-                update_lunarlink_loop()
-            except Exception as e:
-                #print(f"Lunarlink thread error: {e}")
-                time.sleep(5)  # Wait a bit before restarting to avoid rapid restart loops
-    
-    threading.Thread(target=lunarlink_thread_with_restart, daemon=True).start()
+    threading.Thread(target=update_lunarlink_loop, daemon=True).start()
 
-    threading.Thread(target=listen, daemon=True).start()
+    #threading.Thread(target=listen, daemon=True).start()
 
     app.run(debug=True, use_reloader=False, host="0.0.0.0", port=8282)

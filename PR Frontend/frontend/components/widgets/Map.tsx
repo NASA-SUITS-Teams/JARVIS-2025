@@ -292,7 +292,7 @@ export default function Map({
                 }deg)`,
               }}
             >
-              <svg width="30" height="30" viewBox="0 0 24 24">
+              <svg width="25" height="25" viewBox="0 0 24 24">
                 <polygon
                   points="12,2 4,20 12,15 20,20"
                   fill="#9333ea"
@@ -329,7 +329,7 @@ export default function Map({
                   }deg)`,
                 }}
               >
-                <svg width="30" height="30" viewBox="0 0 24 24">
+                <svg width="25" height="25" viewBox="0 0 24 24">
                   <polygon
                     points="12,2 4,20 12,15 20,20"
                     fill="#ec4899"
@@ -354,7 +354,7 @@ export default function Map({
                   }deg)`,
                 }}
               >
-                <svg width="30" height="30" viewBox="0 0 24 24">
+                <svg width="25" height="25" viewBox="0 0 24 24">
                   <polygon
                     points="12,2 4,20 12,15 20,20"
                     fill="#ec4899"
@@ -395,7 +395,7 @@ export default function Map({
             return visibleLayers.pin ? (
               <div
                 key={idx}
-                className="absolute w-4 h-4 bg-green-500 rounded-full border-2 border-white z-20"
+                className="absolute w-3 h-3 bg-green-500 rounded-full border-2 border-white z-20"
                 style={{
                   left: `${pos.left}%`,
                   top: `${pos.top}%`,

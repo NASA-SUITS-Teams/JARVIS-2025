@@ -66,7 +66,7 @@ export default function Home() {
     lunarlinkOnline = true;
     tssData = lunarlinkData;
   } else {
-    console.log("Lunarlink data is NOT available, using TSS data");
+    //console.log("Lunarlink data is NOT available, using TSS data");
   }
 
   // Draggable layout state
@@ -110,6 +110,14 @@ export default function Home() {
       <div className="flex items-center justify-center h-screen bg-gray-900 text-blue-100 font-mono">
         <span className="text-lg">Loading...</span>
       </div>
+    );
+  }
+
+  if (!tssData?.ROVER_TELEMETRY?.pr_telemetry) {
+    return (
+        <div className="flex items-center justify-center h-screen bg-gray-900 text-blue-100 font-mono">
+          <span className="text-lg">TSS is down or backend is not working, check both</span>
+        </div>
     );
   }
 

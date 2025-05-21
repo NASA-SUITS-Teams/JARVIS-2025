@@ -1,6 +1,6 @@
 import requests
 
-BASE_URL = "http://192.168.51.110:14141/json_data"
+BASE_URL = "http://172.20.3.132:14141/json_data"
 TEAM_NUMBER = 1
 
 DATA_KEYS = [

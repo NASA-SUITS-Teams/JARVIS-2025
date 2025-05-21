@@ -58,6 +58,7 @@ export const useAPI = () => {
       addToHistory(result);
       setError(null); // Reset error state after successful fetch
     } catch (error) {
+      console.log("ERROR with API", error);
       setError(error);
     } finally {
       setLoading(false);
