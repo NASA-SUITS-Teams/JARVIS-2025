@@ -168,12 +168,17 @@ export default function Map({
                 onChange={(e) => setYInput(e.target.value)}
                 className="w-20 px-2 py-1 text-xs rounded bg-gray-600 text-white"
               />
-              <button
+                <button
                 onClick={handleManualAdd}
-                className="px-2 py-1 bg-blue-600 rounded text-xs hover:bg-blue-500"
-              >
+                className={`px-2 py-1 rounded text-xs ${
+                  !xInput || !yInput 
+                  ? "bg-gray-500 cursor-not-allowed opacity-50" 
+                  : "bg-blue-600 hover:bg-blue-500"
+                }`}
+                disabled={!xInput || !yInput}
+                >
                 Add Pin
-              </button>
+                </button>
             </>
           ) : (
             (["moon", "rock"] as const).map((mode) => (

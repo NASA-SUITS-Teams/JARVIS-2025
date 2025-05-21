@@ -47,11 +47,16 @@ def get_data():
         path = []
     else: # Note: goal position is currently calculated based on the most previous pin position
         # get the lastest pin position and calculate the path
-        lastest_pin = pin_data[-1]['position']
-        try:
-            path = find_path(current_position, lastest_pin)    
-        except Exception as e:
-            print(f"Error finding path: {e}")
+        latest_pin = pin_data[-1]['position']
+        print(f"Current position: {current_position}, Lastest pin: {latest_pin}")
+        if latest_pin != [0, 0]:
+            try:
+                path = find_path(current_position, latest_pin)    
+            except Exception as e:
+                print(f"Error finding path: {e}")
+                path = []
+
+        else:
             path = []
 
     return jsonify({
