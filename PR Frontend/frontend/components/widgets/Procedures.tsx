@@ -34,7 +34,7 @@ const TASKS = [
     id: "verify-consumables-a",
     label: "Note anticipiated consumables at Point A",
   },
-  { id: "verify-storage-a", label: "ensure successful storage of terrain data"},
+  { id: "verify-storage-a", label: "Ensure successful storage of terrain data"},
   { id: "announce-completion-a", label: "Announce successful completion of terrain scan"},
 
 
@@ -47,7 +47,7 @@ const TASKS = [
     id: "verify-consumables-b",
     label: "Note anticipiated consumables at Point B",
   },
-  { id: "verify-storage-b", label: "ensure successful storage of terrain data"},
+  { id: "verify-storage-b", label: "Ensure successful storage of terrain data"},
   { id: "announce-completion-b", label: "Announce successful completion of terrain scan"},
 
 
@@ -61,7 +61,7 @@ const TASKS = [
     id: "verify-consumables-c",
     label: "Note anticipiated consumables at Point C",
   },
-  { id: "verify-storage-c", label: "ensure successful storage of terrain data"},
+  { id: "verify-storage-c", label: "Ensure successful storage of terrain data"},
   { id: "announce-completion-c", label: "Announce successful completion of terrain scan"},
 
 

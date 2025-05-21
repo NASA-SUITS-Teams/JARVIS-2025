@@ -117,24 +117,35 @@ def index_to_xy(index):
     y_world = index[1] + ymin
     return (x_world, y_world)
 
-"""
-Break path into straight line segments to the end coordinates
-"""
-def segment_path(path):
-    i = 0
-    auto_points = []
-    auto_headings = []
-    
-    while True:
-        auto_points.append(path[i])
-        i += 10
-        if i >= len(path):
-            auto_points.append(path[-1])
-            break
 
-    for i in range(len(auto_points) - 1):
-        vec = np.array(auto_points[i+1]) - np.array(auto_points[i])
-        heading = np.arctan2(vec[1], vec[0])
-        auto_headings.append(heading)
+"""
+Get the difference between the rover heading and heading to the pin
+assuming heading is clockwise from north in degrees. This version uses
+the current rover position and the end point
+"""
+def heading_diff(rover_heading, pos, end):
+    dx = end[0] - pos[0]
+    dy = end[1] - pos[1]
 
-    return auto_points, auto_headings
+    path_heading = (90 - np.degrees( np.arctan2(dy, dx) )) % 360
+
+    heading_diff = path_heading - rover_heading
+
+    return heading_diff
+
+"""
+function headingDiff(roverHeading, pos, end) {
+    const dx = end[0] - pos[0];
+    const dy = end[1] - pos[1];
+
+    let pathHeading = (90 - (Math.atan2(dy, dx) * (180 / Math.PI))) % 360;
+
+    if (pathHeading < 0) {
+        pathHeading += 360;
+    }
+
+    const headingDifference = pathHeading - roverHeading;
+
+    return headingDifference;
+}
+"""
