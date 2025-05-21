@@ -119,9 +119,12 @@ def index_to_xy(index):
 
 
 """
-Get the difference between the rover heading and heading to the pin
+Get the "turn" needed to  head to the pin, from -1 (left) to 1 (right)
 assuming heading is clockwise from north in degrees. This version uses
 the current rover position and the end point
+
+if you only have the path object, and not the starting and end points,
+let pos = path[0], end = path[len(path) - 1]
 """
 def heading_diff(rover_heading, pos, end):
     dx = end[0] - pos[0]
@@ -131,10 +134,18 @@ def heading_diff(rover_heading, pos, end):
 
     heading_diff = path_heading - rover_heading
 
-    return heading_diff
+    if heading_diff > 180:
+        heading_diff -= 360
+    elif heading_diff < -180:
+        heading_diff += 360
+
+    return heading_diff / 180
 
 """
-function headingDiff(roverHeading, pos, end) {
+function headingDiff(roverHeading, path) {
+    const pos = path[0];
+    const end = path[path.length - 1];
+
     const dx = end[0] - pos[0];
     const dy = end[1] - pos[1];
 
@@ -144,8 +155,15 @@ function headingDiff(roverHeading, pos, end) {
         pathHeading += 360;
     }
 
-    const headingDifference = pathHeading - roverHeading;
+    let headingDifference = pathHeading - roverHeading;
 
-    return headingDifference;
+    // Normalize to [-180, 180)
+    if (headingDifference > 180) {
+        headingDifference -= 360;
+    } else if (headingDifference < -180) {
+        headingDifference += 360;
+    }
+
+    return headingDifference / 180;
 }
 """
