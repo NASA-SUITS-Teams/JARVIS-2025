@@ -4,13 +4,11 @@ import signal
 import sys
 import threading
 import time
-
-from flask_socketio import SocketIO
 import pygame
 from TTS.api import TTS
 from faster_whisper import WhisperModel
 from flask import Flask, request, jsonify, Response, stream_with_context
-from flask_cors import CORS, cross_origin
+from flask_cors import CORS
 import openwakeword
 
 
@@ -27,7 +25,6 @@ from Pathfinding.terrain_scan import terrain_scan
 # Init Flask app and global state
 app = Flask(__name__)
 CORS(app)
-socketio = SocketIO(app, cors_allowed_origins="*")
 
 # Init global variables
 tss_data = {}
@@ -47,16 +44,11 @@ def get_data():
         path = []
     else: # Note: goal position is currently calculated based on the most previous pin position
         # get the lastest pin position and calculate the path
-        latest_pin = pin_data[-1]['position']
-        print(f"Current position: {current_position}, Lastest pin: {latest_pin}")
-        if latest_pin != [0, 0]:
-            try:
-                path = find_path(current_position, latest_pin)    
-            except Exception as e:
-                print(f"Error finding path: {e}")
-                path = []
-
-        else:
+        lastest_pin = pin_data[-1]['position']
+        try:
+            path = find_path(current_position, lastest_pin)    
+        except Exception as e:
+            print(f"Error finding path: {e}")
             path = []
 
     return jsonify({
@@ -114,7 +106,6 @@ enable_audio = False
 
 tts = TTS("tts_models/en/vctk/vits")
 audio = Audio()
-audio.listen = True
 
 model = WhisperModel("small", compute_type="float32")
 openwakeword.utils.download_models()
@@ -127,20 +118,11 @@ owwModel = openwakeword.Model(
 
 pygame.init()
 def say_and_block_audio(tts, text):
-    if text.strip() == "":
-        audio.listen = True
-        return
-
     audio.stream.stop()
 
-    tts.tts_to_file(text=text, speaker="p230", file_path="audio/output.wav")
-    sound = pygame.mixer.Sound("audio/output.wav")
-    channel = sound.play()
-
-    while channel.get_busy():
-        time.sleep(0.1) 
-
-    audio.listen = True
+    tts.tts_to_file(text=text, speaker="p230", file_path="output.wav")
+    sound = pygame.mixer.Sound("output.wav")
+    sound.play()
 
     audio.audio_q.clear()
     owwModel.reset()
@@ -150,8 +132,6 @@ def say_and_block_audio(tts, text):
 def stream_response():
     data = request.get_json()["request"]
     prompt = data.get("input")
-
-    audio.listen = False
 
     def generate():
         try:
@@ -170,11 +150,6 @@ def stream_response():
                         "function_name": function_name,
                         "args": args,
                     }) + "\n"
-
-            yield json.dumps({
-                "is_rag": True,
-                "response": chatbot.rag_info,
-            }) + "\n"
         except Exception as e:
             yield json.dumps({
                 "response": f"Error: {str(e)}",
@@ -184,8 +159,6 @@ def stream_response():
 
         if enable_audio:
             threading.Thread(target=say_and_block_audio, args=(tts, chatbot.full_response)).start()
-        else:
-            audio.listen = True
 
     return Response(stream_with_context(generate()))
 
@@ -217,8 +190,6 @@ def save_settings():
     chatbot.use_tools = settings["use_tools"]
     chatbot.use_thinking = settings["use_thinking"]
     enable_audio = settings["enable_audio"]
-    chatbot.context_k = settings["context_k"]
-    chatbot.message_k = settings["message_k"]
 
     return jsonify({"status": "ok"}), 200
 
@@ -231,8 +202,6 @@ def load_settings():
         "use_tools": chatbot.use_tools,
         "use_thinking": chatbot.use_thinking,
         "enable_audio": enable_audio,
-        "context_k": chatbot.context_k,
-        "message_k": chatbot.message_k,
     }
 
     return jsonify({"settings": settings})
@@ -245,20 +214,20 @@ def update_tss_loop():
     while True:
         tss_data = fetch_tss_json_data()
 
-        time.sleep(1) # poll every 1 seconds
+        time.sleep(1) # poll every 3 seconds
 
 # Update lunarlink data every 10 seconds, including EVA, etc
 def update_lunarlink_loop():
-    global tss_data
     global lunarlink_data
 
     while True:
-        lunarlink_data = fetch_lunarlink_json_data(tss_data)
+        lunarlink_data = fetch_lunarlink_json_data()
 
-        time.sleep(2)  # poll every 2 seconds
+        time.sleep(10)  # poll every 10 seconds
 
 
 
+event_queue = queue.Queue()
 
 stop_event = threading.Event()
 
@@ -269,49 +238,52 @@ def signal_handler(sig, frame):
 
 signal.signal(signal.SIGINT, signal_handler)
 
-event_queue = queue.Queue()
 
 def listen():
+
     while not stop_event.is_set():
         chunk = audio.pop_audio_q()
-        if chunk is None or not audio.listen:
+        if chunk is None:
             continue
 
         prediction = owwModel.predict(chunk)
 
-        if prediction.get("hey jarvis", 0) > (audio_threshold / 100):
+        if prediction["hey jarvis"] > (audio_threshold / 100):
             print("Hey Jarvis detected")
             audio.stream.stop()
 
-            sound = pygame.mixer.Sound("audio/activate.wav")
-            sound.play()
+            event_queue.put("Listening")
 
-            socketio.emit("activation", {"data": "Listening"})
-            print("Emitted: Listening")
-
-            audio_data = audio.record_until_silence(2, 5)
+            audio_data = audio.record_until_silence(2, 10)
             text = audio.get_text_from_audio(audio_data, model)
 
-            socketio.emit("activation", {"data": text})
-            print("Emitted:", text)
+            event_queue.put(text)
 
             audio.audio_q.clear()
             owwModel.reset()
 
         time.sleep(0.1)
 
-@app.route("/")
-def index():
-    return "WebSocket server running"
+
+@app.route('/events')
+def event():
+    def event_stream():
+        while not stop_event.is_set():
+            try:
+                message = event_queue.get(timeout=1)
+                yield f"data: {message}\n\n"
+            except queue.Empty:
+                continue
+
+    return Response(stream_with_context(event_stream()), mimetype='text/event-stream')
 
 
 
 # Start threads and server
 if __name__ == "__main__":
     threading.Thread(target=update_tss_loop, daemon=True).start()
-    
-    threading.Thread(target=update_lunarlink_loop, daemon=True).start()
+    #threading.Thread(target=update_lunarlink_loop, daemon=True).start()
 
-    #threading.Thread(target=listen, daemon=True).start()
+    threading.Thread(target=listen, daemon=True).start()
 
-    app.run(debug=True, use_reloader=False, host="0.0.0.0", port=8282)
+    app.run(debug=True, use_reloader=False, host="localhost", port=8282)
