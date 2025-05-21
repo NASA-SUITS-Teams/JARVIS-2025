@@ -95,9 +95,13 @@ class ChatBot:
 
             rag_info = "\n\n".join(rag_info)
             self.rag_info = rag_info
-            rag_info = f"Relevant information (optional):\n{rag_info}\n\n"
+            rag_info = f"Relevant information (optional):\n{rag_info}"
 
             system_messages.append({"role": "user", "content": rag_info})
+
+        mission_info = "Mission information (optional):\n"
+        mission_info += "Point A (-5855.60, -10168.60)"
+        system_messages.append({"role": "user", "content": mission_info})
 
         if self.use_tools:
             tools_message = ""

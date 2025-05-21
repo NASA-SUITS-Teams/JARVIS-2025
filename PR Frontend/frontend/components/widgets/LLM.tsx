@@ -5,6 +5,8 @@ import SpeechRecognition, {
 import { Terminal, Music4Icon, Send, Trash2, Pencil, Settings, MessageSquare } from "lucide-react";
 import { askLLM, syncFromBackend, syncSettingsFromBackend, syncSettingsToBackend, syncToBackend } from "@/hooks/useLLM";
 import { io } from "socket.io-client";
+import { FUNCTIONS_CONFIG_MANIFEST } from "next/dist/shared/lib/constants";
+import { useAPI } from "@/hooks/useAPI";
 
 export default function LLMWidget() {
   const [response, setResponse] = useState("");
@@ -236,8 +238,12 @@ export default function LLMWidget() {
   };
 
 
+  const { sendPin } = useAPI();
   const dummyConfirm = (data: { function_name: string; args: Record<string, string> }) => {
     console.log("Confirmed:", data);
+    if (data.function_name === "add_pin") {
+      sendPin([Number(data.args[0]), Number(data.args[1])])
+    }
   };
 
   const dummyCancel = () => {
