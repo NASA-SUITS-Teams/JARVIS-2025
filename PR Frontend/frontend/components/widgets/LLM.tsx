@@ -4,6 +4,7 @@ import SpeechRecognition, {
 } from "react-speech-recognition";
 import { Terminal, Music4Icon, Send, Trash2, Pencil, Settings, MessageSquare } from "lucide-react";
 import { askLLM, syncFromBackend, syncSettingsFromBackend, syncSettingsToBackend, syncToBackend } from "@/hooks/useLLM";
+import { io } from "socket.io-client";
 
 export default function LLMWidget() {
   const [response, setResponse] = useState("");
@@ -20,15 +21,17 @@ export default function LLMWidget() {
     transcript,
     listening,
     resetTranscript,
-    // browserSupportsSpeechRecognition, note: using this causes a hydration mismatch, @TODO: investigate
     browserSupportsContinuousListening,
   } = useSpeechRecognition();
+  const speechRecognitionAvailable = !!window.SpeechRecognition;
   const [editableTranscript, setEditableTranscript] = useState("");
 
 
   // Keep editableTranscript in sync when SpeechRecognition updates
   React.useEffect(() => {
-    setEditableTranscript(transcript);
+    if (speechRecognitionAvailable) {
+      setEditableTranscript(transcript);
+    }
   }, [transcript]);
 
   const startListening = () => {
@@ -50,20 +53,32 @@ export default function LLMWidget() {
 
 
   const [isListening, setIsListening] = useState<boolean>(false);
-  const evtSource = new EventSource("http://127.0.0.1:8282/events");
 
-  evtSource.onmessage = function (event) {
-    console.log("Received:", event.data);
-    if (event.data === "Listening") {
-      console.log("okok");
-      setIsListening(true);
-    }
-    if (event.data !== "Listening") {
-      console.log("yep");
-      setIsListening(false);
-      setEditableTranscript(event.data)
-    }
-  };
+
+  useEffect(() => {
+  const socket = io("http://localhost:8282");
+
+    socket.on("connect", () => {
+      console.log("Connected to WebSocket server");
+    });
+
+    socket.on("activation", (event) => {
+      if (event.data === "Listening") {
+        setIsListening(true);
+      } else {
+        setIsListening(false);
+        handleSend(event.data);
+      }
+    });
+
+    socket.on("disconnect", () => {
+      console.log("Disconnected from server");
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
 
 
@@ -78,8 +93,8 @@ export default function LLMWidget() {
 
   const resolveCurrentEditRef = useRef<((confirmed: boolean, updatedArgs?: Record<string, string>) => void) | null>(null);
 
-  const handleSend = async () => {
-    const userMessage = editableTranscript.trim();
+  const handleSend = async (transcriptOverride?: string) => {
+    const userMessage = (transcriptOverride ?? editableTranscript).trim();
     if (!userMessage) return;
 
     setIsSendEnabled(false);
@@ -88,20 +103,17 @@ export default function LLMWidget() {
     setEditableTranscript("");
 
     const request: LLMRequest = {
-      input: editableTranscript,
+      input: userMessage,
       enable_thinking: false,
       enable_rag: false,
       enable_tools: false,
     };
 
-    setMessages((prev) => [...prev, { role: 'assistant', content: "" }]);
-    const updatedMessages = [
-      ...messages,
+    setMessages(prev => [
+      ...prev,
       { role: 'user', content: userMessage },
       { role: 'assistant', content: '' }
-    ];
-
-    setMessages(updatedMessages);
+    ]);
 
     let assistantContent = "";
 
@@ -139,6 +151,7 @@ export default function LLMWidget() {
                   ...updated[updated.length - 1],
                   content: assistantContent
                 };
+                syncToBackend(updated);
                 return updated;
               });
             } else {
@@ -176,13 +189,15 @@ export default function LLMWidget() {
       }
     }
 
-    const finalMessages = [
-      ...messages,
-      { role: 'user', content: userMessage },
-      { role: 'assistant', content: assistantContent }
-    ];
-
-    syncToBackend(finalMessages);
+//    setMessages(prev => {
+//      const finalMessages = [
+//        ...prev,
+//        { role: 'user', content: userMessage },
+//        { role: 'assistant', content: assistantContent }
+//      ];
+//      syncToBackend(finalMessages);
+//      return finalMessages;
+//    });
 
     setIsSendEnabled(true);
   };
@@ -474,7 +489,7 @@ export default function LLMWidget() {
           {/* Buttons row */}
           <div className="flex space-x-2">
             {/* Audio Button */}
-            {!listening ? (
+            {(!listening && !isListening) ? (
               <button
                 onClick={startListening}
                 className="flex-1 flex items-center justify-center px-3 py-2 rounded-md border border-blue-400 bg-blue-900/50 text-sm text-blue-100 font-medium hover:bg-blue-800"
@@ -494,7 +509,7 @@ export default function LLMWidget() {
 
             {/* Send Button */}
             <button
-              onClick={handleSend}
+              onClick={() => handleSend()}
               disabled={!editableTranscript.trim() || !isSendEnabled}
               className="flex-1 flex items-center justify-center px-3 py-2 rounded-md border border-blue-400 bg-blue-600 text-sm text-white font-medium hover:bg-blue-500 disabled:opacity-50"
             >
