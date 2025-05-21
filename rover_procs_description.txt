@@ -1,0 +1,130 @@
+1. Pilot verify battery level is > 95%
+Reference the "System States" section on the "System Control" side panel and confirm the battery level is greater than 95%.
+
+2. Pilot verify oxygen levels are > 95%
+Reference the "System States" section on the "System Control" side panel and confirm the oxygen level is greater than 95%.
+
+3. Verify oxygen pressure is > 2900 psi
+Reference the "System States" section on the "System Control" side panel and confirm the oxygen pressure is above 2900 psi.
+
+4. Verify PR cabin pressure is > 3.95 psi
+Reference the "System States" section on the "System Control" side panel and confirm the PR cabin pressure is above 3.95 psi.
+
+5. Toggle PR headlights ON then OFF
+Under the "Rover Controls" widget, switch the "Lights On" switch to an on state, then switch it to an off state.
+
+6. Drop pin at current location
+In the "System Control" side panel, under "Quick Actions", select "Add Pin" and select over the rover's current position on the map. 
+
+7. Drop pin at point A (-5855.60, -10168.60)
+In the "System Control" side panel, under "Quick Actions", select "Add Pin", and enter the coordinates in the header of the "Map" 
+widget. In the X input, enter -5855.60. In the Y input, enter -10168.60. 
+
+8. Begin navigation to Point A
+Pilot the pressurized rover along the generated path, avoiding obstacles as needed. 
+
+9. Verify PR has come to a complete stop
+Once you have arrived at point A, press the brakes until the speed reaches 0. Reference the "System Control" side panel to confirm 
+the speed entry reads 0. 
+
+10. Conduct terrain scan at Point A
+In the "System Control" side panel, under "Quick Actions", select "Scan Terrain". 
+
+11. Verify PNR at Point A
+Under the "Map Toggles" widget, toggle the "Range" switch to on. Verify that home base is within the green circle.
+
+12. Note anticipiated consumables at Point A
+In the "System Control" side panel, in the "System States" section, verify that relevant consumables such as oxygen and power are
+as expected and are greater than the anticipated resources needed for the rest of the mission.
+
+13. Ensure successful storage of terrain data
+In the "System Control" "System Control" side panel, under "Quick Actions", verify there is a successful save popup under 
+"Scan Terrain"
+
+14. Announce successful completion of terrain scan
+Announce out loud: "Terrain scan successful"
+
+15. Drop pin at point B (-5868.10, -10016.10)
+In the "System Control" side panel, under "Quick Actions", select "Add Pin", and enter the coordinates in the header of the "Map" 
+widget. In the X input, enter -5868.10. In the Y input, enter -10016.10. 
+
+16. Begin navigation to Point B
+Pilot the pressurized rover along the generated path, avoiding obstacles as needed. 
+
+17. Verify PR has come to a complete stop
+Once you have arrived at point B, press the brakes until the speed reaches 0. Reference the "System Control" side panel to confirm 
+the speed entry reads 0. 
+
+18. Conduct terrain scan at Point B
+In the "System Control" side panel, under "Quick Actions", select "Scan Terrain". 
+
+19. Verify PNR at Point B
+Under the "Map Toggles" widget, toggle the "Range" switch to on. Verify that home base is within the green circle.
+
+20. Note anticipiated consumables at Point B
+In the "System Control" side panel, in the "System States" section, verify that relevant consumables such as oxygen and power are
+as expected and are greater than the anticipated resources needed for the rest of the mission.
+
+21. Ensure successful storage of terrain data
+In the "System Control" "System Control" side panel, under "Quick Actions", verify there is a successful save popup under 
+"Scan Terrain"
+
+22. Announce successful completion of terrain scan
+Announce out loud: "Terrain scan successful"
+
+23. Drop pin at point C (-5745.90, -9977.30)
+In the "System Control" side panel, under "Quick Actions", select "Add Pin", and enter the coordinates in the header of the "Map" 
+widget. In the X input, enter -5745.90. In the Y input, enter -9977.30. 
+
+24. Begin navigation to Point C
+Pilot the pressurized rover along the generated path, avoiding obstacles as needed. 
+
+25. Verify PR has come to a complete stop
+Once you have arrived at point C, press the brakes until the speed reaches 0. Reference the "System Control" side panel to confirm 
+the speed entry reads 0. 
+
+26. Check telemetry data and look for any off-nominal values
+In the "System Control" side panel, in the "System States" section, verify that relevant consumables such as oxygen and power are
+as expected and all values are reading nominal values. 
+
+27. Conduct terrain scan at Point C
+In the "System Control" side panel, under "Quick Actions", select "Scan Terrain". 
+
+28. Verify PNR at Point C
+Under the "Map Toggles" widget, toggle the "Range" switch to on. Verify that home base is within the green circle.
+
+29. Note anticipiated consumables at Point C
+In the "System Control" side panel, in the "System States" section, verify that relevant consumables such as oxygen and power are
+as expected and are greater than the anticipated resources needed for the rest of the mission.
+
+30. Ensure successful storage of terrain data
+In the "System Control" "System Control" side panel, under "Quick Actions", verify there is a successful save popup under 
+"Scan Terrain"
+
+31. Announce successful completion of terrain scan
+Announce out loud: "Terrain scan successful"
+
+32. Verify path to home base is generated
+In the "System Control" side panel, under "Quick Actions", select "Add Pin" and select over the location of home base. Verify
+a path has been generated on the "Map" widget. 
+
+31. Begin navigation to home base 
+Pilot the pressurized rover along the generated path, avoiding obstacles as needed. 
+
+EVA egress coordination:
+
+32. Verify ping received from LTV
+Check that a ping has been received from the LTV
+
+33. Verify worksite POI locations provided by LTV
+Confirm that the point of interest sites provided by the LTV are accurate. 
+
+34. Verify EV1 has received LTV POIs 
+Verbally confirm with EV1 that they have received the LTV POIs. 
+
+35. Announce PR operations complete and begin monitoring EVA
+Announce out loud: "PR Operations have been completed". Then, in the "System Control" side panel, below "System States", switch 
+between EVA#1 and EVA#2 layouts to monitor their states and confirm values stay nominal.
+
+36. Unlock airlock & announce all-clear for EV
+Finally, unlock the airlock. Then, announce "ALL CLEAR" to the EVs. 
