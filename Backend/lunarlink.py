@@ -20,7 +20,7 @@ def fetch_lunarlink_json_data(tss_data):
     return parse_lunarlink_json_data(data, tss_data)
 
 def parse_lunarlink_json_data(unparsed_data, tss_data):
-    copy_tss = tss_data
+    copy_tss = dict(tss_data)
 
     # DCU EVA 1
     copy_tss["DCU"]["dcu"]["eva1"]["batt"] = unparsed_data["data"]["2"]
