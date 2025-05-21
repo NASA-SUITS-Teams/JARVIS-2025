@@ -2,8 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
-import { Terminal, Music4Icon, Send, Trash2, Pencil, Settings, MessageSquare } from "lucide-react";
-import { askLLM, syncFromBackend, syncSettingsFromBackend, syncSettingsToBackend, syncToBackend } from "@/hooks/useLLM";
+import { Terminal, Music4Icon, Send, Trash2, Pencil, Settings, MessageSquare, OctagonX } from "lucide-react";
+import { abortChat, askLLM, syncFromBackend, syncSettingsFromBackend, syncSettingsToBackend, syncToBackend } from "@/hooks/useLLM";
 import { io } from "socket.io-client";
 import { FUNCTIONS_CONFIG_MANIFEST } from "next/dist/shared/lib/constants";
 import { useAPI } from "@/hooks/useAPI";
@@ -514,14 +514,28 @@ export default function LLMWidget() {
             )}
 
             {/* Send Button */}
+            {(isSendEnabled) ? (
             <button
               onClick={() => handleSend()}
-              disabled={!editableTranscript.trim() || !isSendEnabled}
+              disabled={!editableTranscript.trim()}
               className="flex-1 flex items-center justify-center px-3 py-2 rounded-md border border-blue-400 bg-blue-600 text-sm text-white font-medium hover:bg-blue-500 disabled:opacity-50"
             >
               <Send size={16} className="mr-2" />
               Send to LLM
             </button>
+            ) : (
+            <button
+              onClick={() => {
+                abortChat();
+                setIsSendEnabled(true);
+                }
+              }
+              className="flex-1 flex items-center justify-center px-3 py-2 rounded-md border border-gray-400 bg-red-600 text-sm text-white font-medium hover:bg-red-500"
+            >
+              <OctagonX size={16} className="mr-2" />
+              Stop
+            </button>
+            )}
           </div>
         </>
       )}

@@ -207,6 +207,13 @@ def load_settings():
     return jsonify({"settings": settings})
 
 
+@app.route('/abort_chat', methods=['POST'])
+def abort_chat():
+    chatbot.abort = True
+
+    return jsonify({"status": "ok"}), 200
+
+
 # Update all TSS data every 10 seconds
 def update_tss_loop():
     global tss_data
