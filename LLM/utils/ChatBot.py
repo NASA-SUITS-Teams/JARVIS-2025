@@ -32,6 +32,7 @@ class ChatBot:
         self.use_thinking = use_thinking
         self.TESTING = TESTING
         self.FLASK = FLASK
+        self.abort = False
 
         self.use_rag = use_rag
         self.rag_info = "None"
@@ -71,6 +72,8 @@ class ChatBot:
 
     def get_response_stream_flask(self, message, just_print=False, add_messages=True):
         """Get a streaming response from OpenAI-type API and display in real-time"""
+        self.abort = False
+
         if not add_messages:
             old_messages = self.messages.copy()
 
@@ -149,6 +152,10 @@ class ChatBot:
                     print("Jarvis: ", end="", flush=True)
 
                 for line in response.iter_lines():
+                    if self.abort:
+                        response.close()
+                        break
+
                     if line:
                         # Parse the JSON response
                         chunk = json.loads(line)

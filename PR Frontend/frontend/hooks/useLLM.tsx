@@ -62,3 +62,12 @@ export const syncSettingsFromBackend = async (): Promise<Record<string, string>>
   const data = await res.json();
   return data.settings ?? [];
 };
+
+export const abortChat = async () => {
+  const res = await fetch("http://localhost:8282/abort_chat", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    }
+  });
+};
