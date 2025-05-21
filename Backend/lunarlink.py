@@ -165,6 +165,12 @@ def parse_lunarlink_json_data(unparsed_data, tss_data):
 
     return copy_tss
 
+def lunarlink_string(tss_data):
+    result = ""
+    for key in tss_data:
+        result = result + key + ": " + tss_data[key] + "\n"
+    return result
+
 def send_lunarlink_data(tss_data, pin_data):
     rover_telemetry = tss_data.get("ROVER_TELEMETRY", {})
     rover_position = tss_data.get("ROVER")
