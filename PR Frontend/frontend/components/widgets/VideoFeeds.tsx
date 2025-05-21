@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Sliders } from "lucide-react";
+import { ImageWithFallback } from "../ImageWithFallback";
 
 export default function VideoFeeds() {
   const [selectedFeed, setSelectedFeed] = useState<"ltv" | "eva1" | "eva2">(
@@ -57,7 +58,11 @@ export default function VideoFeeds() {
 
       <div className="flex-1 flex items-center justify-center bg-gray-700">
         <div className="text-gray-400 text-sm">
-          <img src={dataFeeds[selectedFeed]} />
+          <ImageWithFallback
+            src={dataFeeds[selectedFeed]}
+            alt="Image not found"
+            fallbackSrc="/videos/no-signal.gif"
+          />
         </div>
       </div>
     </div>
