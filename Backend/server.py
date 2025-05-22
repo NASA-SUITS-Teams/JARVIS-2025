@@ -121,7 +121,7 @@ tts = TTS("tts_models/en/vctk/vits")
 audio = Audio()
 audio.listen = True
 
-model = WhisperModel("small", compute_type="float32")
+model = WhisperModel("small", compute_type="float32", local_files_only=True)
 openwakeword.utils.download_models()
 
 owwModel = openwakeword.Model(
@@ -157,6 +157,7 @@ def stream_response():
     prompt = data.get("input")
 
     audio.listen = False
+    chatbot.mission_info = str(tss_data)
 
     def generate():
         try:
