@@ -3,7 +3,7 @@ import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
 import { Terminal, Music4Icon, Send, Trash2, Pencil, Settings, MessageSquare, OctagonX } from "lucide-react";
-import { abortChat, askLLM, syncFromBackend, syncSettingsFromBackend, syncSettingsToBackend, syncToBackend } from "@/hooks/useLLM";
+import { abortChat, askLLM, stopListeningWhisper, syncFromBackend, syncSettingsFromBackend, syncSettingsToBackend, syncToBackend } from "@/hooks/useLLM";
 import { io } from "socket.io-client";
 import { FUNCTIONS_CONFIG_MANIFEST } from "next/dist/shared/lib/constants";
 import { useAPI } from "@/hooks/useAPI";
@@ -51,6 +51,7 @@ export default function LLMWidget() {
 
   const stopListening = () => {
     SpeechRecognition.stopListening();
+    stopListeningWhisper();
   };
 
 
@@ -58,13 +59,17 @@ export default function LLMWidget() {
 
 
   useEffect(() => {
-  const socket = io("http://localhost:8282");
+    //const socket = io("http://localhost:8282");
+    const socket = io("http://localhost:8282", {
+      transports: ["websocket", "polling"], // ensures fallback works
+    });
 
     socket.on("connect", () => {
       console.log("Connected to WebSocket server");
     });
 
     socket.on("activation", (event) => {
+      console.log(event);
       if (event.data === "Listening") {
         setIsListening(true);
       } else {
@@ -75,6 +80,10 @@ export default function LLMWidget() {
 
     socket.on("disconnect", () => {
       console.log("Disconnected from server");
+    });
+
+    socket.onAny((event, ...args) => {
+      console.log(`Received event [${event}]:`, args);
     });
 
     return () => {
