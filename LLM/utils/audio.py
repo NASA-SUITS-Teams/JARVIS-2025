@@ -29,6 +29,8 @@ class Audio:
         self.recognizer = sr.Recognizer()
         self.energy_threshold = self.calibrate_recognizer()
 
+        self.isListening = False
+
     def audio_callback(self, indata, frames, time_info, status):
         self.audio_q.append(indata.copy())
 
@@ -67,22 +69,17 @@ class Audio:
 
         recorded = []
 
-        started_speaking = False
+        start_time = time.time()
+        silence_start = time.time()
 
+        self.isListening = True
         while True:
+            if self.isListening == False:
+                break
+
             chunk = self.pop_audio_q()
 
             amplitude = np.abs(chunk).mean()
-            if amplitude > self.energy_threshold and not started_speaking:
-                started_speaking = True
-                start_time = time.time()
-                silence_start = time.time()
-
-                if DEBUG:
-                    print("User started speaking")
-
-            if not started_speaking:
-                continue
 
             recorded.append(chunk)
 
@@ -103,7 +100,11 @@ class Audio:
                 if DEBUG:
                     print("Max record time reached.")
                 break
+        self.isListening = False
 
+        recorded = np.array(recorded)
+        if recorded.size == 0:
+            return recorded
         return np.concatenate(recorded, axis=0)
 
     def get_text_from_audio(self, audio_data, transcribe_model):

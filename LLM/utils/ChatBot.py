@@ -38,6 +38,7 @@ class ChatBot:
         self.rag_info = "None"
         self.context_k = 3
         self.message_k = 2
+        self.mission_info = ""
         if self.use_rag:
             self.vectorstore = load_vectorstore()
             self.client = chromadb.Client()
@@ -106,7 +107,8 @@ class ChatBot:
         mission_info += "Point A: (-5855.60, -10168.60)\n"
         mission_info += "Point B: (-5868.10, -10016.10)\n"
         mission_info += "Point C: (-5745.90, -9977.30)\n"
-        mission_info += "Home base: (-5663.40, -10094.30)"
+        mission_info += "Home base: (-5663.40, -10094.30)\n"
+        mission_info += self.mission_info
         system_messages.append({"role": "user", "content": mission_info})
 
         if self.use_tools:

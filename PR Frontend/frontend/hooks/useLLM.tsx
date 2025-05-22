@@ -64,7 +64,16 @@ export const syncSettingsFromBackend = async (): Promise<Record<string, string>>
 };
 
 export const abortChat = async () => {
-  const res = await fetch("http://localhost:8282/abort_chat", {
+  await fetch("http://localhost:8282/abort_chat", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    }
+  });
+};
+
+export const stopListeningWhisper = async () => {
+  await fetch("http://localhost:8282/stop_listening", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
