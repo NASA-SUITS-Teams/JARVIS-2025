@@ -299,8 +299,8 @@ export default function LLMWidget() {
   const [useTools, setUseTools] = useState(true);
   const [useThinking, setUseThinking] = useState(false);
   const [enableAudio, setEnableAudio] = useState(false);
-  const [contextK, setContextK] = useState(5);
-  const [messageK, setMessageK] = useState(5);
+  const [contextK, setContextK] = useState(3);
+  const [messageK, setMessageK] = useState(2);
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -317,7 +317,7 @@ export default function LLMWidget() {
 
 
   const changeAudioThreshold = (newValue: number) => {
-    const clamped = Math.min(100, Math.max(0, newValue));
+    const clamped = Math.min(101, Math.max(0, newValue));
     setAudioThreshold(clamped);
   };
 
@@ -562,7 +562,7 @@ export default function LLMWidget() {
                 <input
                   type="range"
                   min={0}
-                  max={100}
+                  max={101}
                   value={audioThreshold}
                   onChange={(e) => changeAudioThreshold(Number(e.target.value))}
                   className="w-full"
@@ -570,7 +570,7 @@ export default function LLMWidget() {
                 <input
                   type="number"
                   min={0}
-                  max={100}
+                  max={101}
                   value={audioThreshold}
                   onChange={(e) => changeAudioThreshold(Number(e.target.value))}
                   className="w-16 border px-2 py-1 rounded"
@@ -680,7 +680,7 @@ export default function LLMWidget() {
 
             <div className="border rounded-xl p-4 shadow-md bg-gray w-full">
               <p className="text-sm font-medium mb-2">
-                RAG Chunks from Context (default: 5)
+                RAG Chunks from Context (default: 3)
               </p>
               <div className="flex items-center space-x-4">
                 <input
@@ -696,7 +696,7 @@ export default function LLMWidget() {
 
             <div className="border rounded-xl p-4 shadow-md bg-gray w-full">
               <p className="text-sm font-medium mb-2">
-                RAG Chunks from Message (default: 5)
+                RAG Chunks from Message (default: 2)
               </p>
               <div className="flex items-center space-x-4">
                 <input
