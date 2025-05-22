@@ -19,6 +19,7 @@ import ResourceConsumption from "@/components/widgets/ResourceConsumption";
 import Procedures from "@/components/widgets/Procedures";
 import Timer from "@/components/widgets/Timer";
 import VideoFeeds from "@/components/widgets/VideoFeeds";
+import BatteryLevel from "@/components/widgets/BatteryLevel";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -33,6 +34,8 @@ const roverLayout: Layout[] = [
   { i: "resourceConsumption", x: 2, y: 4, w: 2, h: 2 },
   { i: "roverControls", x: 0, y: 4, w: 2, h: 2 },
   { i: "timer", x: 2, y: 5, w: 2, h: 2 },
+  { i: "BL", x: 2, y: 6, w: 2, h: 3 },
+
 ];
 
 const evaLayout: Layout[] = [
@@ -46,6 +49,8 @@ const evaLayout: Layout[] = [
   { i: "procedures", x: 2, y: 5, w: 2, h: 2 },
   { i: "roverControls", x: 0, y: 4, w: 2, h: 2 },
   { i: "resourceConsumption", x: 2, y: 4, w: 2, h: 2 },
+  { i: "BL", x: 2, y: 6, w: 2, h: 3 },
+
 ];
 
 export default function Home() {
@@ -186,6 +191,12 @@ export default function Home() {
             </div>
             <div key="timer">
               <Timer tssData={tssData} />
+            </div>
+            <div key="BL">
+              <BatteryLevel 
+                tssData={tssData} 
+                historicalData={historicalData}
+              />
             </div>
           </ResponsiveGridLayout>
         </div>
