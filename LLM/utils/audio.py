@@ -35,9 +35,6 @@ class Audio:
         self.audio_q.append(indata.copy())
 
     def pop_audio_q(self):
-        if not self.stream.active:
-            self.stream.start()
-
         i = 0
         while len(self.audio_q) == 0:
             i += 1

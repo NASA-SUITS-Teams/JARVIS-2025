@@ -146,6 +146,7 @@ def say_and_block_audio(tts, text):
         time.sleep(0.1) 
 
     audio.listen = True
+    audio.stream.start()
 
     audio.audio_q.clear()
     owwModel.reset()
@@ -290,6 +291,8 @@ event_queue = queue.Queue()
 
 def listen():
     print("Starting listen thread...")
+    audio.stream.start()
+
     while not stop_event.is_set():
         chunk = audio.pop_audio_q()
         if chunk is None or not audio.listen:
@@ -299,7 +302,6 @@ def listen():
 
         if prediction.get("hey jarvis", 0) > (audio_threshold / 100):
             print("Hey Jarvis detected")
-            audio.stream.stop()
 
             sound = pygame.mixer.Sound("audio/activate.wav")
             sound.play()
