@@ -22,7 +22,12 @@ function headingDiff(roverHeading: number, path: [number, number][]) {
   let diff = pathHeading - roverHeading;
   if (diff > 180) diff -= 360;
   if (diff < -180) diff += 360;
-  return 180 - diff;
+
+  let new_diff = (180 - diff) % 360;
+  if (new_diff > 180) new_diff -= 360;
+  if (new_diff < -180) new_diff += 360;
+
+  return new_diff;
 }
 
 export default function Heading({ tssData, pathData }: Props) {
@@ -56,9 +61,14 @@ export default function Heading({ tssData, pathData }: Props) {
         </div>
 
         {/* Numeric readout */}
-        <div className="mt-2 text-sm text-gray-300">
-          {diffDeg >= 0 ? "+" : ""}
-          {diffDeg.toFixed(0)}°
+        <div className="text-sm text-gray-300 flex flex-col items-center justify-center mt-4">
+          <span>
+            {diffDeg >= 0 ? "+" : ""}
+            {diffDeg.toFixed(0)}°
+          </span>
+          <span>
+            {diffDeg > 0 ? "Steer left" : diffDeg < 0 ? " Steer right" : ""}
+          </span>
         </div>
       </div>
     </div>
