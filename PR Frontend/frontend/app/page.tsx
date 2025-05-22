@@ -19,11 +19,13 @@ import ResourceConsumption from "@/components/widgets/ResourceConsumption";
 import Procedures from "@/components/widgets/Procedures";
 import Timer from "@/components/widgets/Timer";
 import VideoFeeds from "@/components/widgets/VideoFeeds";
+import Heading from "@/components/widgets/Heading";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
 const roverLayout: Layout[] = [
   { i: "map", x: 0, y: 0, w: 3, h: 3 },
+  { i: "heading", x: 3, y: 0, w: 2, h: 2 },
   { i: "alerts", x: 3, y: 0, w: 2, h: 3 },
   { i: "scanData", x: 4, y: 4, w: 1, h: 3 },
   { i: "procedures", x: 3, y: 3, w: 2, h: 2 },
@@ -38,6 +40,7 @@ const roverLayout: Layout[] = [
 const evaLayout: Layout[] = [
   { i: "map", x: 0, y: 0, w: 3, h: 3 },
   { i: "alerts", x: 3, y: 0, w: 1, h: 3 },
+  { i: "heading", x: 0, y: 8, w: 2, h: 2 },
   { i: "scanData", x: 4, y: 0, w: 1, h: 3 },
   { i: "timer", x: 3, y: 3, w: 2, h: 2 },
   { i: "mapToggles", x: 2, y: 3, w: 1, h: 2 },
@@ -153,6 +156,9 @@ export default function Home() {
                 historicalData={historicalData}
                 addPinClicked={addPinClicked}
               />
+            </div>
+            <div key="heading">
+              <Heading tssData={tssData} pathData={pathData}/>
             </div>
             <div key="alerts">
               <Alerts tssData={tssData} />
