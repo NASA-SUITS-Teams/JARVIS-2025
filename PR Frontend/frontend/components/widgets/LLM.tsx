@@ -9,6 +9,8 @@ import { FUNCTIONS_CONFIG_MANIFEST } from "next/dist/shared/lib/constants";
 import { useAPI } from "@/hooks/useAPI";
 
 export default function LLMWidget() {
+  const DEMO: boolean = false;
+
   const [response, setResponse] = useState("");
   const [isSendEnabled, setIsSendEnabled] = useState(true);
   const [showingSettings, setShowingSettings] = useState(false);
@@ -98,7 +100,44 @@ export default function LLMWidget() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
 
   useEffect(() => {
-    syncFromBackend().then(setMessages);
+    async function init() {
+      if (!DEMO) {
+        syncFromBackend().then(setMessages);
+      } else {
+        setMessages([
+          { role: 'user', content: "Hey Jarvis, unfortunately we can't run an LLM for the live demo because it would be expensive to keep it up for multiple people. However, could you describe some of your cool features?" },
+          {
+            role: 'assistant', content: `Sure, here are some of my cool features:
+
+- I can help with system operations and assist astronauts with various tasks.
+- I can provide information on different widgets like the MAP TOGGLES, ROVER PROCEDURES, RESOURCE CONSUMPTION, SCAN DATA, and ROVER CONTROLS.
+- I can convert audio to text and text to audio for easier accessability.
+- I can retrieve relevant information from documents to provide appropriate responses.
+- I can recommend function calls to aid the user.` },
+          { role: 'user', content: "Can you verify if the battery level is above ninety-five percent?" },
+          { role: 'assistant', content: "I can check the battery level. The battery level is 100%." },
+          { role: 'user', content: "Can you drop a pin at point A?" },
+          {
+            role: 'assistant', content: `Yes, I can drop a pin at point A. Here is the function call to do that.
+
+<functions>
+add_pin(x=-5855.60, y=-10168.60)
+</functions>` }
+        ]);
+
+        const fnCall = {
+          function_name: "add_pin",
+          args: {
+            x: "-5855.60",
+            'y': "-10168.60"
+          }
+        };
+
+        await waitForUserConfirmation(fnCall);
+      }
+    }
+
+    init();
   }, []);
 
 
@@ -107,6 +146,16 @@ export default function LLMWidget() {
   const handleSend = async (transcriptOverride?: string) => {
     const userMessage = (transcriptOverride ?? editableTranscript).trim();
     if (!userMessage) return;
+
+    if (DEMO) {
+      setEditableTranscript("");
+      setMessages(prev => [
+        ...prev,
+        { role: 'user', content: userMessage },
+        { role: 'assistant', content: "The AI assistant isn't available in this demo. Please look at the chat history for examples of Jarvis's functionality!" }
+      ]);
+      return;
+    }
 
     setIsSendEnabled(false);
     syncToBackend(messages);
@@ -430,12 +479,7 @@ export default function LLMWidget() {
                 <input
                   className="w-full p-2 rounded-md bg-gray-800 border border-blue-500 text-white"
                   value={activeFunctionEdit.function_name}
-                  onChange={(e) =>
-                    setActiveFunctionEdit({
-                      ...activeFunctionEdit,
-                      function_name: e.target.value,
-                    })
-                  }
+                  disabled
                 />
               </div>
 
